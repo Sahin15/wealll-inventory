@@ -8,6 +8,7 @@ import {
   ArrowRightLeft, 
   ShoppingCart, 
   Receipt,
+  Users,
   LogOut
 } from 'lucide-react';
 
@@ -24,13 +25,14 @@ const DashboardLayout = () => {
   }
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Categories', href: '/categories', icon: Tags },
-    { name: 'Products', href: '/products', icon: Package },
-    { name: 'Stock', href: '/stock', icon: ArrowRightLeft },
-    { name: 'Purchases', href: '/purchases', icon: ShoppingCart },
-    { name: 'Sales', href: '/sales', icon: Receipt },
-  ];
+    { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Categories', href: '/categories', icon: Tags, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Products', href: '/products', icon: Package, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Stock', href: '/stock', icon: ArrowRightLeft, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Purchases', href: '/purchases', icon: ShoppingCart, roles: ['admin', 'manager'] },
+    { name: 'Sales', href: '/sales', icon: Receipt, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Team', href: '/team', icon: Users, roles: ['admin', 'manager'] },
+  ].filter(item => item.roles.includes(user.role));
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

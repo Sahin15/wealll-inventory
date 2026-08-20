@@ -17,6 +17,7 @@ app.use('/api/purchases', require('./routes/purchaseRoutes'));
 app.use('/api/sales', require('./routes/saleRoutes'));
 app.use('/api/stock', require('./routes/stockRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {

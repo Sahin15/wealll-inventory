@@ -9,6 +9,7 @@ import Products from './pages/products/Products';
 import Stock from './pages/stock/Stock';
 import Purchases from './pages/purchases/Purchases';
 import Sales from './pages/sales/Sales';
+import Team from './pages/settings/Team';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/stock" element={<Stock />} />
           <Route path="/purchases" element={<Purchases />} />
           <Route path="/sales" element={<Sales />} />
+          <Route path="/team" element={<Team />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />
