@@ -16,8 +16,12 @@ const saleSchema = new mongoose.Schema({
   subtotal: { type: Number, required: true, min: 0 },
   discount: { type: Number, default: 0, min: 0 },
   total: { type: Number, required: true, min: 0 },
-  paymentStatus: { type: String, enum: ['PAID', 'UNPAID', 'PARTIAL'], default: 'PAID' },
+  paymentStatus: { type: String, enum: ['PAID', 'PENDING', 'PARTIAL'], default: 'PAID' },
   notes: { type: String },
+  status: { type: String, enum: ['COMPLETED', 'VOIDED'], default: 'COMPLETED' },
+  voidedAt: { type: Date },
+  voidedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  voidReason: { type: String },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 

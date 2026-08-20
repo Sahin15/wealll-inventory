@@ -59,3 +59,51 @@ exports.createPurchase = async (req, res) => {
     res.status(400).json({ success: false, error: error.message || 'Error creating purchase' });
   }
 };
+
+exports.voidPurchase = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { voidReason } = req.body;
+    if (!voidReason) return res.status(400).json({ success: false, error: 'Void reason is required' });
+
+    const purchase = await Purchase.findOne({ _id: req.params.id, tenantId: req.user.tenantId }).session(session);
+    if (!purchase) throw new Error('Purchase not found');
+    if (purchase.status === 'VOIDED') throw new Error('This transaction has already been voided.');
+
+    for (const item of purchase.items) {
+      const product = await Product.findOne({ _id: item.productId, tenantId: req.user.tenantId }).session(session);
+      if (!product) throw new Error(`Product not found: ${item.productId}`);
+
+      product.currentStock -= item.quantity;
+      await product.save({ session });
+
+      const movement = new StockMovement({
+        tenantId: req.user.tenantId,
+        productId: item.productId,
+        type: 'OUT',
+        quantity: item.quantity,
+        referenceType: 'PURCHASE_VOID',
+        referenceId: purchase._id,
+        note: `Voided Purchase from ${purchase.supplierName}, Invoice: ${purchase.invoiceNumber} - Reason: ${voidReason}`,
+        createdBy: req.user.userId
+      });
+      await movement.save({ session });
+    }
+
+    purchase.status = 'VOIDED';
+    purchase.voidedAt = new Date();
+    purchase.voidedBy = req.user.userId;
+    purchase.voidReason = voidReason;
+    await purchase.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+    res.json({ success: true, data: purchase });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(400).json({ success: false, error: error.message || 'Error voiding purchase' });
+  }
+};

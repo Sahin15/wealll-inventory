@@ -5,7 +5,7 @@ const stockMovementSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   type: { type: String, enum: ['IN', 'OUT', 'ADJUSTMENT'], required: true },
   quantity: { type: Number, required: true },
-  referenceType: { type: String, enum: ['PURCHASE', 'SALE', 'MANUAL'], required: true },
+  referenceType: { type: String, enum: ['PURCHASE', 'SALE', 'MANUAL', 'PURCHASE_VOID', 'SALE_VOID'], required: true },
   referenceId: { type: mongoose.Schema.Types.ObjectId },
   note: { type: String },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }

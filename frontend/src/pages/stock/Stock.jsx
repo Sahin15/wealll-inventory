@@ -65,7 +65,7 @@ const Stock = () => {
                       {new Date(m.createdAt).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {m.product?.name || 'Unknown Product'}
+                      {m.productId?.name || 'Unknown Product'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getTypeBadge(m.type)}
@@ -74,10 +74,10 @@ const Stock = () => {
                       {m.type === 'IN' ? '+' : (m.type === 'OUT' ? '-' : '')}{m.quantity}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {m.reference}
+                      {m.referenceType}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {m.notes || '-'}
+                      {m.note || '-'}
                     </td>
                   </tr>
                 ))}

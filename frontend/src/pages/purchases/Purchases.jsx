@@ -5,6 +5,12 @@ const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Void State
+  const [voidModalPurchase, setVoidModalPurchase] = useState(null);
+  const [viewModalPurchase, setViewModalPurchase] = useState(null);
+  const [voidReason, setVoidReason] = useState('');
+  const [revealId, setRevealId] = useState(null);
 
   // Form State
   const [showForm, setShowForm] = useState(false);
@@ -42,14 +48,21 @@ const Purchases = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const quantity = Number(formData.quantity);
+      const unitCost = Number(formData.unitCost);
+      const itemTotal = quantity * unitCost;
+
       const payload = {
         invoiceNumber: formData.invoiceNumber,
         supplierName: formData.supplierName,
+        subtotal: itemTotal,
+        total: itemTotal,
         items: [
           {
             productId: formData.productId,
-            quantity: Number(formData.quantity),
-            unitCost: Number(formData.unitCost)
+            quantity: quantity,
+            purchasePrice: unitCost,
+            total: itemTotal
           }
         ]
       };
@@ -67,6 +80,19 @@ const Purchases = () => {
       fetchData();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to record purchase');
+    }
+  };
+
+  const handleVoid = async (e) => {
+    e.preventDefault();
+    if (!voidReason.trim()) return alert('Void reason is required');
+    try {
+      await api.post(`/purchases/${voidModalPurchase._id}/void`, { voidReason });
+      setVoidModalPurchase(null);
+      setVoidReason('');
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to void purchase');
     }
   };
 
@@ -130,7 +156,7 @@ const Purchases = () => {
         ) : purchases.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No purchases recorded yet.</div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[16rem]">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -139,6 +165,8 @@ const Purchases = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -161,7 +189,51 @@ const Purchases = () => {
                       ))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                      ₹{purchase.totalAmount.toFixed(2)}
+                      ₹{purchase.total?.toFixed(2) || '0.00'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        purchase.status === 'VOIDED' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {purchase.status || 'COMPLETED'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {(purchase.status !== 'VOIDED') && (
+                        <div className="relative inline-block text-left">
+                          <button 
+                            onClick={() => setRevealId(revealId === purchase._id ? null : purchase._id)} 
+                            className="inline-flex justify-center items-center rounded-md border border-gray-300 shadow-sm px-3 py-1.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            Action
+                            <svg className="-mr-1 ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                          {revealId === purchase._id && (
+                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                              <button 
+                                onClick={() => {
+                                  setViewModalPurchase(purchase);
+                                  setRevealId(null);
+                                }} 
+                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              >
+                                View Details
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  setVoidModalPurchase(purchase);
+                                  setRevealId(null);
+                                }} 
+                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                              >
+                                Void Transaction
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -170,6 +242,68 @@ const Purchases = () => {
           </div>
         )}
       </div>
+
+      {voidModalPurchase && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Void Transaction?</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              This will reverse the inventory changes made by this transaction (Invoice: {voidModalPurchase.invoiceNumber}).
+            </p>
+            <form onSubmit={handleVoid}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Reason</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={voidReason} 
+                  onChange={e => setVoidReason(e.target.value)} 
+                  className="input-field mt-1" 
+                  placeholder="e.g. Incorrect quantity entered"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button type="button" onClick={() => setVoidModalPurchase(null)} className="btn-primary bg-gray-500 hover:bg-gray-600">Cancel</button>
+                <button type="submit" className="btn-primary bg-red-600 hover:bg-red-700">Void Transaction</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {viewModalPurchase && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Purchase Details</h3>
+              <button onClick={() => setViewModalPurchase(null)} className="text-gray-400 hover:text-gray-500 text-2xl">&times;</button>
+            </div>
+            <div className="space-y-3 text-sm text-gray-700">
+              <p><strong className="text-gray-900">Invoice:</strong> {viewModalPurchase.invoiceNumber}</p>
+              <p><strong className="text-gray-900">Supplier:</strong> {viewModalPurchase.supplierName}</p>
+              <p><strong className="text-gray-900">Date:</strong> {new Date(viewModalPurchase.purchaseDate).toLocaleString()}</p>
+              <p><strong className="text-gray-900">Status:</strong> {viewModalPurchase.status || 'COMPLETED'}</p>
+              {viewModalPurchase.voidReason && (
+                <p><strong className="text-gray-900 text-red-600">Void Reason:</strong> {viewModalPurchase.voidReason}</p>
+              )}
+              <div className="mt-4 border-t pt-4">
+                <h4 className="font-medium text-gray-900 mb-2">Items:</h4>
+                <ul className="list-disc pl-5 space-y-1">
+                  {viewModalPurchase.items.map((item, idx) => (
+                    <li key={idx}>
+                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ ₹{item.purchasePrice} = ₹{item.total}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: ₹{viewModalPurchase.total.toFixed(2)}</p>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button onClick={() => setViewModalPurchase(null)} className="btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

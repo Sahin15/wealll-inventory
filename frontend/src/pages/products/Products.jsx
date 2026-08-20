@@ -6,6 +6,7 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '', sku: '', categoryId: '', purchasePrice: '', sellingPrice: '', minimumStock: ''
@@ -33,15 +34,36 @@ const Products = () => {
     fetchData();
   }, []);
 
-  const handleAdd = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/products', formData);
-      setFormData({ name: '', sku: '', categoryId: categories[0]?._id || '', purchasePrice: '', sellingPrice: '', minimumStock: '' });
+      if (editingId) {
+        await api.put(`/products/${editingId}`, formData);
+      } else {
+        await api.post('/products', formData);
+      }
+      handleCancel();
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to add product');
+      alert(err.response?.data?.error || 'Failed to save product');
     }
+  };
+
+  const handleEdit = (prod) => {
+    setEditingId(prod._id);
+    setFormData({
+      name: prod.name,
+      sku: prod.sku,
+      categoryId: prod.categoryId?._id || '',
+      purchasePrice: prod.purchasePrice,
+      sellingPrice: prod.sellingPrice,
+      minimumStock: prod.minimumStock
+    });
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setFormData({ name: '', sku: '', categoryId: categories[0]?._id || '', purchasePrice: '', sellingPrice: '', minimumStock: '' });
   };
 
   return (
@@ -53,8 +75,8 @@ const Products = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
           <div className="card p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Add Product</h3>
-            <form onSubmit={handleAdd} className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{editingId ? 'Edit Product' : 'Add Product'}</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
                 <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field mt-1" />
@@ -83,7 +105,14 @@ const Products = () => {
                 <label className="block text-sm font-medium text-gray-700">Min Stock</label>
                 <input type="number" required value={formData.minimumStock} onChange={e => setFormData({...formData, minimumStock: e.target.value})} className="input-field mt-1" />
               </div>
-              <button type="submit" className="btn-primary w-full">Save</button>
+              <div className="flex space-x-2">
+                <button type="submit" className="btn-primary flex-1">{editingId ? 'Update' : 'Save'}</button>
+                {editingId && (
+                  <button type="button" onClick={handleCancel} className="btn-primary bg-gray-500 hover:bg-gray-600 flex-1">
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -112,6 +141,7 @@ const Products = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -130,6 +160,11 @@ const Products = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">₹{prod.sellingPrice.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button onClick={() => handleEdit(prod)} className="text-indigo-600 hover:text-indigo-900">
+                            Edit
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
