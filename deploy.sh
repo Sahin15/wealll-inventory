@@ -8,7 +8,7 @@
 
 # Set variables
 BRANCH=${1:-main} # Default to 'main' if no branch is specified
-PM2_PROCESS_NAME="wealll-backend" # Change this if your PM2 process is named differently
+PM2_PROCESS_NAME="wealll-inventory-backend" # Change this if your PM2 process is named differently
 
 echo "=========================================="
 echo "🚀 Starting Deployment for branch: $BRANCH"
