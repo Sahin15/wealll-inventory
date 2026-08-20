@@ -4,6 +4,7 @@ import api from '../../services/api';
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -88,6 +89,15 @@ const Products = () => {
         </div>
         
         <div className="md:col-span-2">
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search products by name or SKU..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field w-full md:w-1/2"
+            />
+          </div>
           <div className="card overflow-hidden">
             {loading ? (
               <div className="p-6 text-center text-gray-500">Loading...</div>
@@ -105,7 +115,9 @@ const Products = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {products.map((prod) => (
+                    {products
+                      .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+                      .map((prod) => (
                       <tr key={prod._id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{prod.name}</div>

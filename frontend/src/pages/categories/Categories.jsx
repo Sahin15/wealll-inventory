@@ -5,6 +5,7 @@ const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchCategories = async () => {
@@ -72,6 +73,15 @@ const Categories = () => {
         </div>
         
         <div className="md:col-span-2">
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field w-full md:w-1/2"
+            />
+          </div>
           <div className="card overflow-hidden">
             {loading ? (
               <div className="p-6 text-center text-gray-500">Loading...</div>
@@ -86,7 +96,9 @@ const Categories = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {categories.map((cat) => (
+                  {categories
+                    .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((cat) => (
                     <tr key={cat._id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cat.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{cat.description}</td>
