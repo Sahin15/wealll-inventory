@@ -24,6 +24,10 @@ const DashboardLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  if (user.role === 'superadmin') {
+    return <Navigate to="/wealll-admin" replace />;
+  }
+
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'manager', 'staff'] },
     { name: 'Categories', href: '/categories', icon: Tags, roles: ['admin', 'manager', 'staff'] },

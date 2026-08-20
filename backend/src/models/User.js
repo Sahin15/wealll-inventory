@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  tenantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
+  tenantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: false, index: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'manager', 'staff'], default: 'staff' },
+  role: { type: String, enum: ['superadmin', 'admin', 'manager', 'staff'], default: 'staff' },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' }
 }, { timestamps: true });
 

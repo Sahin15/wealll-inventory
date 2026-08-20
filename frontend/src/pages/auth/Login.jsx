@@ -15,8 +15,12 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/');
+      const user = await login(email, password);
+      if (user.role === 'superadmin') {
+        navigate('/wealll-admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to login');
     } finally {

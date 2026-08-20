@@ -18,6 +18,7 @@ app.use('/api/sales', require('./routes/saleRoutes'));
 app.use('/api/stock', require('./routes/stockRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/superadmin', require('./routes/superAdminRoutes'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {
