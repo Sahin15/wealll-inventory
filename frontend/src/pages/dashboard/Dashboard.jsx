@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Package, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
+import { Package, TrendingUp, IndianRupee, AlertTriangle } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -53,7 +53,7 @@ const Dashboard = () => {
             <div className="card p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <DollarSign className="h-6 w-6 text-gray-400" />
+                  <IndianRupee className="h-6 w-6 text-gray-400" />
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
