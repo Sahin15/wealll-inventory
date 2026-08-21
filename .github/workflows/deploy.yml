@@ -17,6 +17,6 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/inventory-wealll || cd /var/www/inventory-wealll
+            cd ~/wealll-inventory || cd /var/www/wealll-inventory
             chmod +x deploy.sh
             ./deploy.sh main
