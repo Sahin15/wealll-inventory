@@ -93,7 +93,7 @@ const Analytics = () => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="date" tick={{fontSize: 12}} />
                 <YAxis tick={{fontSize: 12}} />
-                <Tooltip formatter={(value) => [,1$value, 'Revenue']} />
+                <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
                 <Legend />
                 <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#4f46e5" strokeWidth={2} activeDot={{ r: 8 }} />
               </LineChart>
@@ -125,4 +125,5 @@ const Analytics = () => {
 };
 
 export default Analytics;
+
 
