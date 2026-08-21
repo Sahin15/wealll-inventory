@@ -20,6 +20,7 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/superadmin', require('./routes/superAdminRoutes'));
+app.use('/api/tenants', require('./routes/tenantRoutes'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2 } from 'lucide-react';
 import api from '../../services/api';
+import { formatCurrency } from '../../utils/currency';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -93,11 +95,11 @@ const Products = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Purchase ₹</label>
+                  <label className="block text-sm font-medium text-gray-700">Purchase Price (₹)</label>
                   <input type="number" step="0.01" required value={formData.purchasePrice} onChange={e => setFormData({...formData, purchasePrice: e.target.value})} className="input-field mt-1" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Selling ₹</label>
+                  <label className="block text-sm font-medium text-gray-700">Selling Price (₹)</label>
                   <input type="number" step="0.01" required value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} className="input-field mt-1" />
                 </div>
               </div>
@@ -159,7 +161,7 @@ const Products = () => {
                             {prod.currentStock}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">₹{prod.sellingPrice.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{formatCurrency(prod.sellingPrice)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button onClick={() => handleEdit(prod)} className="text-indigo-600 hover:text-indigo-900">
                             Edit

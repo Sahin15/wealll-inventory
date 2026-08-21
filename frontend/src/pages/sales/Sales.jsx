@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Plus, Eye } from 'lucide-react';
 import api from '../../services/api';
+import { formatCurrency } from '../../utils/currency';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
@@ -199,7 +201,7 @@ const Sales = () => {
                       ))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                      ₹{sale.total.toFixed(2)}
+                      {formatCurrency(sale.total)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -301,14 +303,14 @@ const Sales = () => {
                 <ul className="list-disc pl-5 space-y-1">
                   {viewModalSale.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ ₹{item.unitPrice} 
-                      {item.discount > 0 && ` (-₹${item.discount} disc)`} 
-                      = ₹{item.unitPrice * item.quantity - item.discount}
+                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ {formatCurrency(item.unitPrice)} 
+                      {item.discount > 0 && ` (-${formatCurrency(item.discount)} disc)`} 
+                      = {formatCurrency(item.unitPrice * item.quantity - item.discount)}
                     </li>
                   ))}
                 </ul>
               </div>
-              <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: ₹{viewModalSale.total.toFixed(2)}</p>
+              <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: {formatCurrency(viewModalSale.total)}</p>
             </div>
             <div className="mt-6 flex justify-end">
               <button onClick={() => setViewModalSale(null)} className="btn-primary">Close</button>

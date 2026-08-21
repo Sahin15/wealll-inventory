@@ -9,7 +9,8 @@ import {
   ShoppingCart, 
   Receipt,
   Users,
-  LogOut
+  LogOut,
+  Settings
 } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -37,6 +38,7 @@ const DashboardLayout = () => {
     { name: 'Purchases', href: '/purchases', icon: ShoppingCart, roles: ['admin', 'manager'] },
     { name: 'Sales', href: '/sales', icon: Receipt, roles: ['admin', 'manager', 'staff'] },
     { name: 'Team', href: '/team', icon: Users, roles: ['admin', 'manager'] },
+    { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin'] },
   ].filter(item => item.roles.includes(user.role));
 
   return (

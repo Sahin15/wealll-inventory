@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Plus, Eye } from 'lucide-react';
 import api from '../../services/api';
+import { formatCurrency } from '../../utils/currency';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -189,7 +191,7 @@ const Purchases = () => {
                       ))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                      ₹{purchase.total?.toFixed(2) || '0.00'}
+                      {formatCurrency(purchase.total)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -291,12 +293,12 @@ const Purchases = () => {
                 <ul className="list-disc pl-5 space-y-1">
                   {viewModalPurchase.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ ₹{item.purchasePrice} = ₹{item.total}
+                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ {formatCurrency(item.purchasePrice)} = {formatCurrency(item.total)}
                     </li>
                   ))}
                 </ul>
               </div>
-              <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: ₹{viewModalPurchase.total.toFixed(2)}</p>
+              <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: {formatCurrency(viewModalPurchase.total)}</p>
             </div>
             <div className="mt-6 flex justify-end">
               <button onClick={() => setViewModalPurchase(null)} className="btn-primary">Close</button>

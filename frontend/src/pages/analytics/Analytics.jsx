@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import { formatCurrency } from '../../utils/currency';
 import { 
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
@@ -93,7 +94,7 @@ const Analytics = () => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="date" tick={{fontSize: 12}} />
                 <YAxis tick={{fontSize: 12}} />
-                <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
+                <Tooltip formatter={(value) => [formatCurrency(value), 'Revenue']} />
                 <Legend />
                 <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#4f46e5" strokeWidth={2} activeDot={{ r: 8 }} />
               </LineChart>

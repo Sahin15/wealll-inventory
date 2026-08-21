@@ -12,6 +12,7 @@ import Stock from './pages/stock/Stock';
 import Purchases from './pages/purchases/Purchases';
 import Sales from './pages/sales/Sales';
 import Team from './pages/settings/Team';
+import BusinessSettings from './pages/settings/BusinessSettings';
 import TenantManager from './pages/superadmin/TenantManager';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/purchases" element={<Purchases />} />
           <Route path="/sales" element={<Sales />} />
           <Route path="/team" element={<Team />} />
+          <Route path="/settings" element={<BusinessSettings />} />
         </Route>
 
         <Route element={<SuperAdminLayout />}>

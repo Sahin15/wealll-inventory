@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Package, TrendingUp, IndianRupee, AlertTriangle } from 'lucide-react';
+import { formatCurrency } from '../../utils/currency';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -58,7 +59,7 @@ const Dashboard = () => {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Est. Stock Value</dt>
-                    <dd className="text-2xl font-semibold text-gray-900">₹{data.totalStockValue?.toFixed(2) || '0.00'}</dd>
+                    <dd className="text-2xl font-semibold text-gray-900">{formatCurrency(data.totalStockValue)}</dd>
                   </dl>
                 </div>
               </div>
@@ -72,7 +73,7 @@ const Dashboard = () => {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Today's Sales</dt>
-                    <dd className="text-2xl font-semibold text-gray-900">₹{data.todaySales?.toFixed(2) || '0.00'}</dd>
+                    <dd className="text-2xl font-semibold text-gray-900">{formatCurrency(data.todaySales)}</dd>
                   </dl>
                 </div>
               </div>
@@ -86,7 +87,7 @@ const Dashboard = () => {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Monthly Sales</dt>
-                    <dd className="text-2xl font-semibold text-gray-900">₹{data.monthlySales?.toFixed(2) || '0.00'}</dd>
+                    <dd className="text-2xl font-semibold text-gray-900">{formatCurrency(data.monthlySales)}</dd>
                   </dl>
                 </div>
               </div>
@@ -143,7 +144,7 @@ const Dashboard = () => {
                       <p className="text-sm text-gray-500">{new Date(sale.saleDate).toLocaleDateString()}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">₹{sale.total.toFixed(2)}</p>
+                      <p className="text-sm font-semibold text-gray-900">{formatCurrency(sale.total)}</p>
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                         {sale.paymentStatus}
                       </span>
