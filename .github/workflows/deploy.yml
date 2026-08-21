@@ -23,3 +23,18 @@ jobs:
             git reset --hard origin/main
             chmod +x deploy.sh
             ./deploy.sh main
+            
+            echo "Searching for the rogue web root..."
+            OLD_FILE=$(find /var/www /root /home -name "index-DYjwrKDD.js" 2>/dev/null | head -n 1)
+            if [ -n "$OLD_FILE" ]; then
+                WEB_ROOT=$(dirname $(dirname $OLD_FILE))
+                echo "FOUND IT! Web root is $WEB_ROOT"
+                rm -rf $WEB_ROOT/*
+                cp -r ~/wealll-inventory/frontend/dist/* $WEB_ROOT/
+                chown -R www-data:www-data $WEB_ROOT
+            else
+                # Fallback: aggressive copy to common places
+                cp -r ~/wealll-inventory/frontend/dist/* /var/www/html/ 2>/dev/null || true
+                cp -r ~/wealll-inventory/frontend/dist/* /var/www/inventory.wealll.com/ 2>/dev/null || true
+                cp -r ~/wealll-inventory/frontend/dist/* /var/www/wealll-inventory/frontend/dist/ 2>/dev/null || true
+            fi
