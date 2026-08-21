@@ -40,11 +40,17 @@ NGINX_CONF=$(grep -Rl "inventory.wealll.com" /etc/nginx/sites-enabled/ /etc/ngin
 if [ -n "$NGINX_CONF" ]; then
     WEB_ROOT=$(grep -E "^\s*root\s+" "$NGINX_CONF" | awk '{print $2}' | tr -d ';')
     if [ -n "$WEB_ROOT" ] && [ -d "$WEB_ROOT" ]; then
-        echo "? Found web root at $WEB_ROOT! Copying new frontend build..."
-        # Clean the directory first to remove old agency files
-        rm -rf $WEB_ROOT/*
-        cp -r frontend/dist/* $WEB_ROOT/
-        chown -R www-data:www-data $WEB_ROOT
+        # Check if the web root is the EXACT same directory as our local build folder
+        CURRENT_BUILD_DIR="$(pwd)/frontend/dist"
+        if [ "$WEB_ROOT" != "$CURRENT_BUILD_DIR" ]; then
+            echo "?? Found web root at $WEB_ROOT! Copying new frontend build..."
+            # Clean the directory first to remove old agency files
+            rm -rf $WEB_ROOT/*
+            cp -r frontend/dist/* $WEB_ROOT/
+            chown -R www-data:www-data $WEB_ROOT
+        else
+            echo "?? Web root is the same as the build directory. Skipping copy step."
+        fi
     else
         echo "??  Could not parse web root from $NGINX_CONF or it does not exist."
     fi
