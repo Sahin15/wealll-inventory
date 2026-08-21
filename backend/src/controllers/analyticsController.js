@@ -1,107 +1,126 @@
 const mongoose = require('mongoose');
 const Sale = require('../models/Sale');
 const Product = require('../models/Product');
-const Purchase = require('../models/Purchase');
 
-exports.getTrends = async (req, res) => {
+// @desc    Get dashboard analytics
+// @route   GET /api/analytics
+// @access  Private (Superadmin, Admin, Manager)
+exports.getAnalytics = async (req, res) => {
   try {
-    const { tenantId } = req.user;
+    const { startDate, endDate } = req.query;
+    const tenantId = req.user.tenantId;
     
-    // Group sales by date (last 30 days or so, for simplicity we group all)
-    const trends = await Sale.aggregate([
-      { $match: { tenantId: new mongoose.Types.ObjectId(tenantId) } },
+    // Default to last 30 days if no dates provided
+    const end = endDate ? new Date(endDate) : new Date();
+    const start = startDate ? new Date(startDate) : new Date(new Date().setDate(new Date().getDate() - 30));
+
+    const matchStage = {
+      tenantId: new mongoose.Types.ObjectId(tenantId),
+      status: 'COMPLETED',
+      saleDate: { $gte: start, $lte: end }
+    };
+
+    // 1. Get Key Metrics (Total Revenue, Total Sales Count)
+    const metrics = await Sale.aggregate([
+      { $match: matchStage },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          totalRevenue: { $sum: '$total' },
+          _id: null,
+          totalRevenue: { $sum: "$total" },
           totalSales: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // 2. Sales Trend (Revenue by day)
+    const salesTrend = await Sale.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$saleDate" } },
+          revenue: { $sum: "$total" },
+          orders: { $sum: 1 }
         }
       },
       { $sort: { _id: 1 } }
     ]);
 
-    res.json(trends);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching trends', error: error.message });
-  }
-};
-
-exports.getTopProducts = async (req, res) => {
-  try {
-    const { tenantId } = req.user;
-    
-    // Unwind products in sales and group by productId
+    // 3. Top Products by Quantity Sold
     const topProducts = await Sale.aggregate([
-      { $match: { tenantId: new mongoose.Types.ObjectId(tenantId) } },
-      { $unwind: '$products' },
+      { $match: matchStage },
+      { $unwind: "$items" },
       {
         $group: {
-          _id: '$products.product',
-          totalSold: { $sum: '$products.quantity' },
-          revenue: { $sum: { $multiply: ['$products.quantity', '$products.price'] } }
+          _id: "$items.productId",
+          quantitySold: { $sum: "$items.quantity" },
+          revenue: { $sum: "$items.total" }
         }
       },
-      { $sort: { totalSold: -1 } },
+      { $sort: { quantitySold: -1 } },
       { $limit: 5 },
       {
         $lookup: {
           from: 'products',
           localField: '_id',
           foreignField: '_id',
-          as: 'productDetails'
+          as: 'product'
         }
       },
-      { $unwind: '$productDetails' },
+      { $unwind: "$product" },
       {
         $project: {
-          name: '$productDetails.name',
-          totalSold: 1,
+          _id: 1,
+          name: "$product.name",
+          sku: "$product.sku",
+          quantitySold: 1,
           revenue: 1
         }
       }
     ]);
-
-    res.json(topProducts);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching top products', error: error.message });
-  }
-};
-
-exports.getProfitMargins = async (req, res) => {
-  try {
-    const { tenantId } = req.user;
     
-    // Calculate profit: revenue - cost of goods sold (COGS)
+    // 4. Calculate Profit Margin 
+    // (Total Revenue - (Quantity * Current Purchase Price))
     const profitData = await Sale.aggregate([
-      { $match: { tenantId: new mongoose.Types.ObjectId(tenantId) } },
-      { $unwind: '$products' },
+      { $match: matchStage },
+      { $unwind: "$items" },
       {
         $lookup: {
           from: 'products',
-          localField: 'products.product',
+          localField: 'items.productId',
           foreignField: '_id',
-          as: 'productDetails'
+          as: 'productInfo'
         }
       },
-      { $unwind: '$productDetails' },
+      { $unwind: "$productInfo" },
       {
         $group: {
           _id: null,
-          totalRevenue: { $sum: { $multiply: ['$products.quantity', '$products.price'] } },
-          totalCost: { $sum: { $multiply: ['$products.quantity', '$productDetails.purchasePrice'] } }
+          totalRevenue: { $sum: "$items.total" },
+          totalCost: { 
+            $sum: { $multiply: ["$items.quantity", "$productInfo.purchasePrice"] } 
+          }
+        }
+      },
+      {
+        $project: {
+          totalRevenue: 1,
+          totalCost: 1,
+          totalProfit: { $subtract: ["$totalRevenue", "$totalCost"] }
         }
       }
     ]);
 
-    if (profitData.length > 0) {
-      const { totalRevenue, totalCost } = profitData[0];
-      const profit = totalRevenue - totalCost;
-      const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
-      res.json({ totalRevenue, totalCost, profit, margin });
-    } else {
-      res.json({ totalRevenue: 0, totalCost: 0, profit: 0, margin: 0 });
-    }
+    res.status(200).json({
+      success: true,
+      data: {
+        metrics: metrics[0] || { totalRevenue: 0, totalSales: 0 },
+        profit: profitData[0] || { totalRevenue: 0, totalCost: 0, totalProfit: 0 },
+        salesTrend: salesTrend.map(item => ({ date: item._id, revenue: item.revenue, orders: item.orders })),
+        topProducts
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching profit margins', error: error.message });
+    console.error('Analytics Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch analytics' });
   }
 };
