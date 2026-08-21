@@ -67,13 +67,13 @@ const Analytics = () => {
         <div className="card p-6 border-l-4 border-indigo-500">
           <dl>
             <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-            <dd className="mt-1 text-3xl font-semibold text-gray-900">,1{data.metrics.totalRevenue.toFixed(2)}</dd>
+            <dd className="mt-1 text-3xl font-semibold text-gray-900">{formatCurrency(data.metrics.totalRevenue)}</dd>
           </dl>
         </div>
         <div className="card p-6 border-l-4 border-green-500">
           <dl>
             <dt className="text-sm font-medium text-gray-500 truncate">Est. Profit Margin</dt>
-            <dd className="mt-1 text-3xl font-semibold text-green-600">,1{data.profit.totalProfit?.toFixed(2) || '0.00'}</dd>
+            <dd className="mt-1 text-3xl font-semibold text-green-600">{formatCurrency(data.profit.totalProfit)}</dd>
           </dl>
         </div>
         <div className="card p-6 border-l-4 border-amber-500">
@@ -115,7 +115,7 @@ const Analytics = () => {
                 <Tooltip />
                 <Legend />
                 <Bar yAxisId="left" dataKey="quantitySold" name="Qty Sold" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar yAxisId="right" dataKey="revenue" name="Revenue (,1)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                <Bar yAxisId="right" dataKey="revenue" name="Revenue (₹)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
