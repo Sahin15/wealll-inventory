@@ -18,5 +18,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/wealll-inventory || cd /var/www/wealll-inventory
+            git remote set-url origin https://github.com/Sahin15/wealll-inventory.git
+            git fetch origin
+            git reset --hard origin/main
             chmod +x deploy.sh
             ./deploy.sh main
