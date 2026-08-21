@@ -28,7 +28,7 @@ const Analytics = () => {
         start.setFullYear(end.getFullYear() - 1);
       }
       
-      const res = await api.get(/analytics?startDate=${start.toISOString()}&endDate=${end.toISOString()});
+      const res = await api.get(`/analytics?startDate=${start.toISOString()}&endDate=${end.toISOString()}`);
       setData(res.data.data);
     } catch (err) {
       console.error(err);
