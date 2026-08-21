@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { 
-  LayoutDashboard, 
+  LayoutDashboard, PieChart, 
   Package, 
   Tags, 
   ArrowRightLeft, 
@@ -29,7 +29,7 @@ const DashboardLayout = () => {
   }
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Dashboard', href: '/', icon: LayoutDashboard, PieChart, roles: ['admin', 'manager', 'staff'] },
     { name: 'Categories', href: '/categories', icon: Tags, roles: ['admin', 'manager', 'staff'] },
     { name: 'Products', href: '/products', icon: Package, roles: ['admin', 'manager', 'staff'] },
     { name: 'Stock', href: '/stock', icon: ArrowRightLeft, roles: ['admin', 'manager', 'staff'] },

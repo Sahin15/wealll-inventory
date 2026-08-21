@@ -5,6 +5,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import SuperAdminLayout from './layouts/SuperAdminLayout';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/dashboard/Dashboard';
+import Analytics from './pages/analytics/Analytics';
 import Categories from './pages/categories/Categories';
 import Products from './pages/products/Products';
 import Stock from './pages/stock/Stock';
@@ -23,6 +24,7 @@ function App() {
         
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/products" element={<Products />} />
           <Route path="/stock" element={<Stock />} />
