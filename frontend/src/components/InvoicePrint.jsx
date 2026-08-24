@@ -50,7 +50,7 @@ const InvoicePrint = ({ sale, settings }) => {
           {sale.items.map((item, index) => {
             return (
               <tr key={index} className="border-b border-gray-200">
-                <td className="py-3 px-4 text-sm text-gray-800">{item.product?.name || 'Unknown Product'}</td>
+                <td className="py-3 px-4 text-sm text-gray-800">{item.productId?.name || item.product?.name || 'Unknown Product'}</td>
                 <td className="py-3 px-4 text-sm text-gray-800 text-center">{item.quantity}</td>
                 <td className="py-3 px-4 text-sm text-gray-800 text-right">{formatCurrency(item.sellingPrice)}</td>
                 <td className="py-3 px-4 text-sm text-gray-800 text-right font-medium">{formatCurrency(item.total)}</td>

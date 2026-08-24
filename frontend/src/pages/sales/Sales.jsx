@@ -238,7 +238,7 @@ const Sales = () => {
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {sale.items.map((item, idx) => (
                         <div key={idx}>
-                          {item.quantity}x {item.product?.name || 'Unknown Product'}
+                          {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'}
                         </div>
                       ))}
                     </td>
@@ -345,7 +345,7 @@ const Sales = () => {
                 <ul className="list-disc pl-5 space-y-1">
                   {viewModalSale.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ {formatCurrency(item.sellingPrice)} 
+                      {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'} @ {formatCurrency(item.sellingPrice)} 
                       = {formatCurrency(item.total)}
                     </li>
                   ))}
