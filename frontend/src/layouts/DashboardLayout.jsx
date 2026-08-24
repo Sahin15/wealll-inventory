@@ -44,7 +44,7 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm">
+      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm print:hidden">
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-100">
             <h1 className="text-xl font-bold tracking-tight text-gray-900">WeAlll Inventory</h1>
@@ -88,7 +88,7 @@ const DashboardLayout = () => {
       </div>
 
       {/* Main Content */}
-      <div className="md:pl-64 flex flex-col flex-1">
+      <div className="md:pl-64 flex flex-col flex-1 print:pl-0">
         <main className="flex-1">
           <div className="py-6 px-4 sm:px-6 md:px-8">
             <Outlet />

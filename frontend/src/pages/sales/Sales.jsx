@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Eye } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
+import InvoicePrint from '../../components/InvoicePrint';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
   const [products, setProducts] = useState([]);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [printSale, setPrintSale] = useState(null);
 
   // Void State
   const [voidModalSale, setVoidModalSale] = useState(null);
@@ -28,12 +31,14 @@ const Sales = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [salesRes, prodRes] = await Promise.all([
+      const [salesRes, prodRes, settingsRes] = await Promise.all([
         api.get('/sales'),
-        api.get('/products')
+        api.get('/products'),
+        api.get('/tenants/settings').catch(() => ({ data: { data: {} } })) // Fallback if settings fail
       ]);
       setSales(salesRes.data.data);
       setProducts(prodRes.data.data);
+      setSettings(settingsRes.data.data);
       if (prodRes.data.data.length > 0) {
         setFormData(f => ({ ...f, productId: prodRes.data.data[0]._id, unitPrice: prodRes.data.data[0].sellingPrice }));
       }
@@ -105,7 +110,8 @@ const Sales = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+    <div className="space-y-6 print:hidden">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold leading-7 text-gray-900">Sales</h2>
         <button 
@@ -312,13 +318,27 @@ const Sales = () => {
               </div>
               <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: {formatCurrency(viewModalSale.total)}</p>
             </div>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end space-x-3">
+              <button 
+                onClick={() => {
+                  setPrintSale(viewModalSale);
+                  setTimeout(() => window.print(), 100);
+                }} 
+                className="btn-primary bg-indigo-600 hover:bg-indigo-700"
+              >
+                Print Invoice
+              </button>
               <button onClick={() => setViewModalSale(null)} className="btn-primary">Close</button>
             </div>
           </div>
         </div>
       )}
     </div>
+    
+    {printSale && (
+      <InvoicePrint sale={printSale} settings={settings} />
+    )}
+    </>
   );
 };
 
