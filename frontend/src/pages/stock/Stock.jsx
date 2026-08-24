@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { formatDate } from '../../utils/dateFormatter';
 
 const Stock = () => {
   const [movements, setMovements] = useState([]);
@@ -62,7 +63,7 @@ const Stock = () => {
                 {movements.map((m) => (
                   <tr key={m._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(m.createdAt).toLocaleString()}
+                      {formatDate(m.createdAt, true)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {m.productId?.name || 'Unknown Product'}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Building2 } from 'lucide-react';
+import { Save, Building2, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
 
 const BusinessSettings = () => {
@@ -9,10 +9,14 @@ const BusinessSettings = () => {
     businessPhone: '',
     businessAddress: '',
     taxRate: 0,
-    invoiceFooterText: ''
+    invoiceHeaderText: '',
+    invoiceFooterText: '',
+    appName: '',
+    logoUrl: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -28,7 +32,10 @@ const BusinessSettings = () => {
         businessPhone: res.data.data.businessPhone || '',
         businessAddress: res.data.data.businessAddress || '',
         taxRate: res.data.data.taxRate || 0,
-        invoiceFooterText: res.data.data.invoiceFooterText || ''
+        invoiceHeaderText: res.data.data.invoiceHeaderText || '',
+        invoiceFooterText: res.data.data.invoiceFooterText || '',
+        appName: res.data.data.appName || 'WeAlll Inventory',
+        logoUrl: res.data.data.logoUrl || ''
       });
       setLoading(false);
     } catch (error) {
@@ -44,12 +51,40 @@ const BusinessSettings = () => {
     try {
       await api.put('/tenants/settings', settings);
       setMessage('Settings updated successfully!');
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => {
+        setMessage('');
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error('Error updating settings:', error);
       setMessage('Failed to update settings. Please try again.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploadingLogo(true);
+    try {
+      const res = await api.post('/uploads', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      if (res.data.success) {
+        setSettings({ ...settings, logoUrl: res.data.data.url });
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -65,9 +100,21 @@ const BusinessSettings = () => {
 
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="p-6">
+          {/* Toast Notification */}
           {message && (
-            <div className={`mb-4 p-3 rounded text-sm ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-              {message}
+            <div className="fixed top-5 right-5 z-50 animate-fade-in-down transition-all duration-300">
+              <div className={`flex items-center gap-3 px-6 py-4 rounded-lg shadow-xl border-l-4 ${
+                message.includes('success') 
+                  ? 'bg-white border-green-500 text-gray-800' 
+                  : 'bg-white border-red-500 text-gray-800'
+              }`}>
+                {message.includes('success') ? (
+                  <CheckCircle2 className="w-6 h-6 text-green-500" />
+                ) : (
+                  <AlertCircle className="w-6 h-6 text-red-500" />
+                )}
+                <p className="font-medium text-sm">{message}</p>
+              </div>
             </div>
           )}
 
@@ -78,6 +125,48 @@ const BusinessSettings = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
+              <div className="bg-indigo-50 p-4 rounded-md border border-indigo-100">
+                <h3 className="text-sm font-semibold text-indigo-900 mb-4">Branding & Identity</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">App Name (replaces "WeAlll Inventory")</label>
+                    <input
+                      type="text"
+                      value={settings.appName}
+                      onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Logo Image</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      disabled={uploadingLogo}
+                      className="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-indigo-50 file:text-indigo-700
+                        hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1"
+                    />
+                    {uploadingLogo && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+                    {settings.logoUrl && (
+                      <div className="mt-3 p-2 border border-gray-200 rounded-md inline-block bg-gray-50 relative group">
+                        <img src={settings.logoUrl} alt="Logo Preview" className="h-16 object-contain mix-blend-multiply" onError={(e) => e.target.style.display = 'none'} />
+                        <button type="button" onClick={() => setSettings({...settings, logoUrl: ''})} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Business Name</label>
                 <input
@@ -106,7 +195,6 @@ const BusinessSettings = () => {
                   value={settings.businessPhone}
                   onChange={(e) => setSettings({ ...settings, businessPhone: e.target.value })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
-                  placeholder="e.g. +91 9876543210"
                 />
               </div>
 
@@ -117,7 +205,6 @@ const BusinessSettings = () => {
                   onChange={(e) => setSettings({ ...settings, businessAddress: e.target.value })}
                   rows="3"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
-                  placeholder="123 Commerce St, Suite 100&#10;City, State, 12345"
                 ></textarea>
               </div>
 
@@ -135,7 +222,17 @@ const BusinessSettings = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Invoice Footer</label>
+                <label className="block text-sm font-medium text-gray-700">Invoice Header Text (e.g. GST Number, Tagline)</label>
+                <input
+                  type="text"
+                  value={settings.invoiceHeaderText}
+                  onChange={(e) => setSettings({ ...settings, invoiceHeaderText: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Invoice Footer Message</label>
                 <input
                   type="text"
                   value={settings.invoiceFooterText}
@@ -144,15 +241,6 @@ const BusinessSettings = () => {
                 />
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-md mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-                <div className="flex items-center space-x-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-gray-200 text-gray-800">
-                    ₹ INR
-                  </span>
-                  <span className="text-sm text-gray-500">(Fixed System Currency)</span>
-                </div>
-              </div>
             </div>
 
             <div className="pt-4 flex justify-end">

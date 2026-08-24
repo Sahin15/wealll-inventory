@@ -5,7 +5,9 @@ const StockMovement = require('../models/StockMovement');
 
 exports.getPurchases = async (req, res) => {
   try {
-    const purchases = await Purchase.find({ tenantId: req.user.tenantId }).sort({ createdAt: -1 });
+    const purchases = await Purchase.find({ tenantId: req.user.tenantId })
+      .populate('items.productId', 'name')
+      .sort({ createdAt: -1 });
     res.json({ success: true, data: purchases });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });

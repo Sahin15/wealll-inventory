@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Package, TrendingUp, IndianRupee, AlertTriangle, Users, BookOpen, PlusCircle, ShoppingCart } from 'lucide-react';
+import { Package, TrendingUp, AlertTriangle, Users, BookOpen, PlusCircle, ShoppingCart } from 'lucide-react';
 import { formatCurrency } from '../../utils/currency';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { formatDate } from '../../utils/dateFormatter';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -31,9 +31,22 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          Dashboard Overview
-        </h2>
+        <div>
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Welcome to {user?.tenantId?.businessName || user?.tenantId?.appName || 'WeAlll Inventory'}
+          </h2>
+          {user?.tenantId?.ownerName && (
+            <p className="mt-1 flex items-center text-sm text-gray-500">
+              <span className="font-medium mr-2">Admin: {user.tenantId.ownerName}</span>
+              {user.tenantId.businessPhone && (
+                <>
+                  <span className="mx-2">&bull;</span>
+                  <span>{user.tenantId.businessPhone}</span>
+                </>
+              )}
+            </p>
+          )}
+        </div>
         {/* Quick Actions */}
         {user?.role !== 'staff' && (
           <div className="flex flex-wrap gap-2">
@@ -43,8 +56,8 @@ const Dashboard = () => {
             <Link to="/classes" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-indigo-100 hover:bg-indigo-200">
               <BookOpen className="w-4 h-4 mr-2" /> New Class
             </Link>
-            <Link to="/stock" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border-gray-300">
-              <PlusCircle className="w-4 h-4 mr-2" /> Add Stock
+            <Link to="/purchases" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border-gray-300">
+              <PlusCircle className="w-4 h-4 mr-2" /> Record Purchase
             </Link>
           </div>
         )}
@@ -123,27 +136,60 @@ const Dashboard = () => {
       </div>
 
       {user?.role !== 'staff' && (
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Revenue Trend (Last 7 Days)</h3>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.salesChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" tick={{fontSize: 12}} stroke="#9ca3af" />
-                <YAxis tickFormatter={(val) => `₹${val}`} tick={{fontSize: 12}} stroke="#9ca3af" />
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <Tooltip 
-                  formatter={(value) => [formatCurrency(value), 'Revenue']}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Area type="monotone" dataKey="amount" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
-              </AreaChart>
-            </ResponsiveContainer>
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">Upcoming Batches & Class Overview</h3>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-4 rounded-md border border-gray-100">
+                <p className="text-sm text-gray-500 font-medium">Total Enrolled Students</p>
+                <p className="text-2xl font-bold text-indigo-600">{data.totalStudents || 0}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-md border border-gray-100">
+                <p className="text-sm text-gray-500 font-medium">Total Batch Revenue</p>
+                <p className="text-2xl font-bold text-emerald-600">{formatCurrency(data.batchRevenue || 0)}</p>
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch No.</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Seat Price</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {data.upcomingBatches?.length > 0 ? (
+                  data.upcomingBatches.map(batch => (
+                    <tr key={batch._id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{batch.batchNumber}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{batch.topic}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(batch.date)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {batch.students?.length || 0} Students
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 font-medium">{formatCurrency(batch.seatPrice)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500">
+                      No upcoming batches scheduled.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 text-right">
+            <Link to="/classes" className="text-sm font-medium text-indigo-600 hover:text-indigo-900">
+              View all classes &rarr;
+            </Link>
           </div>
         </div>
       )}

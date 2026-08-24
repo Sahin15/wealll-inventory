@@ -13,15 +13,17 @@ exports.getDashboardData = async (req, res) => {
       sales,
       recentMovements,
       recentSales,
-      totalClasses
+      allBatches
     ] = await Promise.all([
       Product.countDocuments({ tenantId }),
       Product.find({ tenantId }),
       Sale.find({ tenantId }),
       StockMovement.find({ tenantId }).sort({ createdAt: -1 }).limit(5).populate('productId', 'name sku'),
       Sale.find({ tenantId }).sort({ createdAt: -1 }).limit(5),
-      ClassBatch.countDocuments({ tenantId })
+      ClassBatch.find({ tenantId }).sort({ date: 1 })
     ]);
+
+    const totalClasses = allBatches.length;
 
     let totalStockQuantity = 0;
     let totalStockValue = 0;
@@ -46,24 +48,12 @@ exports.getDashboardData = async (req, res) => {
     let monthlySales = 0;
     let uniqueCustomers = new Set();
     
-    // Initialize chart data for the last 7 days
-    const salesChartData = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      salesChartData.push({
-        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        rawDate: d.getTime(), // used for matching
-        amount: 0
-      });
-    }
-
     sales.forEach(s => {
       if (s.customerName) {
         uniqueCustomers.add(s.customerName.toLowerCase().trim());
       }
 
       const saleDate = new Date(s.saleDate);
-      const normalizedSaleDate = new Date(saleDate.getFullYear(), saleDate.getMonth(), saleDate.getDate()).getTime();
 
       if (saleDate >= today) {
         todaySales += s.total;
@@ -71,15 +61,38 @@ exports.getDashboardData = async (req, res) => {
       if (saleDate >= thisMonth) {
         monthlySales += s.total;
       }
-
-      // Add to chart if within last 7 days
-      const chartPoint = salesChartData.find(p => p.rawDate === normalizedSaleDate);
-      if (chartPoint) {
-        chartPoint.amount += s.total;
-      }
     });
 
     const totalCustomers = uniqueCustomers.size;
+
+    let totalStudents = 0;
+    let batchRevenue = 0;
+    const upcomingBatches = [];
+
+    // Process all batches for students and revenue
+    allBatches.forEach(batch => {
+      // students count
+      if (batch.students && batch.students.length > 0) {
+        totalStudents += batch.students.length;
+        
+        // calculate revenue from paid students
+        const paidStudents = batch.students.filter(s => s.paymentStatus === 'Paid').length;
+        batchRevenue += (paidStudents * batch.seatPrice);
+      }
+      
+      // Collect upcoming batches
+      const batchDate = new Date(batch.date);
+      // normalize batch date to start of day for comparison
+      const normalizedBatchDate = new Date(batchDate.getFullYear(), batchDate.getMonth(), batchDate.getDate()).getTime();
+      const normalizedToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      
+      if (normalizedBatchDate >= normalizedToday) {
+        upcomingBatches.push(batch);
+      }
+    });
+
+    // upcomingBatches is already sorted by date ASC because of the .sort({ date: 1 }) in the query
+    const topUpcomingBatches = upcomingBatches.slice(0, 5);
 
     res.json({
       success: true,
@@ -91,7 +104,9 @@ exports.getDashboardData = async (req, res) => {
         monthlySales,
         totalCustomers,
         totalClasses,
-        salesChartData,
+        totalStudents,
+        batchRevenue,
+        upcomingBatches: topUpcomingBatches,
         lowStockProducts,
         recentMovements,
         recentSales

@@ -19,9 +19,14 @@ const InvoicePrint = ({ sale, settings }) => {
       {/* Header */}
       <div className="flex justify-between items-start border-b-2 border-gray-800 pb-6 mb-6">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">INVOICE</h1>
+          {settings.logoUrl ? (
+            <img src={settings.logoUrl} alt="Business Logo" className="h-24 w-auto max-w-[300px] object-contain mb-4 mix-blend-multiply" />
+          ) : (
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">INVOICE</h1>
+          )}
+          {settings.logoUrl && <h2 className="text-2xl font-bold text-gray-900 mb-2 uppercase tracking-wider">INVOICE</h2>}
           <p className="text-sm text-gray-600"><span className="font-semibold">Invoice No:</span> {sale.invoiceNumber}</p>
-          <p className="text-sm text-gray-600"><span className="font-semibold">Date:</span> {new Date(sale.saleDate).toLocaleDateString()}</p>
+          <p className="text-sm text-gray-600"><span className="font-semibold">Date:</span> {formatDate(sale.saleDate)}</p>
         </div>
         <div className="text-right">
           <h2 className="text-2xl font-bold text-gray-900">{settings.businessName || 'Your Business Name'}</h2>
@@ -30,6 +35,11 @@ const InvoicePrint = ({ sale, settings }) => {
           {settings.businessAddress && (
             <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
               {settings.businessAddress}
+            </p>
+          )}
+          {settings.invoiceHeaderText && (
+            <p className="text-sm text-gray-800 mt-2 font-medium whitespace-pre-line">
+              {settings.invoiceHeaderText}
             </p>
           )}
           {taxRate > 0 && <p className="text-sm text-gray-600 mt-1 font-medium">GST/Tax Rate: {taxRate}%</p>}

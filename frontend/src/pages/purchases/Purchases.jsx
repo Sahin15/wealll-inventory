@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Eye } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/dateFormatter';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -175,7 +176,7 @@ const Purchases = () => {
                 {purchases.map((purchase) => (
                   <tr key={purchase._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(purchase.purchaseDate).toLocaleDateString()}
+                      {formatDate(purchase.purchaseDate)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
                       {purchase.invoiceNumber}
@@ -186,7 +187,7 @@ const Purchases = () => {
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {purchase.items.map((item, idx) => (
                         <div key={idx}>
-                          {item.quantity}x {item.product?.name || 'Unknown Product'}
+                          {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'}
                         </div>
                       ))}
                     </td>
@@ -283,7 +284,7 @@ const Purchases = () => {
             <div className="space-y-3 text-sm text-gray-700">
               <p><strong className="text-gray-900">Invoice:</strong> {viewModalPurchase.invoiceNumber}</p>
               <p><strong className="text-gray-900">Supplier:</strong> {viewModalPurchase.supplierName}</p>
-              <p><strong className="text-gray-900">Date:</strong> {new Date(viewModalPurchase.purchaseDate).toLocaleString()}</p>
+              <p><strong className="text-gray-900">Date:</strong> {formatDate(viewModalPurchase.purchaseDate, true)}</p>
               <p><strong className="text-gray-900">Status:</strong> {viewModalPurchase.status || 'COMPLETED'}</p>
               {viewModalPurchase.voidReason && (
                 <p><strong className="text-gray-900 text-red-600">Void Reason:</strong> {viewModalPurchase.voidReason}</p>
@@ -293,7 +294,7 @@ const Purchases = () => {
                 <ul className="list-disc pl-5 space-y-1">
                   {viewModalPurchase.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ {formatCurrency(item.purchasePrice)} = {formatCurrency(item.total)}
+                      {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'} @ {formatCurrency(item.purchasePrice)} = {formatCurrency(item.total)}
                     </li>
                   ))}
                 </ul>

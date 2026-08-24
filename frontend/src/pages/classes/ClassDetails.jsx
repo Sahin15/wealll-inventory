@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, UserPlus, CheckCircle, XCircle, ShoppingBag } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/dateFormatter';
 
 const ClassDetails = () => {
   const { id } = useParams();
@@ -113,7 +114,7 @@ const ClassDetails = () => {
         </div>
         <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
           <p className="text-sm text-gray-500 font-medium">Date & Location</p>
-          <p className="text-lg font-semibold text-gray-900">{new Date(batch.date).toLocaleDateString()}</p>
+          <p className="text-lg font-semibold text-gray-900">{formatDate(batch.date)}</p>
           <p className="text-sm text-gray-600 truncate">{batch.location || 'N/A'}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
@@ -196,7 +197,7 @@ const ClassDetails = () => {
                   <tr key={student._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                      <div className="text-xs text-gray-500">Enrolled: {new Date(student.enrolledAt).toLocaleDateString()}</div>
+                      <div className="text-xs text-gray-500">Enrolled: {formatDate(student.enrolledAt)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{student.phone}</div>
@@ -272,7 +273,7 @@ const ClassDetails = () => {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <span className="text-sm font-bold text-gray-900">{sale.invoiceNumber}</span>
-                            <span className="text-xs text-gray-500 ml-2">{new Date(sale.saleDate).toLocaleDateString()}</span>
+                            <span className="text-xs text-gray-500 ml-2">{formatDate(sale.saleDate)}</span>
                           </div>
                           <div className="text-right flex flex-col items-end">
                             <span className="text-sm font-bold text-emerald-600">{formatCurrency(sale.total)}</span>
@@ -284,7 +285,7 @@ const ClassDetails = () => {
                         <ul className="text-sm text-gray-600 space-y-1 bg-gray-50 p-2 rounded">
                           {sale.items.map((item, idx) => (
                             <li key={idx} className="flex justify-between">
-                              <span>{item.quantity}x {item.productId?.name || 'Unknown Product'}</span>
+                              <span>{item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'}</span>
                               <span>{formatCurrency(item.total)}</span>
                             </li>
                           ))}

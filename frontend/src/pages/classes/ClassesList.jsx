@@ -3,6 +3,7 @@ import { Plus, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/dateFormatter';
 
 const ClassesList = () => {
   const [batches, setBatches] = useState([]);
@@ -129,7 +130,7 @@ const ClassesList = () => {
                       {batch.topic}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(batch.date).toLocaleDateString()}
+                      {formatDate(batch.date)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatCurrency(batch.seatPrice)}

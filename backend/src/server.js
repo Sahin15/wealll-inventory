@@ -2,12 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const app = express();
 
 // Middleware
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -22,6 +27,7 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/superadmin', require('./routes/superAdminRoutes'));
 app.use('/api/tenants', require('./routes/tenantRoutes'));
+app.use('/api/uploads', require('./routes/uploadRoutes'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { formatDate } from '../../utils/dateFormatter';
 
 const TenantManager = () => {
   const [tenants, setTenants] = useState([]);
@@ -115,7 +116,7 @@ const TenantManager = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(t.createdAt).toLocaleDateString()}
+                      {formatDate(t.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400 font-mono">
                       {t._id}
@@ -178,7 +179,7 @@ const TenantManager = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-500">Registered On</label>
-                <p className="mt-1 text-sm text-gray-900">{new Date(selectedTenant.createdAt).toLocaleString()}</p>
+                <p className="mt-1 text-sm text-gray-900">{formatDate(selectedTenant.createdAt, true)}</p>
               </div>
             </div>
             <div className="px-6 py-4 border-t border-gray-200 flex justify-end">

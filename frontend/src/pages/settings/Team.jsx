@@ -13,6 +13,7 @@ const Team = () => {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     role: 'staff'
   });
 
@@ -34,9 +35,21 @@ const Team = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      return alert('Passwords do not match');
+    }
+    
+    // We don't want to send confirmPassword to the backend
+    const dataToSend = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role
+    };
+
     try {
-      await api.post('/users', formData);
-      setFormData({ name: '', email: '', password: '', role: 'staff' });
+      await api.post('/users', dataToSend);
+      setFormData({ name: '', email: '', password: '', confirmPassword: '', role: 'staff' });
       setShowForm(false);
       fetchUsers();
     } catch (err) {
@@ -66,28 +79,32 @@ const Team = () => {
           onClick={() => setShowForm(!showForm)} 
           className="btn-primary"
         >
-          {showForm ? 'Cancel' : 'Invite User'}
+          {showForm ? 'Cancel' : 'Add Team Member'}
         </button>
       </div>
 
       {showForm && (
         <div className="card p-6 border-l-4 border-indigo-600">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Invite New Team Member</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Team Member</h3>
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field mt-1" />
+                <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field mt-1" autoComplete="off" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="input-field mt-1" />
+                <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="input-field mt-1" autoComplete="new-password" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Temporary Password</label>
-                <input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="input-field mt-1" />
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="input-field mt-1" autoComplete="new-password" />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <input type="password" required value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} className="input-field mt-1" autoComplete="new-password" />
+              </div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700">Role</label>
                 <select required value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="input-field mt-1">
                   <option value="staff">Staff (Can only record sales)</option>
@@ -97,7 +114,7 @@ const Team = () => {
               </div>
             </div>
             <div className="flex justify-end pt-4">
-              <button type="submit" className="btn-primary">Send Invitation</button>
+              <button type="submit" className="btn-primary">Add Member</button>
             </div>
           </form>
         </div>

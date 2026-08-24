@@ -3,6 +3,7 @@ import { Plus, Eye } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import InvoicePrint from '../../components/InvoicePrint';
+import { formatDate } from '../../utils/dateFormatter';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
@@ -277,7 +278,7 @@ const Sales = () => {
                 {sales.map((sale) => (
                   <tr key={sale._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(sale.saleDate).toLocaleDateString()}
+                      {formatDate(sale.saleDate)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-emerald-600">
                       {sale.invoiceNumber}
@@ -392,7 +393,7 @@ const Sales = () => {
             <div className="space-y-3 text-sm text-gray-700">
               <p><strong className="text-gray-900">Invoice:</strong> {viewModalSale.invoiceNumber}</p>
               <p><strong className="text-gray-900">Customer:</strong> {viewModalSale.customerName}</p>
-              <p><strong className="text-gray-900">Date:</strong> {new Date(viewModalSale.saleDate).toLocaleString()}</p>
+              <p><strong className="text-gray-900">Date:</strong> {formatDate(viewModalSale.saleDate, true)}</p>
               <p><strong className="text-gray-900">Status:</strong> {viewModalSale.status || 'COMPLETED'}</p>
               {viewModalSale.voidReason && (
                 <p><strong className="text-gray-900 text-red-600">Void Reason:</strong> {viewModalSale.voidReason}</p>

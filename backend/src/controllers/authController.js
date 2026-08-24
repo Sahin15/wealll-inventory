@@ -16,7 +16,9 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email }).select('+passwordHash');
+    const user = await User.findOne({ email })
+      .select('+passwordHash')
+      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress');
     if (!user) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
@@ -39,7 +41,7 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        tenantId: user.tenantId,
+        tenantId: user.tenantId, // Now populated with appName and logoUrl
         token
       }
     });
@@ -51,7 +53,9 @@ exports.login = async (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-passwordHash');
+    const user = await User.findById(req.user.userId)
+      .select('-passwordHash')
+      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress');
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
