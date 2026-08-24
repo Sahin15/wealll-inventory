@@ -10,7 +10,8 @@ import {
   Receipt,
   Users,
   LogOut,
-  Settings
+  Settings,
+  BookOpen
 } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -37,6 +38,7 @@ const DashboardLayout = () => {
     { name: 'Stock', href: '/stock', icon: ArrowRightLeft, roles: ['admin', 'manager', 'staff'] },
     { name: 'Purchases', href: '/purchases', icon: ShoppingCart, roles: ['admin', 'manager'] },
     { name: 'Sales', href: '/sales', icon: Receipt, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Classes', href: '/classes', icon: BookOpen, roles: ['admin', 'manager', 'staff'] },
     { name: 'Team', href: '/team', icon: Users, roles: ['admin', 'manager'] },
     { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin'] },
   ].filter(item => item.roles.includes(user.role));

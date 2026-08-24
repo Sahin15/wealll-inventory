@@ -11,6 +11,8 @@ import Products from './pages/products/Products';
 import Stock from './pages/stock/Stock';
 import Purchases from './pages/purchases/Purchases';
 import Sales from './pages/sales/Sales';
+import ClassesList from './pages/classes/ClassesList';
+import ClassDetails from './pages/classes/ClassDetails';
 import Team from './pages/settings/Team';
 import BusinessSettings from './pages/settings/BusinessSettings';
 import TenantManager from './pages/superadmin/TenantManager';
@@ -31,6 +33,8 @@ function App() {
           <Route path="/stock" element={<Stock />} />
           <Route path="/purchases" element={<Purchases />} />
           <Route path="/sales" element={<Sales />} />
+          <Route path="/classes" element={<ClassesList />} />
+          <Route path="/classes/:id" element={<ClassDetails />} />
           <Route path="/team" element={<Team />} />
           <Route path="/settings" element={<BusinessSettings />} />
         </Route>
