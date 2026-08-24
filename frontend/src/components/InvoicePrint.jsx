@@ -26,7 +26,13 @@ const InvoicePrint = ({ sale, settings }) => {
         <div className="text-right">
           <h2 className="text-2xl font-bold text-gray-900">{settings.businessName || 'Your Business Name'}</h2>
           <p className="text-sm text-gray-600 mt-1">{settings.ownerName || ''}</p>
-          {taxRate > 0 && <p className="text-sm text-gray-600 mt-1">GST/Tax Rate: {taxRate}%</p>}
+          {settings.businessPhone && <p className="text-sm text-gray-600 mt-1">{settings.businessPhone}</p>}
+          {settings.businessAddress && (
+            <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
+              {settings.businessAddress}
+            </p>
+          )}
+          {taxRate > 0 && <p className="text-sm text-gray-600 mt-1 font-medium">GST/Tax Rate: {taxRate}%</p>}
         </div>
       </div>
 

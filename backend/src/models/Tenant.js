@@ -6,6 +6,8 @@ const tenantSchema = new mongoose.Schema({
   ownerName: { type: String },
   email: { type: String, required: true },
   phone: { type: String },
+  businessPhone: { type: String },
+  businessAddress: { type: String },
   taxRate: { type: Number, default: 0 },
   invoiceFooterText: { type: String, default: "Thank you for your business!" },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' }

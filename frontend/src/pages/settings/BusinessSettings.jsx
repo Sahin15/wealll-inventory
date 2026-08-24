@@ -6,6 +6,8 @@ const BusinessSettings = () => {
   const [settings, setSettings] = useState({
     businessName: '',
     ownerName: '',
+    businessPhone: '',
+    businessAddress: '',
     taxRate: 0,
     invoiceFooterText: ''
   });
@@ -23,6 +25,8 @@ const BusinessSettings = () => {
       setSettings({
         businessName: res.data.data.businessName || '',
         ownerName: res.data.data.ownerName || '',
+        businessPhone: res.data.data.businessPhone || '',
+        businessAddress: res.data.data.businessAddress || '',
         taxRate: res.data.data.taxRate || 0,
         invoiceFooterText: res.data.data.invoiceFooterText || ''
       });
@@ -93,6 +97,28 @@ const BusinessSettings = () => {
                   onChange={(e) => setSettings({ ...settings, ownerName: e.target.value })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Business Phone Number</label>
+                <input
+                  type="text"
+                  value={settings.businessPhone}
+                  onChange={(e) => setSettings({ ...settings, businessPhone: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
+                  placeholder="e.g. +91 9876543210"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Business Address</label>
+                <textarea
+                  value={settings.businessAddress}
+                  onChange={(e) => setSettings({ ...settings, businessAddress: e.target.value })}
+                  rows="3"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
+                  placeholder="123 Commerce St, Suite 100&#10;City, State, 12345"
+                ></textarea>
               </div>
 
               <div>

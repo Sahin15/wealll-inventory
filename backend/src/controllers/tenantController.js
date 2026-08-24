@@ -19,6 +19,8 @@ exports.getSettings = async (req, res) => {
         ownerName: tenant.ownerName,
         email: tenant.email,
         phone: tenant.phone,
+        businessPhone: tenant.businessPhone,
+        businessAddress: tenant.businessAddress,
         taxRate: tenant.taxRate,
         invoiceFooterText: tenant.invoiceFooterText,
         status: tenant.status
@@ -35,7 +37,7 @@ exports.getSettings = async (req, res) => {
 // @access  Private/Admin
 exports.updateSettings = async (req, res) => {
   try {
-    const { businessName, ownerName, email, phone, taxRate, invoiceFooterText } = req.body;
+    const { businessName, ownerName, email, phone, businessPhone, businessAddress, taxRate, invoiceFooterText } = req.body;
 
     // Only update allowed fields. Ensure we use req.user.tenantId
     const tenant = await Tenant.findByIdAndUpdate(
@@ -45,6 +47,8 @@ exports.updateSettings = async (req, res) => {
         ownerName,
         email,
         phone,
+        businessPhone,
+        businessAddress,
         taxRate: taxRate !== undefined ? Number(taxRate) : undefined,
         invoiceFooterText
       },
@@ -64,6 +68,8 @@ exports.updateSettings = async (req, res) => {
         ownerName: tenant.ownerName,
         email: tenant.email,
         phone: tenant.phone,
+        businessPhone: tenant.businessPhone,
+        businessAddress: tenant.businessAddress,
         taxRate: tenant.taxRate,
         invoiceFooterText: tenant.invoiceFooterText,
         status: tenant.status
