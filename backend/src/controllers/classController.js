@@ -13,6 +13,34 @@ exports.getBatches = async (req, res) => {
   }
 };
 
+// @desc    Get all students across all batches
+// @route   GET /api/classes/students/all
+// @access  Private
+exports.getAllStudents = async (req, res) => {
+  try {
+    const batches = await ClassBatch.find({ tenantId: req.user.tenantId }).select('batchNumber topic students');
+    
+    let allStudents = [];
+    batches.forEach(batch => {
+      batch.students.forEach(student => {
+        allStudents.push({
+          ...student.toObject(),
+          batchId: batch._id,
+          batchNumber: batch.batchNumber,
+          batchTopic: batch.topic
+        });
+      });
+    });
+
+    // Sort by most recently enrolled
+    allStudents.sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt));
+
+    res.json({ success: true, data: allStudents });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
 // @desc    Get single batch
 // @route   GET /api/classes/:id
 // @access  Private

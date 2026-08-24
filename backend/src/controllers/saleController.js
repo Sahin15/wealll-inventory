@@ -5,7 +5,10 @@ const StockMovement = require('../models/StockMovement');
 
 exports.getSales = async (req, res) => {
   try {
-    const sales = await Sale.find({ tenantId: req.user.tenantId })
+    const filter = { tenantId: req.user.tenantId };
+    if (req.query.studentId) filter.studentId = req.query.studentId;
+    
+    const sales = await Sale.find(filter)
       .populate('items.productId', 'name')
       .sort({ createdAt: -1 });
     res.json({ success: true, data: sales });
@@ -19,11 +22,11 @@ exports.createSale = async (req, res) => {
   session.startTransaction();
 
   try {
-    const { invoiceNumber, saleDate, customerName, items, subtotal, discount, total, paymentStatus, notes } = req.body;
+    const { invoiceNumber, saleDate, customerName, studentId, classBatchId, items, subtotal, discount, total, paymentStatus, notes } = req.body;
 
     const sale = new Sale({
       tenantId: req.user.tenantId,
-      invoiceNumber, saleDate, customerName, items, subtotal, discount, total, paymentStatus, notes,
+      invoiceNumber, saleDate, customerName, studentId, classBatchId, items, subtotal, discount, total, paymentStatus, notes,
       createdBy: req.user.userId
     });
 

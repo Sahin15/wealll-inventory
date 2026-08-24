@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, UserPlus, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, UserPlus, CheckCircle, XCircle, ShoppingBag } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 
@@ -10,6 +10,10 @@ const ClassDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentSales, setStudentSales] = useState([]);
+  const [loadingSales, setLoadingSales] = useState(false);
+
   const [showStudentForm, setShowStudentForm] = useState(false);
   const [studentForm, setStudentForm] = useState({
     name: '',
@@ -63,6 +67,20 @@ const ClassDetails = () => {
       fetchBatch();
     } catch (err) {
       setError('Failed to update payment status');
+    }
+  };
+
+  const openStudentPurchases = async (student) => {
+    setSelectedStudent(student);
+    setLoadingSales(true);
+    try {
+      const res = await api.get(`/sales?studentId=${student._id}`);
+      setStudentSales(res.data.data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load student purchases');
+    } finally {
+      setLoadingSales(false);
     }
   };
 
@@ -170,6 +188,7 @@ const ClassDetails = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Purchases</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -206,6 +225,14 @@ const ClassDetails = () => {
                         )}
                       </button>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <button
+                        onClick={() => openStudentPurchases(student)}
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                      >
+                        <ShoppingBag className="w-4 h-4 mr-1 text-indigo-600" /> View
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -213,6 +240,71 @@ const ClassDetails = () => {
           </div>
         )}
       </div>
+
+      {selectedStudent && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Purchases: {selectedStudent.name}</h3>
+              <button onClick={() => setSelectedStudent(null)} className="text-gray-400 hover:text-gray-500 text-2xl">&times;</button>
+            </div>
+            
+            {loadingSales ? (
+              <div className="py-4 text-center text-gray-500">Loading purchase history...</div>
+            ) : studentSales.length === 0 ? (
+              <div className="py-8 text-center text-gray-500">
+                <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p>This student hasn't purchased any products yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-indigo-50 border border-indigo-100 rounded-md p-4 flex justify-between items-center">
+                  <span className="text-indigo-800 font-medium">Total Lifetime Spend</span>
+                  <span className="text-indigo-900 font-bold text-xl">
+                    {formatCurrency(studentSales.reduce((sum, sale) => sum + (sale.status !== 'VOIDED' ? sale.total : 0), 0))}
+                  </span>
+                </div>
+                
+                <div className="max-h-96 overflow-y-auto pr-2">
+                  <ul className="divide-y divide-gray-200">
+                    {studentSales.map(sale => (
+                      <li key={sale._id} className="py-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <span className="text-sm font-bold text-gray-900">{sale.invoiceNumber}</span>
+                            <span className="text-xs text-gray-500 ml-2">{new Date(sale.saleDate).toLocaleDateString()}</span>
+                          </div>
+                          <div className="text-right flex flex-col items-end">
+                            <span className="text-sm font-bold text-emerald-600">{formatCurrency(sale.total)}</span>
+                            {sale.status === 'VOIDED' && (
+                              <span className="text-xs font-bold text-red-600 mt-1">VOIDED</span>
+                            )}
+                          </div>
+                        </div>
+                        <ul className="text-sm text-gray-600 space-y-1 bg-gray-50 p-2 rounded">
+                          {sale.items.map((item, idx) => (
+                            <li key={idx} className="flex justify-between">
+                              <span>{item.quantity}x {item.productId?.name || 'Unknown Product'}</span>
+                              <span>{formatCurrency(item.total)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-6 flex justify-end">
+              <Link to="/sales" className="btn-primary bg-indigo-600 hover:bg-indigo-700 mr-2 flex items-center">
+                <ShoppingBag className="w-4 h-4 mr-2" /> New Sale for Student
+              </Link>
+              <button onClick={() => setSelectedStudent(null)} className="btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

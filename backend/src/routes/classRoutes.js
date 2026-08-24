@@ -10,6 +10,9 @@ router.route('/')
   .get(classController.getBatches)
   .post(classController.createBatch);
 
+router.route('/students/all')
+  .get(classController.getAllStudents);
+
 router.route('/:id')
   .get(classController.getBatch)
   .put(classController.updateBatch);

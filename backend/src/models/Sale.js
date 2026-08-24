@@ -12,6 +12,8 @@ const saleSchema = new mongoose.Schema({
   invoiceNumber: { type: String, required: true },
   saleDate: { type: Date, default: Date.now },
   customerName: { type: String },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClassBatch.students' },
+  classBatchId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClassBatch' },
   items: [saleItemSchema],
   subtotal: { type: Number, required: true, min: 0 },
   discount: { type: Number, default: 0, min: 0 },

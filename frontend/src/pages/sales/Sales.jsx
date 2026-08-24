@@ -7,6 +7,7 @@ import InvoicePrint from '../../components/InvoicePrint';
 const Sales = () => {
   const [sales, setSales] = useState([]);
   const [products, setProducts] = useState([]);
+  const [students, setStudents] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,9 +21,12 @@ const Sales = () => {
 
   // Form State
   const [showForm, setShowForm] = useState(false);
+  const [isStudentPurchase, setIsStudentPurchase] = useState(false);
   const [formData, setFormData] = useState({
     invoiceNumber: '',
     customerName: '',
+    studentId: '',
+    classBatchId: '',
     productId: '',
     quantity: '',
     unitPrice: '',
@@ -32,14 +36,16 @@ const Sales = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [salesRes, prodRes, settingsRes] = await Promise.all([
+      const [salesRes, prodRes, settingsRes, studentsRes] = await Promise.all([
         api.get('/sales'),
         api.get('/products'),
-        api.get('/tenants/settings').catch(() => ({ data: { data: {} } })) // Fallback if settings fail
+        api.get('/tenants/settings').catch(() => ({ data: { data: {} } })), // Fallback if settings fail
+        api.get('/classes/students/all').catch(() => ({ data: { data: [] } }))
       ]);
       setSales(salesRes.data.data);
       setProducts(prodRes.data.data);
       setSettings(settingsRes.data.data);
+      setStudents(studentsRes.data.data);
       if (prodRes.data.data.length > 0) {
         setFormData(f => ({ ...f, productId: prodRes.data.data[0]._id, unitPrice: prodRes.data.data[0].sellingPrice }));
       }
@@ -64,6 +70,17 @@ const Sales = () => {
     });
   };
 
+  const handleStudentChange = (e) => {
+    const sId = e.target.value;
+    const student = students.find(s => s._id === sId);
+    setFormData({
+      ...formData,
+      studentId: sId,
+      classBatchId: student ? student.batchId : '',
+      customerName: student ? student.name : ''
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -79,6 +96,8 @@ const Sales = () => {
       const payload = {
         invoiceNumber: formData.invoiceNumber,
         customerName: formData.customerName,
+        studentId: isStudentPurchase ? formData.studentId : undefined,
+        classBatchId: isStudentPurchase ? formData.classBatchId : undefined,
         subtotal: subtotal,
         discount: discount,
         total: finalTotal,
@@ -97,12 +116,15 @@ const Sales = () => {
       setFormData({
         invoiceNumber: '',
         customerName: '',
+        studentId: '',
+        classBatchId: '',
         productId: products[0]?._id || '',
         quantity: '',
         unitPrice: products[0]?.sellingPrice || '',
         discount: '0'
       });
       setShowForm(false);
+      setIsStudentPurchase(false);
       fetchData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to record sale');
@@ -163,14 +185,42 @@ const Sales = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-4">Record New Sale</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2 mb-2">
+                <label className="flex items-center text-sm font-medium text-gray-700">
+                  <input 
+                    type="checkbox" 
+                    checked={isStudentPurchase}
+                    onChange={(e) => {
+                      setIsStudentPurchase(e.target.checked);
+                      if (!e.target.checked) setFormData({...formData, studentId: '', classBatchId: '', customerName: ''});
+                    }}
+                    className="mr-2 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+                  />
+                  Is this a purchase by an Enrolled Student?
+                </label>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Invoice Number</label>
                 <input type="text" required value={formData.invoiceNumber} onChange={e => setFormData({...formData, invoiceNumber: e.target.value})} className="input-field mt-1" placeholder="e.g. SALE-1001" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Customer Name</label>
-                <input type="text" required value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} className="input-field mt-1" />
-              </div>
+
+              {isStudentPurchase ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Select Student</label>
+                  <select required value={formData.studentId} onChange={handleStudentChange} className="input-field mt-1">
+                    <option value="">-- Choose a Student --</option>
+                    {students.map(s => (
+                      <option key={s._id} value={s._id}>{s.name} (Batch: {s.batchNumber})</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Customer Name</label>
+                  <input type="text" required value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} className="input-field mt-1" />
+                </div>
+              )}
             </div>
 
             <div className="border-t border-gray-200 pt-4 mt-4">
@@ -233,7 +283,14 @@ const Sales = () => {
                       {sale.invoiceNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {sale.customerName}
+                      <div className="flex items-center">
+                        {sale.customerName}
+                        {sale.studentId && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            🎓 Student
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {sale.items.map((item, idx) => (
