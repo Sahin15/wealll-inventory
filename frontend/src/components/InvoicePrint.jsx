@@ -5,14 +5,14 @@ const InvoicePrint = ({ sale, settings }) => {
   if (!sale || !settings) return null;
 
   // Calculate Subtotal, Tax, and Grand Total
-  // The backend might already provide total, but we can display the breakdown
-  const subtotal = sale.items.reduce((acc, item) => acc + ((item.unitPrice * item.quantity) - item.discount), 0);
-  const totalDiscount = sale.items.reduce((acc, item) => acc + item.discount, 0);
+  // Using the new schema: sellingPrice and total are in item, but discount is in sale
+  const subtotal = sale.subtotal || sale.items.reduce((acc, item) => acc + item.total, 0);
+  const totalDiscount = sale.discount || 0;
   
   // Tax logic (if taxRate exists, we calculate tax based on subtotal)
   const taxRate = settings.taxRate || 0;
   const taxAmount = subtotal * (taxRate / 100);
-  const grandTotal = subtotal + taxAmount;
+  const grandTotal = sale.total || (subtotal - totalDiscount + taxAmount);
 
   return (
     <div className="hidden print:block absolute inset-0 bg-white z-[9999] p-8 text-black font-sans">
@@ -43,20 +43,17 @@ const InvoicePrint = ({ sale, settings }) => {
             <th className="py-3 px-4 font-semibold text-sm text-gray-900 border-b border-gray-300">Description</th>
             <th className="py-3 px-4 font-semibold text-sm text-gray-900 border-b border-gray-300 text-center">Qty</th>
             <th className="py-3 px-4 font-semibold text-sm text-gray-900 border-b border-gray-300 text-right">Unit Price</th>
-            <th className="py-3 px-4 font-semibold text-sm text-gray-900 border-b border-gray-300 text-right">Discount</th>
             <th className="py-3 px-4 font-semibold text-sm text-gray-900 border-b border-gray-300 text-right">Amount</th>
           </tr>
         </thead>
         <tbody>
           {sale.items.map((item, index) => {
-            const itemTotal = (item.unitPrice * item.quantity) - item.discount;
             return (
               <tr key={index} className="border-b border-gray-200">
                 <td className="py-3 px-4 text-sm text-gray-800">{item.product?.name || 'Unknown Product'}</td>
                 <td className="py-3 px-4 text-sm text-gray-800 text-center">{item.quantity}</td>
-                <td className="py-3 px-4 text-sm text-gray-800 text-right">{formatCurrency(item.unitPrice)}</td>
-                <td className="py-3 px-4 text-sm text-gray-800 text-right">{item.discount > 0 ? formatCurrency(item.discount) : '-'}</td>
-                <td className="py-3 px-4 text-sm text-gray-800 text-right font-medium">{formatCurrency(itemTotal)}</td>
+                <td className="py-3 px-4 text-sm text-gray-800 text-right">{formatCurrency(item.sellingPrice)}</td>
+                <td className="py-3 px-4 text-sm text-gray-800 text-right font-medium">{formatCurrency(item.total)}</td>
               </tr>
             );
           })}
@@ -70,6 +67,12 @@ const InvoicePrint = ({ sale, settings }) => {
             <span className="text-sm font-semibold text-gray-700">Subtotal</span>
             <span className="text-sm text-gray-900">{formatCurrency(subtotal)}</span>
           </div>
+          {totalDiscount > 0 && (
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-sm font-semibold text-gray-700">Discount</span>
+              <span className="text-sm text-gray-900">-{formatCurrency(totalDiscount)}</span>
+            </div>
+          )}
           {taxRate > 0 && (
             <div className="flex justify-between py-2 border-b border-gray-200">
               <span className="text-sm font-semibold text-gray-700">Tax ({taxRate}%)</span>

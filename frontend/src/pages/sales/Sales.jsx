@@ -9,6 +9,7 @@ const Sales = () => {
   const [products, setProducts] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [printSale, setPrintSale] = useState(null);
 
   // Void State
@@ -65,16 +66,28 @@ const Sales = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
     try {
+      const quantity = Number(formData.quantity);
+      const sellingPrice = Number(formData.unitPrice);
+      const discount = Number(formData.discount);
+      
+      const itemTotal = quantity * sellingPrice;
+      const subtotal = itemTotal;
+      const finalTotal = subtotal - discount;
+
       const payload = {
         invoiceNumber: formData.invoiceNumber,
         customerName: formData.customerName,
+        subtotal: subtotal,
+        discount: discount,
+        total: finalTotal,
         items: [
           {
             productId: formData.productId,
-            quantity: Number(formData.quantity),
-            unitPrice: Number(formData.unitPrice),
-            discount: Number(formData.discount)
+            quantity: quantity,
+            sellingPrice: sellingPrice,
+            total: itemTotal
           }
         ]
       };
@@ -92,7 +105,7 @@ const Sales = () => {
       setShowForm(false);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to record sale');
+      setError(err.response?.data?.error || 'Failed to record sale');
     }
   };
 
@@ -100,18 +113,41 @@ const Sales = () => {
     e.preventDefault();
     if (!voidReason.trim()) return alert('Void reason is required');
     try {
+      setError(null);
       await api.post(`/sales/${voidModalSale._id}/void`, { voidReason });
       setVoidModalSale(null);
       setVoidReason('');
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to void sale');
+      setError(err.response?.data?.error || 'Failed to void sale');
     }
   };
 
   return (
     <>
     <div className="space-y-6 print:hidden">
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 relative">
+          <div className="flex justify-between items-center">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-500">
+              <span className="sr-only">Close</span>
+              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold leading-7 text-gray-900">Sales</h2>
         <button 
@@ -309,14 +345,16 @@ const Sales = () => {
                 <ul className="list-disc pl-5 space-y-1">
                   {viewModalSale.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ {formatCurrency(item.unitPrice)} 
-                      {item.discount > 0 && ` (-${formatCurrency(item.discount)} disc)`} 
-                      = {formatCurrency(item.unitPrice * item.quantity - item.discount)}
+                      {item.quantity}x {item.product?.name || 'Unknown Product'} @ {formatCurrency(item.sellingPrice)} 
+                      = {formatCurrency(item.total)}
                     </li>
                   ))}
                 </ul>
               </div>
-              <p className="mt-4 text-right font-bold text-lg text-gray-900">Total: {formatCurrency(viewModalSale.total)}</p>
+              {viewModalSale.discount > 0 && (
+                <p className="mt-4 text-right text-sm text-gray-600">Discount: -{formatCurrency(viewModalSale.discount)}</p>
+              )}
+              <p className="mt-1 text-right font-bold text-lg text-gray-900">Total: {formatCurrency(viewModalSale.total)}</p>
             </div>
             <div className="mt-6 flex justify-end space-x-3">
               <button 
