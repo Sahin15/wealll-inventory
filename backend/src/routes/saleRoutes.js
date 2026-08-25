@@ -1,6 +1,6 @@
 const express = require('express');
 const { getSales, createSale, voidSale } = require('../controllers/saleController');
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -11,6 +11,6 @@ router.route('/')
   .post(createSale);
 
 router.route('/:id/void')
-  .post(voidSale);
+  .post(authorize('admin', 'manager'), voidSale);
 
 module.exports = router;

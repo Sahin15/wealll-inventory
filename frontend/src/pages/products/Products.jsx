@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
+import CategoryBadge from '../../components/CategoryBadge';
+import { AuthContext } from '../../context/AuthContext';
+import { hasPermission } from '../../utils/permissions';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -9,6 +12,8 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const { user } = React.useContext(AuthContext);
+  const canManage = hasPermission(user?.role, 'products.manage');
 
   const [formData, setFormData] = useState({
     name: '', sku: '', categoryId: '', purchasePrice: '', sellingPrice: '', minimumStock: ''
@@ -74,50 +79,55 @@ const Products = () => {
         <h2 className="text-2xl font-bold leading-7 text-gray-900">Products</h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <div className="card p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">{editingId ? 'Edit Product' : 'Add Product'}</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field mt-1" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">SKU</label>
-                <input type="text" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} className="input-field mt-1" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Category</label>
-                <select required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})} className="input-field mt-1">
-                  {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col md:flex-row gap-6">
+        {canManage && (
+          <div className="md:w-1/3">
+            <div className="card p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{editingId ? 'Edit Product' : 'Add New Product'}</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Purchase Price (₹)</label>
-                  <input type="number" step="0.01" required value={formData.purchasePrice} onChange={e => setFormData({...formData, purchasePrice: e.target.value})} className="input-field mt-1" />
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field mt-1" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Selling Price (₹)</label>
-                  <input type="number" step="0.01" required value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} className="input-field mt-1" />
+                  <label className="block text-sm font-medium text-gray-700">SKU</label>
+                  <input type="text" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} className="input-field mt-1" />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Min Stock</label>
-                <input type="number" required value={formData.minimumStock} onChange={e => setFormData({...formData, minimumStock: e.target.value})} className="input-field mt-1" />
-              </div>
-              <div className="flex space-x-2">
-                <button type="submit" className="btn-primary flex-1">{editingId ? 'Update' : 'Save'}</button>
-                {editingId && (
-                  <button type="button" onClick={handleCancel} className="btn-primary bg-gray-500 hover:bg-gray-600 flex-1">
-                    Cancel
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Category</label>
+                  <select required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})} className="input-field mt-1">
+                    {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Purchase Price</label>
+                    <input type="number" step="0.01" required value={formData.purchasePrice} onChange={e => setFormData({...formData, purchasePrice: e.target.value})} className="input-field mt-1" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Selling Price</label>
+                    <input type="number" step="0.01" required value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} className="input-field mt-1" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Min Stock Alert</label>
+                  <input type="number" required value={formData.minimumStock} onChange={e => setFormData({...formData, minimumStock: e.target.value})} className="input-field mt-1" />
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button type="submit" className="btn-primary flex-1 justify-center">
+                    {editingId ? <Edit2 size={18} className="mr-2" /> : <Plus size={18} className="mr-2" />}
+                    {editingId ? 'Update' : 'Add Product'}
                   </button>
-                )}
-              </div>
-            </form>
+                  {editingId && (
+                    <button type="button" onClick={resetForm} className="btn-secondary flex-1 justify-center">
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="md:col-span-2">
           <div className="mb-4">
@@ -143,7 +153,7 @@ const Products = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      {canManage && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -155,18 +165,22 @@ const Products = () => {
                           <div className="text-sm font-medium text-gray-900">{prod.name}</div>
                           <div className="text-sm text-gray-500">SKU: {prod.sku}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{prod.categoryId?.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {prod.categoryId ? <CategoryBadge category={prod.categoryId} /> : <span className="text-sm text-gray-500">-</span>}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
                           <span className={prod.currentStock <= prod.minimumStock ? 'text-red-600' : 'text-gray-900'}>
                             {prod.currentStock}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{formatCurrency(prod.sellingPrice)}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button onClick={() => handleEdit(prod)} className="text-indigo-600 hover:text-indigo-900">
-                            Edit
-                          </button>
-                        </td>
+                        {canManage && (
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onClick={() => handleEdit(prod)} className="text-indigo-600 hover:text-indigo-900">
+                              Edit
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

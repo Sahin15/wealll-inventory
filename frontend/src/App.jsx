@@ -4,6 +4,7 @@ import AuthLayout from './layouts/AuthLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import SuperAdminLayout from './layouts/SuperAdminLayout';
 import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
 import Analytics from './pages/analytics/Analytics';
 import Categories from './pages/categories/Categories';
@@ -16,6 +17,7 @@ import ClassDetails from './pages/classes/ClassDetails';
 import Team from './pages/settings/Team';
 import BusinessSettings from './pages/settings/BusinessSettings';
 import TenantManager from './pages/superadmin/TenantManager';
+import ApplicationManager from './pages/superadmin/ApplicationManager';
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
         
         <Route element={<DashboardLayout />}>
@@ -41,6 +44,7 @@ function App() {
 
         <Route element={<SuperAdminLayout />}>
           <Route path="/wealll-admin" element={<TenantManager />} />
+          <Route path="/wealll-admin/applications" element={<ApplicationManager />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />

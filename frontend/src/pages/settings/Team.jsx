@@ -98,11 +98,11 @@ const Team = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="input-field mt-1" autoComplete="new-password" />
+                <input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} onFocus={e => e.target.removeAttribute('readonly')} readOnly className="input-field mt-1" autoComplete="new-password" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input type="password" required value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} className="input-field mt-1" autoComplete="new-password" />
+                <input type="password" required value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} onFocus={e => e.target.removeAttribute('readonly')} readOnly className="input-field mt-1" autoComplete="new-password" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700">Role</label>

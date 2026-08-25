@@ -11,13 +11,14 @@ exports.getCategories = async (req, res) => {
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, color } = req.body;
     if (!name) return res.status(400).json({ success: false, error: 'Name is required' });
 
     const category = await Category.create({
       tenantId: req.user.tenantId,
       name,
-      description
+      description,
+      color
     });
     res.status(201).json({ success: true, data: category });
   } catch (error) {
@@ -30,10 +31,10 @@ exports.createCategory = async (req, res) => {
 
 exports.updateCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, color } = req.body;
     const category = await Category.findOneAndUpdate(
       { _id: req.params.id, tenantId: req.user.tenantId },
-      { name, description },
+      { name, description, color },
       { new: true, runValidators: true }
     );
     if (!category) return res.status(404).json({ success: false, error: 'Category not found' });

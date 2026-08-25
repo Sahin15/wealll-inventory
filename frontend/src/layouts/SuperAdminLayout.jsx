@@ -1,7 +1,7 @@
 import React from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Building2, LogOut } from 'lucide-react';
+import { Building2, LogOut, FileText } from 'lucide-react';
 
 const SuperAdminLayout = () => {
   const { user, logout, loading } = useAuth();
@@ -29,10 +29,20 @@ const SuperAdminLayout = () => {
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto">
             <nav className="flex-1 px-2 py-4 space-y-1">
-              <div className="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-gray-800 text-white">
-                <Building2 className="mr-3 flex-shrink-0 h-5 w-5 text-gray-300" aria-hidden="true" />
+              <Link 
+                to="/wealll-admin"
+                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${location.pathname === '/wealll-admin' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}
+              >
+                <Building2 className="mr-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
                 Tenants
-              </div>
+              </Link>
+              <Link 
+                to="/wealll-admin/applications"
+                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${location.pathname === '/wealll-admin/applications' ? 'bg-gray-800 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}
+              >
+                <FileText className="mr-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                Applications
+              </Link>
             </nav>
           </div>
           <div className="flex-shrink-0 flex border-t border-gray-800 p-4">

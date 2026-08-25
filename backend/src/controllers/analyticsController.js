@@ -10,6 +10,10 @@ exports.getAnalytics = async (req, res) => {
     const { startDate, endDate } = req.query;
     const tenantId = req.user.tenantId;
     
+    if (!tenantId || (typeof tenantId !== 'string' && !mongoose.Types.ObjectId.isValid(tenantId))) {
+      return res.status(401).json({ success: false, error: 'Invalid or missing tenant ID in session' });
+    }
+
     // Default to last 30 days if no dates provided
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(new Date().setDate(new Date().getDate() - 30));

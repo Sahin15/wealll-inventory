@@ -13,6 +13,7 @@ const tenantSchema = new mongoose.Schema({
   invoiceFooterText: { type: String, default: "Thank you for your business!" },
   appName: { type: String, default: "WeAlll Inventory" },
   logoUrl: { type: String },
+  brandColor: { type: String, default: '#000000' },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' }
 }, { timestamps: true });
 

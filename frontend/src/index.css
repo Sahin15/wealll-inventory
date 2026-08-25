@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand-color: #000000;
+  --brand-text-color: #ffffff;
+}
+
 @layer base {
   body {
     @apply font-sans;
@@ -10,7 +15,9 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-black text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-300 focus:outline-none disabled:opacity-50;
+    background-color: var(--brand-color);
+    color: var(--brand-text-color);
+    @apply px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-colors focus:ring-2 focus:ring-gray-300 focus:outline-none disabled:opacity-50;
   }
   .btn-secondary {
     @apply bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors focus:ring-2 focus:ring-gray-200 focus:outline-none disabled:opacity-50;

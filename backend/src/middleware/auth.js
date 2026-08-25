@@ -9,7 +9,7 @@ const protect = async (req, res, next) => {
       
       req.user = {
         userId: decoded.userId,
-        tenantId: decoded.tenantId,
+        tenantId: typeof decoded.tenantId === 'object' && decoded.tenantId !== null ? decoded.tenantId._id : decoded.tenantId,
         role: decoded.role
       };
       

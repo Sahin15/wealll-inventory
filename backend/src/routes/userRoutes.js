@@ -5,7 +5,7 @@ const { protect, authorize } = require('../middleware/auth');
 const router = express.Router();
 
 router.use(protect);
-router.use(authorize('admin', 'manager')); // Only admin/manager can manage users
+router.use(authorize('admin')); // Only admin can manage users
 
 router.route('/')
   .get(getUsers)

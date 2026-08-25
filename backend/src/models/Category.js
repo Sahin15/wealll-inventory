@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const categorySchema = new mongoose.Schema({
   tenantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
   name: { type: String, required: true },
-  description: { type: String }
+  description: { type: String },
+  color: { type: String, default: '#e5e7eb' }
 }, { timestamps: true });
 
 categorySchema.index({ tenantId: 1, name: 1 }, { unique: true });

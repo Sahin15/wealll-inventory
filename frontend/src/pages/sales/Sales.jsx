@@ -4,6 +4,9 @@ import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import InvoicePrint from '../../components/InvoicePrint';
 import { formatDate } from '../../utils/dateFormatter';
+import CategoryBadge from '../../components/CategoryBadge';
+import { AuthContext } from '../../context/AuthContext';
+import { hasPermission } from '../../utils/permissions';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
@@ -13,6 +16,8 @@ const Sales = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [printSale, setPrintSale] = useState(null);
+  const { user } = React.useContext(AuthContext);
+  const canVoid = hasPermission(user?.role, 'sales.void');
 
   // Void State
   const [voidModalSale, setVoidModalSale] = useState(null);
@@ -232,6 +237,14 @@ const Sales = () => {
                   <select required value={formData.productId} onChange={handleProductChange} className="input-field mt-1">
                     {products.map(p => <option key={p._id} value={p._id}>{p.name} (Stock: {p.currentStock})</option>)}
                   </select>
+                  {(() => {
+                    const selectedProd = products.find(p => p._id === formData.productId);
+                    return selectedProd?.categoryId ? (
+                      <div className="mt-2">
+                        <CategoryBadge category={selectedProd.categoryId} />
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Quantity</label>
@@ -294,11 +307,17 @@ const Sales = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {sale.items.map((item, idx) => (
-                        <div key={idx}>
-                          {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'}
-                        </div>
-                      ))}
+                      <div className="space-y-1">
+                        {sale.items.map((item, idx) => {
+                          const prod = item.productId || item.product;
+                          return (
+                            <div key={idx} className="flex items-center gap-2">
+                              <span>{item.quantity}x {prod?.name || 'Unknown Product'}</span>
+                              {prod?.categoryId && <CategoryBadge category={prod.categoryId} />}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
                       {formatCurrency(sale.total)}
@@ -333,15 +352,17 @@ const Sales = () => {
                               >
                                 View Details
                               </button>
-                              <button 
-                                onClick={() => {
-                                  setVoidModalSale(sale);
-                                  setRevealId(null);
-                                }} 
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                              >
-                                Void Transaction
-                              </button>
+                              {canVoid && (
+                                <button 
+                                  onClick={() => {
+                                    setVoidModalSale(sale);
+                                    setRevealId(null);
+                                  }} 
+                                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                >
+                                  Void Transaction
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>

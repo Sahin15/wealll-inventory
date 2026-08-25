@@ -12,7 +12,8 @@ const BusinessSettings = () => {
     invoiceHeaderText: '',
     invoiceFooterText: '',
     appName: '',
-    logoUrl: ''
+    logoUrl: '',
+    brandColor: '#000000'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,7 +36,8 @@ const BusinessSettings = () => {
         invoiceHeaderText: res.data.data.invoiceHeaderText || '',
         invoiceFooterText: res.data.data.invoiceFooterText || '',
         appName: res.data.data.appName || 'WeAlll Inventory',
-        logoUrl: res.data.data.logoUrl || ''
+        logoUrl: res.data.data.logoUrl || '',
+        brandColor: res.data.data.brandColor || '#000000'
       });
       setLoading(false);
     } catch (error) {
@@ -163,6 +165,29 @@ const BusinessSettings = () => {
                         </button>
                       </div>
                     )}
+                  </div>
+
+                  <div className="pt-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Brand Primary Color</label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="color"
+                        value={settings.brandColor}
+                        onChange={(e) => setSettings({ ...settings, brandColor: e.target.value })}
+                        className="h-10 w-14 rounded cursor-pointer border-0 p-0"
+                      />
+                      <div className="text-sm text-gray-600 font-mono bg-white px-2 py-1 border rounded shadow-sm">
+                        {settings.brandColor.toUpperCase()}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSettings({ ...settings, brandColor: '#000000' })}
+                        className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                      >
+                        Reset to Default
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">This color will be used for primary buttons and active accents.</p>
                   </div>
                 </div>
               </div>

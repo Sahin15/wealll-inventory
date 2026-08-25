@@ -13,10 +13,17 @@ import {
   Settings,
   BookOpen
 } from 'lucide-react';
+import { getContrastYIQ } from '../utils/colorUtils';
 
 const DashboardLayout = () => {
   const { user, logout, loading } = useContext(AuthContext);
   const location = useLocation();
+
+  React.useEffect(() => {
+    if (user?.tenantId?.appName) {
+      document.title = `${user.tenantId.appName} - Dashboard`;
+    }
+  }, [user]);
 
   if (loading) {
     return <div className="flex h-screen items-center justify-center bg-gray-50">Loading...</div>;
@@ -25,12 +32,6 @@ const DashboardLayout = () => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
-  React.useEffect(() => {
-    if (user?.tenantId?.appName) {
-      document.title = `${user.tenantId.appName} - Dashboard`;
-    }
-  }, [user]);
 
   if (user.role === 'superadmin') {
     return <Navigate to="/wealll-admin" replace />;
@@ -45,12 +46,17 @@ const DashboardLayout = () => {
     { name: 'Purchases', href: '/purchases', icon: ShoppingCart, roles: ['admin', 'manager'] },
     { name: 'Sales', href: '/sales', icon: Receipt, roles: ['admin', 'manager', 'staff'] },
     { name: 'Classes', href: '/classes', icon: BookOpen, roles: ['admin', 'manager', 'staff'] },
-    { name: 'Team', href: '/team', icon: Users, roles: ['admin', 'manager'] },
+    { name: 'Team', href: '/team', icon: Users, roles: ['admin'] },
     { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin'] },
   ].filter(item => item.roles.includes(user.role));
 
+  const brandStyle = user?.tenantId?.brandColor ? {
+    '--brand-color': user.tenantId.brandColor,
+    '--brand-text-color': getContrastYIQ(user.tenantId.brandColor)
+  } : {};
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex" style={brandStyle}>
       {/* Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm print:hidden">
         <div className="flex-1 flex flex-col min-h-0">
@@ -72,13 +78,15 @@ const DashboardLayout = () => {
                     key={item.name}
                     to={item.href}
                     className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      isActive ? '' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
+                    style={isActive ? { backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)' } : {}}
                   >
                     <item.icon
                       className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                        isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'
+                        isActive ? '' : 'text-gray-400 group-hover:text-gray-500'
                       }`}
+                      style={isActive ? { color: 'var(--brand-text-color)' } : {}}
                       aria-hidden="true"
                     />
                     {item.name}

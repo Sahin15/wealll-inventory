@@ -26,6 +26,7 @@ exports.getSettings = async (req, res) => {
         invoiceFooterText: tenant.invoiceFooterText,
         appName: tenant.appName,
         logoUrl: tenant.logoUrl,
+        brandColor: tenant.brandColor,
         status: tenant.status
       }
     });
@@ -40,7 +41,12 @@ exports.getSettings = async (req, res) => {
 // @access  Private/Admin
 exports.updateSettings = async (req, res) => {
   try {
-    const { businessName, ownerName, email, phone, businessPhone, businessAddress, taxRate, invoiceHeaderText, invoiceFooterText, appName, logoUrl } = req.body;
+    const { businessName, ownerName, email, phone, businessPhone, businessAddress, taxRate, invoiceHeaderText, invoiceFooterText, appName, logoUrl, brandColor } = req.body;
+
+    // Validate brandColor if provided
+    if (brandColor && !/^#([0-9A-F]{3}){1,2}$/i.test(brandColor)) {
+      return res.status(400).json({ success: false, error: 'Invalid brand color hex code' });
+    }
 
     // Only update allowed fields. Ensure we use req.user.tenantId
     const tenant = await Tenant.findByIdAndUpdate(
@@ -56,7 +62,8 @@ exports.updateSettings = async (req, res) => {
         invoiceHeaderText,
         invoiceFooterText,
         appName,
-        logoUrl
+        logoUrl,
+        brandColor
       },
       { new: true, runValidators: true }
     );
@@ -81,6 +88,7 @@ exports.updateSettings = async (req, res) => {
         invoiceFooterText: tenant.invoiceFooterText,
         appName: tenant.appName,
         logoUrl: tenant.logoUrl,
+        brandColor: tenant.brandColor,
         status: tenant.status
       }
     });
