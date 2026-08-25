@@ -114,12 +114,12 @@ const Products = () => {
                   <input type="number" required value={formData.minimumStock} onChange={e => setFormData({...formData, minimumStock: e.target.value})} className="input-field mt-1" />
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <button type="submit" className="btn-primary flex-1 justify-center">
+                  <button type="submit" className="btn-primary flex-1 flex items-center justify-center">
                     {editingId ? <Edit2 size={18} className="mr-2" /> : <Plus size={18} className="mr-2" />}
                     {editingId ? 'Update' : 'Add Product'}
                   </button>
                   {editingId && (
-                    <button type="button" onClick={resetForm} className="btn-secondary flex-1 justify-center">
+                    <button type="button" onClick={handleCancel} className="btn-secondary flex-1 flex items-center justify-center">
                       Cancel
                     </button>
                   )}
@@ -129,7 +129,7 @@ const Products = () => {
           </div>
         )}
         
-        <div className="md:col-span-2">
+        <div className="flex-1">
           <div className="mb-4">
             <input
               type="text"
