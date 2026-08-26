@@ -18,6 +18,7 @@ import Team from './pages/settings/Team';
 import BusinessSettings from './pages/settings/BusinessSettings';
 import TenantManager from './pages/superadmin/TenantManager';
 import ApplicationManager from './pages/superadmin/ApplicationManager';
+import PwaUpdater from './components/PwaUpdater';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
         
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <PwaUpdater />
     </Router>
   );
 }

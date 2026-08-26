@@ -14,6 +14,8 @@ import {
   BookOpen
 } from 'lucide-react';
 import { getContrastYIQ } from '../utils/colorUtils';
+import TopAppBar from '../components/navigation/TopAppBar';
+import BottomNav from '../components/navigation/BottomNav';
 
 const DashboardLayout = () => {
   const { user, logout, loading } = useContext(AuthContext);
@@ -56,7 +58,7 @@ const DashboardLayout = () => {
   } : {};
 
   return (
-    <div className="min-h-screen bg-gray-50 flex" style={brandStyle}>
+    <div className="fixed inset-0 w-full bg-gray-50 flex overflow-hidden" style={brandStyle}>
       {/* Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm print:hidden">
         <div className="flex-1 flex flex-col min-h-0">
@@ -114,12 +116,14 @@ const DashboardLayout = () => {
       </div>
 
       {/* Main Content */}
-      <div className="md:pl-64 flex flex-col flex-1 print:pl-0">
-        <main className="flex-1">
-          <div className="py-6 px-4 sm:px-6 md:px-8">
+      <div className="md:pl-64 flex flex-col flex-1 print:pl-0 min-w-0 h-full">
+        <TopAppBar />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="py-4 md:py-6 px-4 sm:px-6 md:px-8 pb-6 w-full max-w-full">
             <Outlet />
           </div>
         </main>
+        <BottomNav user={user} navigation={navigation} />
       </div>
     </div>
   );

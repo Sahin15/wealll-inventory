@@ -145,8 +145,10 @@ const Products = () => {
             ) : products.length === 0 ? (
               <div className="p-6 text-center text-gray-500">No products found.</div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-hidden">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
@@ -185,6 +187,46 @@ const Products = () => {
                     ))}
                   </tbody>
                 </table>
+                </div>
+                
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-gray-100">
+                  {products
+                    .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((prod) => (
+                      <div key={prod._id} className="p-4 flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-semibold text-gray-900">{prod.name}</div>
+                            <div className="text-xs text-gray-500">SKU: {prod.sku}</div>
+                          </div>
+                          {prod.categoryId && <CategoryBadge category={prod.categoryId} />}
+                        </div>
+                        <div className="flex justify-between items-center text-sm mt-2">
+                          <div>
+                            <span className="text-gray-500">Stock: </span>
+                            <span className={`font-medium ${prod.currentStock <= prod.minimumStock ? 'text-red-600' : 'text-gray-900'}`}>
+                              {prod.currentStock}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Price: </span>
+                            <span className="font-medium text-gray-900">{formatCurrency(prod.sellingPrice)}</span>
+                          </div>
+                        </div>
+                        {canManage && (
+                          <div className="mt-2 pt-2 border-t border-gray-50 flex justify-end">
+                            <button 
+                              onClick={() => handleEdit(prod)} 
+                              className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100 min-h-[44px] min-w-[44px]"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

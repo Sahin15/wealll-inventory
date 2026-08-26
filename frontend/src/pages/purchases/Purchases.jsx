@@ -105,15 +105,33 @@ const Purchases = () => {
         <h2 className="text-2xl font-bold leading-7 text-gray-900">Purchases</h2>
         <button 
           onClick={() => setShowForm(!showForm)} 
-          className="btn-primary"
+          className="hidden md:block btn-primary"
         >
           {showForm ? 'Cancel' : 'New Purchase'}
         </button>
       </div>
 
+      {/* Floating Action Button for Mobile */}
+      {!showForm && (
+        <button
+          onClick={() => setShowForm(true)}
+          className="md:hidden fixed bottom-20 right-4 z-40 bg-indigo-600 text-white rounded-full p-4 shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 min-h-[56px] min-w-[56px] flex items-center justify-center"
+        >
+          <Plus size={24} />
+        </button>
+      )}
+
       {showForm && (
-        <div className="card p-6 border-l-4 border-indigo-600">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Record New Purchase</h3>
+        <div className="card p-6 border-l-4 border-indigo-600 relative">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Record New Purchase</h3>
+            <button 
+              onClick={() => setShowForm(false)}
+              className="text-gray-400 hover:text-gray-600 p-2 min-h-[44px] min-w-[44px]"
+            >
+              Cancel
+            </button>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -159,8 +177,10 @@ const Purchases = () => {
         ) : purchases.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No purchases recorded yet.</div>
         ) : (
-          <div className="overflow-x-auto min-h-[16rem]">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-hidden min-h-[16rem]">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -241,7 +261,60 @@ const Purchases = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {purchases.map((purchase) => (
+                <div key={purchase._id} className="p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-semibold text-indigo-600 text-sm">{purchase.invoiceNumber}</div>
+                      <div className="text-xs text-gray-500">{formatDate(purchase.purchaseDate)}</div>
+                    </div>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
+                      purchase.status === 'VOIDED' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {purchase.status || 'COMPLETED'}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {purchase.supplierName}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500 space-y-1">
+                      {purchase.items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between">
+                          <span>{item.quantity}x {item.productId?.name || item.product?.name || 'Unknown'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center border-t border-gray-50 pt-2 mt-1">
+                    <div className="font-bold text-gray-900">{formatCurrency(purchase.total)}</div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setViewModalPurchase(purchase)}
+                        className="p-2 text-indigo-600 hover:text-indigo-900 min-h-[44px] min-w-[44px]"
+                      >
+                        <Eye size={20} />
+                      </button>
+                      {purchase.status !== 'VOIDED' && (
+                        <button 
+                          onClick={() => setVoidModalPurchase(purchase)}
+                          className="p-2 text-red-600 hover:text-red-900 min-h-[44px] min-w-[44px]"
+                        >
+                          Void
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

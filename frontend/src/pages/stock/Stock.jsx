@@ -47,8 +47,10 @@ const Stock = () => {
         ) : movements.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No stock movements recorded yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-hidden">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -81,9 +83,42 @@ const Stock = () => {
                       {m.note || '-'}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {movements.map((m) => (
+                <div key={m._id} className="p-4 flex flex-col gap-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-semibold text-gray-900">{m.productId?.name || 'Unknown Product'}</div>
+                      <div className="text-xs text-gray-500">{formatDate(m.createdAt, true)}</div>
+                    </div>
+                    <div>{getTypeBadge(m.type)}</div>
+                  </div>
+                  <div className="flex justify-between items-center text-sm mt-2">
+                    <div>
+                      <span className="text-gray-500">Ref: </span>
+                      <span className="text-gray-900">{m.referenceType || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Qty: </span>
+                      <span className={`font-bold ${m.type === 'IN' ? 'text-indigo-600' : 'text-emerald-600'}`}>
+                        {m.type === 'IN' ? '+' : (m.type === 'OUT' ? '-' : '')}{m.quantity}
+                      </span>
+                    </div>
+                  </div>
+                  {m.note && (
+                    <div className="text-xs text-gray-500 italic mt-1 border-t border-gray-50 pt-1">
+                      {m.note}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
