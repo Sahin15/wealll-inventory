@@ -4,84 +4,21 @@ import { AuthContext } from '../context/AuthContext';
 import { Package, ShoppingCart, Truck, Receipt, TrendingUp, Users, Shield, Cloud, Sparkles } from 'lucide-react';
 
 const features = [
-  { title: "Real-Time Stock", desc: "Know exactly what you have.", icon: Package, color: "bg-blue-500" },
-  { title: "Sales Management", desc: "Keep inventory updated automatically.", icon: ShoppingCart, color: "bg-purple-500" },
-  { title: "Purchase Tracking", desc: "Manage stock efficiently.", icon: Truck, color: "bg-emerald-500" },
-  { title: "GST & Tax Ready", desc: "Keep transactions organized.", icon: Receipt, color: "bg-amber-500" },
-  { title: "Business Analytics", desc: "Understand sales at a glance.", icon: TrendingUp, color: "bg-blue-600" },
-  { title: "Multi-User Access", desc: "Work with secure role-based access.", icon: Users, color: "bg-indigo-500" },
+  { title: "Real-Time Stock", desc: "Know exactly what you have.", icon: Package, color: "bg-[#4285F4]" }, // Google Blue
+  { title: "Sales Management", desc: "Keep inventory updated automatically.", icon: ShoppingCart, color: "bg-[#EA4335]" }, // Google Red
+  { title: "Purchase Tracking", desc: "Manage stock efficiently.", icon: Truck, color: "bg-[#34A853]" }, // Google Green
+  { title: "GST & Tax Ready", desc: "Keep transactions organized.", icon: Receipt, color: "bg-[#FBBC05]" }, // Google Yellow
+  { title: "Business Analytics", desc: "Understand sales at a glance.", icon: TrendingUp, color: "bg-[#4285F4]" },
+  { title: "Multi-User Access", desc: "Work with secure role-based access.", icon: Users, color: "bg-[#EA4335]" },
 ];
 
-const CSSDashboard = () => (
-  <div className="hidden lg:block absolute right-[-5%] top-[2%] w-[500px] h-[350px] pointer-events-none z-0 opacity-20 xl:opacity-40 transition-opacity duration-300">
-    <div 
-      className="w-full h-full bg-[#1e293b] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-white/10"
-      style={{
-        transform: 'perspective(1400px) rotateY(-20deg) rotateX(10deg) rotateZ(-2deg)',
-        transformStyle: 'preserve-3d',
-        boxShadow: '-20px 30px 80px rgba(0,0,0,0.8)',
-      }}
-    >
-      {/* Dashboard Topbar */}
-      <div className="h-8 bg-[#0f172a] border-b border-white/10 flex items-center px-4 justify-between">
-         <div className="flex gap-2">
-            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-         </div>
-         <div className="h-3 w-20 bg-white/10 rounded-md"></div>
-      </div>
-      {/* Dashboard Layout */}
-      <div className="flex flex-1 overflow-hidden bg-[#0f172a]">
-        {/* Sidebar */}
-        <div className="w-24 bg-[#1e293b] border-r border-white/10 p-3 space-y-2.5">
-           {[...Array(6)].map((_,i) => <div key={i} className="h-3 bg-white/10 rounded-md w-full"></div>)}
-        </div>
-        {/* Main Content */}
-        <div className="flex-1 p-4 flex flex-col">
-           <h3 className="text-base font-bold text-white mb-3">Dashboard</h3>
-           
-           {/* KPI Cards */}
-           <div className="grid grid-cols-4 gap-2 mb-3">
-              <div className="bg-[#1e293b] p-2.5 rounded-lg border border-white/5 shadow-sm">
-                 <p className="text-[8px] text-blue-200/60 mb-1 uppercase font-bold tracking-wide">Products</p>
-                 <p className="text-sm font-bold text-white">248</p>
-              </div>
-              <div className="bg-[#1e293b] p-2.5 rounded-lg border border-white/5 shadow-sm">
-                 <p className="text-[8px] text-blue-200/60 mb-1 uppercase font-bold tracking-wide">Stock</p>
-                 <p className="text-sm font-bold text-white">1,284</p>
-              </div>
-              <div className="bg-[#1e293b] p-2.5 rounded-lg border border-white/5 shadow-sm">
-                 <p className="text-[8px] text-blue-200/60 mb-1 uppercase font-bold tracking-wide">Sales</p>
-                 <p className="text-sm font-bold text-white">₹48k</p>
-              </div>
-              <div className="bg-[#1e293b] p-2.5 rounded-lg border border-white/5 shadow-sm border-l-2 border-l-amber-500">
-                 <p className="text-[8px] text-blue-200/60 mb-1 uppercase font-bold tracking-wide">Low</p>
-                 <p className="text-sm font-bold text-amber-500">12</p>
-              </div>
-           </div>
-
-           {/* Charts Area */}
-           <div className="flex gap-2 flex-1">
-              <div className="flex-1 bg-[#1e293b] rounded-lg border border-white/5 p-3 relative overflow-hidden flex flex-col justify-end shadow-sm">
-                 <div className="w-full h-full flex items-end gap-1 pt-3">
-                    {[30, 50, 40, 80, 60, 75, 100].map((h, i) => (
-                      <div key={i} className="flex-1 bg-indigo-500/80 rounded-t-sm transition-all" style={{ height: `${h}%` }}></div>
-                    ))}
-                 </div>
-              </div>
-           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+// Background graphic removed in favor of clean modern pattern
 
 const AuthLayout = () => {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center bg-[#0B132B]">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center bg-gray-50 text-gray-900">Loading...</div>;
   }
 
   if (user) {
@@ -89,99 +26,106 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#ced9ee] to-[#f4f7fb] flex items-center justify-center py-4 sm:py-6 px-4 sm:px-6 lg:px-8 font-sans overflow-hidden">
-      {/* Floating Panel Container */}
-      <div className="w-full max-w-[1300px] bg-[#0B132B] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col lg:flex-row m-auto border border-white/10 relative z-10 lg:h-[88vh] lg:min-h-[600px] lg:max-h-[850px]">
-        
+    <div className="h-screen bg-white flex flex-col lg:flex-row font-sans overflow-hidden w-full">
+      
         {/* Marketing Side (Left) */}
-        <div className="lg:w-[60%] text-white flex flex-col relative overflow-hidden">
-          {/* Subtle backgrounds */}
-          <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+        <div className="lg:w-[55%] xl:w-[60%] text-gray-900 flex flex-col relative overflow-hidden h-screen bg-white">
+          {/* Subtle SaaS Dotted Background & Google Color Orbs */}
+          <div className="absolute inset-0 z-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div>
           
-          <CSSDashboard />
+          <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#4285F4]/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+          <div className="absolute bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-[#34A853]/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
+          <div className="absolute top-[30%] right-[-10%] w-[450px] h-[450px] bg-[#FBBC05]/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+          <div className="absolute bottom-[-5%] right-[-5%] w-[400px] h-[400px] bg-[#EA4335]/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
-          <div className="relative z-10 flex flex-col h-full w-full max-w-2xl p-6 lg:p-8">
+          <div className="relative z-10 flex flex-col flex-1 w-full max-w-3xl xl:max-w-4xl p-6 lg:p-10 xl:p-12 justify-center">
             {/* Header */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-6">
                <div>
-                  <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2 mb-1">
-                    <Package className="w-5 h-5 text-blue-400" />
+                  <h1 className="text-2xl xl:text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-2.5 mb-1.5">
+                    <Package className="w-6 h-6 xl:w-8 xl:h-8 text-[#4285F4]" />
                     WeAlll Inventory
                   </h1>
-                  <p className="text-[10px] text-blue-200/60 font-medium">Smart Inventory. Stronger Business.</p>
+                  <p className="text-xs xl:text-sm text-gray-500 font-medium">Smart Inventory. Stronger Business.</p>
                </div>
-               <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white/5 backdrop-blur-md rounded-full border border-white/10 shrink-0">
-                  <Sparkles className="w-3 h-3 text-blue-300" />
-                  <span className="text-[9px] font-semibold text-white tracking-wide uppercase">All-in-One Solution</span>
+               <div className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-blue-50 rounded-full border border-blue-100 shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-[#4285F4]" />
+                  <span className="text-[10px] xl:text-xs font-bold text-blue-700 tracking-wide uppercase">All-in-One Solution</span>
                </div>
             </div>
             
             {/* Copy */}
-            <div className="mb-4 lg:w-[90%]">
-              <p className="text-blue-400 text-[10px] font-bold tracking-[0.15em] mb-1.5 uppercase">Built for growing businesses</p>
-              <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-bold tracking-tight mb-2.5 leading-[1.15]">
+            <div className="mb-6 lg:w-[85%] xl:w-[80%]">
+              <p className="text-[#4285F4] text-xs xl:text-sm font-bold tracking-[0.2em] mb-2 uppercase">Built for growing businesses</p>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tight mb-4 leading-[1.15]">
                 Manage Stock.<br />Track Sales.<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                <span className="text-[#4285F4]">
                   Grow Faster.
                 </span>
               </h2>
-              <p className="text-[12px] text-blue-100/70 font-light leading-relaxed max-w-sm">
-                Replace spreadsheets with a simple inventory system for products, stock, purchases and sales.
+              <p className="text-sm xl:text-base text-gray-600 font-normal leading-relaxed max-w-lg">
+                Replace spreadsheets with a simple inventory system for products, stock, purchases and sales. Everything you need to scale.
               </p>
             </div>
 
             {/* Feature Grid (3x2 on lg) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3 shrink-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 xl:gap-4 mb-6 shrink-0 relative z-20">
               {features.map((feature, idx) => (
                 <div 
                   key={idx} 
-                  className="bg-white/[0.03] border border-white/5 rounded-xl p-2.5 flex flex-col items-start hover:bg-white/10 transition-colors"
+                  className="bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm rounded-2xl p-4 xl:p-5 flex flex-col items-start hover:shadow-lg hover:border-gray-200 transition-all hover:-translate-y-1"
                 >
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center mb-2 shadow-lg ${feature.color}`}>
-                    <feature.icon className="w-3 h-3 text-white" />
+                  <div className={`w-8 h-8 xl:w-10 xl:h-10 rounded-xl flex items-center justify-center mb-3 shadow-sm ${feature.color}`}>
+                    <feature.icon className="w-4 h-4 xl:w-5 xl:h-5 text-white" />
                   </div>
-                  <h3 className="font-semibold text-[11px] text-white mb-0.5 leading-tight">{feature.title}</h3>
-                  <p className="text-[9px] text-blue-200/60 leading-snug">{feature.desc}</p>
+                  <h3 className="font-semibold text-xs xl:text-sm text-gray-900 mb-1 leading-tight">{feature.title}</h3>
+                  <p className="text-[10px] xl:text-xs text-gray-500 leading-snug">{feature.desc}</p>
                 </div>
               ))}
             </div>
 
             {/* Bottom Highlights */}
-            <div className="mt-auto pt-3 border-t border-white/5 flex flex-col sm:flex-row gap-3 shrink-0 pb-1">
-               <div className="flex items-start gap-2 flex-1">
-                 <Shield className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+            <div className="pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-6 shrink-0 pb-2">
+               <div className="flex items-start gap-3 flex-1">
+                 <Shield className="w-5 h-5 xl:w-6 xl:h-6 text-[#4285F4] shrink-0 mt-0.5" />
                  <div>
-                   <h4 className="text-[11px] font-semibold text-white mb-0.5">Secure & Reliable</h4>
-                   <p className="text-[10px] text-blue-200/50 leading-snug">Data stays protected with secure access controls.</p>
+                   <h4 className="text-xs xl:text-sm font-semibold text-gray-900 mb-1">Secure & Reliable</h4>
+                   <p className="text-[11px] xl:text-xs text-gray-500 leading-relaxed pr-4">Data stays protected with enterprise-grade secure access controls.</p>
                  </div>
                </div>
-               <div className="flex items-start gap-2 flex-1">
-                 <Cloud className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+               <div className="flex items-start gap-3 flex-1">
+                 <Cloud className="w-5 h-5 xl:w-6 xl:h-6 text-[#34A853] shrink-0 mt-0.5" />
                  <div>
-                   <h4 className="text-[11px] font-semibold text-white mb-0.5">Access Anywhere</h4>
-                   <p className="text-[10px] text-blue-200/50 leading-snug">Use on desktop, tablet or mobile anytime.</p>
+                   <h4 className="text-xs xl:text-sm font-semibold text-gray-900 mb-1">Access Anywhere</h4>
+                   <p className="text-[11px] xl:text-xs text-gray-500 leading-relaxed pr-4">Use seamlessly on your desktop, tablet, or mobile phone anytime.</p>
                  </div>
                </div>
             </div>
           </div>
         </div>
 
-        {/* Auth Side (Right) - Dark theme matching the page */}
-        <div className="lg:w-[40%] flex flex-col bg-[#131B32]/80 backdrop-blur-3xl border-l border-white/5 relative overflow-y-auto">
+        {/* Auth Side (Right) - Light theme */}
+        <div className="flex-1 flex flex-col bg-gray-50/50 border-l border-gray-100 relative overflow-y-auto">
           <div className="flex-1 flex flex-col justify-center py-10 px-6 sm:px-8 lg:px-12 w-full mx-auto">
             <Outlet />
           </div>
           
           {/* Watermark */}
-          <div className="py-6 text-center mt-auto border-t border-white/5">
-            <p className="text-[11px] text-blue-200/40 uppercase tracking-[0.2em] font-semibold">
-              Powered by <span className="text-blue-400 font-bold ml-1">WeAlll</span>
+          <div className="py-6 text-center mt-auto border-t border-gray-200">
+            <p className="text-[11px] text-gray-400 uppercase tracking-[0.2em] font-semibold">
+              Powered by{' '}
+              <a 
+                href="https://wealll.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[#4285F4] font-bold ml-1 hover:underline hover:text-[#3367D6] transition-colors"
+              >
+                WeAlll
+              </a>
             </p>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
