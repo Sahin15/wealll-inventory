@@ -69,7 +69,7 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ email })
       .select('+passwordHash')
-      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor');
+      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor status');
     
     if (!user) {
       // Check for pending or rejected application
@@ -94,7 +94,11 @@ exports.login = async (req, res) => {
       return res.status(403).json({ success: false, error: 'User account is inactive' });
     }
 
-    const token = generateToken(user._id, user.tenantId._id, user.role);
+    if (user.tenantId && user.tenantId.status === 'suspended') {
+      return res.status(403).json({ success: false, error: 'Your organization account has been suspended. Please contact WeAlll support.' });
+    }
+
+    const token = generateToken(user._id, user.tenantId ? user.tenantId._id : null, user.role);
 
     res.json({
       success: true,
@@ -117,7 +121,7 @@ exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
       .select('-passwordHash')
-      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor');
+      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor status');
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }

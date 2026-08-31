@@ -14,7 +14,21 @@ const tenantSchema = new mongoose.Schema({
   appName: { type: String, default: "WeAlll Inventory" },
   logoUrl: { type: String },
   brandColor: { type: String, default: '#000000' },
-  status: { type: String, enum: ['active', 'inactive'], default: 'active' }
+  businessType: { type: String },
+  city: { type: String },
+  state: { type: String },
+  pinCode: { type: String },
+  gstin: { type: String },
+  status: { type: String, enum: ['active', 'inactive', 'suspended'], default: 'active' },
+  tenantCode: { type: String, unique: true }
 }, { timestamps: true });
+
+tenantSchema.pre('save', function (next) {
+  if (!this.tenantCode) {
+    const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+    this.tenantCode = `WL-${randomStr}`;
+  }
+  next();
+});
 
 module.exports = mongoose.model('Tenant', tenantSchema);

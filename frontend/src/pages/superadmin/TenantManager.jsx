@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { formatDate } from '../../utils/dateFormatter';
 
 const TenantManager = () => {
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTenant, setSelectedTenant] = useState(null);
 
   // Form State
   const [showForm, setShowForm] = useState(false);
@@ -13,7 +13,14 @@ const TenantManager = () => {
     studioName: '',
     adminName: '',
     adminEmail: '',
-    adminPassword: ''
+    adminPassword: '',
+    businessType: 'Makeup Artist / Makeup Studio',
+    businessPhone: '',
+    businessAddress: '',
+    city: '',
+    state: '',
+    pinCode: '',
+    gstin: ''
   });
 
   const fetchTenants = async () => {
@@ -36,7 +43,11 @@ const TenantManager = () => {
     e.preventDefault();
     try {
       await api.post('/superadmin/tenants', formData);
-      setFormData({ studioName: '', adminName: '', adminEmail: '', adminPassword: '' });
+      setFormData({ 
+        studioName: '', adminName: '', adminEmail: '', adminPassword: '',
+        businessType: 'Makeup Artist / Makeup Studio', businessPhone: '', businessAddress: '',
+        city: '', state: '', pinCode: '', gstin: ''
+      });
       setShowForm(false);
       fetchTenants();
       alert('Client successfully onboarded!');
@@ -61,23 +72,57 @@ const TenantManager = () => {
         <div className="card p-6 border-l-4 border-indigo-600">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Create New Client Environment</h3>
           <p className="text-sm text-gray-500 mb-4">This will create a new isolated tenant and their first Admin account.</p>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Studio / Business Name</label>
-                <input type="text" required value={formData.studioName} onChange={e => setFormData({...formData, studioName: e.target.value})} className="input-field mt-1" />
+                <input type="text" required value={formData.studioName} onChange={e => setFormData({...formData, studioName: e.target.value})} className="input-field mt-1" autoComplete="off" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Business Type</label>
+                <select required value={formData.businessType} onChange={e => setFormData({...formData, businessType: e.target.value})} className="input-field mt-1">
+                  <option value="Makeup Artist / Makeup Studio">Makeup Artist / Makeup Studio</option>
+                  <option value="Salon">Salon</option>
+                  <option value="Beauty Business">Beauty Business</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Admin Name</label>
-                <input type="text" required value={formData.adminName} onChange={e => setFormData({...formData, adminName: e.target.value})} className="input-field mt-1" />
+                <input type="text" required value={formData.adminName} onChange={e => setFormData({...formData, adminName: e.target.value})} className="input-field mt-1" autoComplete="off" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Admin Email</label>
-                <input type="email" required value={formData.adminEmail} onChange={e => setFormData({...formData, adminEmail: e.target.value})} className="input-field mt-1" />
+                <input type="email" required value={formData.adminEmail} onChange={e => setFormData({...formData, adminEmail: e.target.value})} className="input-field mt-1" autoComplete="new-email" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Starting Password</label>
-                <input type="password" required value={formData.adminPassword} onChange={e => setFormData({...formData, adminPassword: e.target.value})} className="input-field mt-1" />
+                <input type="password" required value={formData.adminPassword} onChange={e => setFormData({...formData, adminPassword: e.target.value})} className="input-field mt-1" autoComplete="new-password" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Business Phone</label>
+                <input type="tel" required value={formData.businessPhone} onChange={e => setFormData({...formData, businessPhone: e.target.value})} className="input-field mt-1" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Business Address</label>
+                <input type="text" required value={formData.businessAddress} onChange={e => setFormData({...formData, businessAddress: e.target.value})} className="input-field mt-1" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">City</label>
+                <input type="text" required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="input-field mt-1" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">State</label>
+                <input type="text" required value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="input-field mt-1" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">PIN Code</label>
+                <input type="text" required value={formData.pinCode} onChange={e => setFormData({...formData, pinCode: e.target.value})} className="input-field mt-1" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">GSTIN (Optional)</label>
+                <input type="text" value={formData.gstin} onChange={e => setFormData({...formData, gstin: e.target.value})} className="input-field mt-1" />
               </div>
             </div>
             <div className="flex justify-end pt-4">
@@ -118,16 +163,16 @@ const TenantManager = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(t.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-400 font-mono">
-                      {t._id}
+                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono font-medium">
+                      {t.tenantCode || t._id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        onClick={() => setSelectedTenant(t)}
+                      <Link 
+                        to={`/wealll-admin/tenants/${t._id}`}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         View Details
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -136,63 +181,6 @@ const TenantManager = () => {
           </div>
         )}
       </div>
-
-      {/* Client Details Modal */}
-      {selectedTenant && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900">Client Details</h3>
-              <button 
-                onClick={() => setSelectedTenant(null)}
-                className="text-gray-400 hover:text-gray-500"
-              >
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
-            <div className="px-6 py-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Studio / Business Name</label>
-                <p className="mt-1 text-sm text-gray-900">{selectedTenant.studioName || selectedTenant.businessName}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Admin Name</label>
-                <p className="mt-1 text-sm text-gray-900">{selectedTenant.name}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Admin Email</label>
-                <p className="mt-1 text-sm text-gray-900">{selectedTenant.email}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Status</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    selectedTenant.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {selectedTenant.status.toUpperCase()}
-                  </span>
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Tenant ID (Database Partition)</label>
-                <p className="mt-1 text-sm font-mono text-gray-900">{selectedTenant._id}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Registered On</label>
-                <p className="mt-1 text-sm text-gray-900">{formatDate(selectedTenant.createdAt, true)}</p>
-              </div>
-            </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-              <button 
-                onClick={() => setSelectedTenant(null)}
-                className="btn-primary bg-gray-600 hover:bg-gray-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

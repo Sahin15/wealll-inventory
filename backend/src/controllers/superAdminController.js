@@ -1,7 +1,41 @@
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const RegistrationApplication = require('../models/RegistrationApplication');
+const GlobalSettings = require('../models/GlobalSettings');
 const bcrypt = require('bcryptjs');
+
+exports.getGlobalSettings = async (req, res) => {
+  try {
+    let settings = await GlobalSettings.findOne();
+    if (!settings) {
+      settings = await GlobalSettings.create({});
+    }
+    res.json({ success: true, data: settings });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
+exports.updateGlobalSettings = async (req, res) => {
+  try {
+    let settings = await GlobalSettings.findOne();
+    if (!settings) {
+      settings = await GlobalSettings.create({});
+    }
+    
+    const allowedFields = ['maintenanceMode', 'announcementText', 'defaultTaxRate', 'platformName', 'supportEmail'];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        settings[field] = req.body[field];
+      }
+    });
+
+    await settings.save();
+    res.json({ success: true, data: settings });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
 
 exports.getTenants = async (req, res) => {
   try {
@@ -19,9 +53,87 @@ exports.getTenants = async (req, res) => {
   }
 };
 
+exports.getTenantById = async (req, res) => {
+  try {
+    const tenant = await Tenant.findById(req.params.id);
+    if (!tenant) {
+      return res.status(404).json({ success: false, error: 'Tenant not found' });
+    }
+    
+    // Also fetch the admin user for this tenant
+    const adminUser = await User.findOne({ tenantId: tenant._id, role: 'admin' });
+
+    res.json({ 
+      success: true, 
+      data: {
+        ...tenant.toObject(),
+        adminName: adminUser ? adminUser.name : '',
+        adminEmail: adminUser ? adminUser.email : ''
+      } 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
+exports.updateTenant = async (req, res) => {
+  try {
+    const tenant = await Tenant.findById(req.params.id);
+    if (!tenant) {
+      return res.status(404).json({ success: false, error: 'Tenant not found' });
+    }
+
+    const {
+      businessName, businessType, email, phone, businessPhone, 
+      businessAddress, city, state, pinCode, gstin
+    } = req.body;
+
+    if (businessName !== undefined) tenant.businessName = businessName;
+    if (businessType !== undefined) tenant.businessType = businessType;
+    if (email !== undefined) tenant.email = email;
+    if (phone !== undefined) tenant.phone = phone;
+    if (businessPhone !== undefined) tenant.businessPhone = businessPhone;
+    if (businessAddress !== undefined) tenant.businessAddress = businessAddress;
+    if (city !== undefined) tenant.city = city;
+    if (state !== undefined) tenant.state = state;
+    if (pinCode !== undefined) tenant.pinCode = pinCode;
+    if (gstin !== undefined) tenant.gstin = gstin;
+
+    await tenant.save();
+
+    res.json({ success: true, data: tenant });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
+exports.updateTenantStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['active', 'inactive', 'suspended'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status' });
+    }
+
+    const tenant = await Tenant.findById(req.params.id);
+    if (!tenant) {
+      return res.status(404).json({ success: false, error: 'Tenant not found' });
+    }
+
+    tenant.status = status;
+    await tenant.save();
+
+    res.json({ success: true, data: tenant });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
 exports.createTenant = async (req, res) => {
   try {
-    const { studioName, adminName, adminEmail, adminPassword } = req.body;
+    const { 
+      studioName, adminName, adminEmail, adminPassword,
+      businessType, businessPhone, businessAddress, city, state, pinCode, gstin
+    } = req.body;
 
     const existingUser = await User.findOne({ email: adminEmail });
     if (existingUser) {
@@ -33,7 +145,14 @@ exports.createTenant = async (req, res) => {
       name: adminName,
       businessName: studioName,
       email: adminEmail,
-      status: 'active'
+      status: 'active',
+      businessType,
+      businessPhone,
+      businessAddress,
+      city,
+      state,
+      pinCode,
+      gstin
     });
 
     // Create the initial Admin User for the Tenant

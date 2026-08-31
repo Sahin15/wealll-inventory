@@ -17,7 +17,9 @@ import ClassDetails from './pages/classes/ClassDetails';
 import Team from './pages/settings/Team';
 import BusinessSettings from './pages/settings/BusinessSettings';
 import TenantManager from './pages/superadmin/TenantManager';
+import TenantDetails from './pages/superadmin/TenantDetails';
 import ApplicationManager from './pages/superadmin/ApplicationManager';
+import GlobalSettings from './pages/superadmin/GlobalSettings';
 import PwaUpdater from './components/PwaUpdater';
 
 function App() {
@@ -45,7 +47,9 @@ function App() {
 
         <Route element={<SuperAdminLayout />}>
           <Route path="/wealll-admin" element={<TenantManager />} />
+          <Route path="/wealll-admin/tenants/:id" element={<TenantDetails />} />
           <Route path="/wealll-admin/applications" element={<ApplicationManager />} />
+          <Route path="/wealll-admin/settings" element={<GlobalSettings />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />

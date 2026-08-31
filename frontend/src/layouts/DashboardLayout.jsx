@@ -62,11 +62,11 @@ const DashboardLayout = () => {
       {/* Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm print:hidden">
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center justify-center h-24 py-2 flex-shrink-0 px-2 border-b border-gray-100 overflow-hidden bg-white">
+          <div className="flex items-center justify-center h-20 w-full py-3 px-4 flex-shrink-0 border-b border-gray-100 bg-white">
             {user?.tenantId?.logoUrl ? (
-              <img src={user.tenantId.logoUrl} alt="Logo" className="h-full w-full object-contain mix-blend-multiply scale-110" />
+              <img src={user.tenantId.logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
             ) : (
-              <h1 className="text-xl font-bold tracking-tight text-gray-900 truncate">
+              <h1 className="text-lg font-bold tracking-tight text-gray-900 truncate w-full text-center">
                 {user?.tenantId?.appName || 'WeAlll Inventory'}
               </h1>
             )}

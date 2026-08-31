@@ -142,6 +142,7 @@ const BusinessSettings = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Logo Image</label>
+                    <p className="text-[11px] text-gray-500 mb-2">Recommended size: 400x100 pixels (4:1 aspect ratio) for best display in the sidebar.</p>
                     <input
                       type="file"
                       accept="image/*"

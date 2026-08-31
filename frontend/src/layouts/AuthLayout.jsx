@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Package, ShoppingCart, Truck, Receipt, TrendingUp, Users, Shield, Cloud, Sparkles } from 'lucide-react';
+import wealllLogo from '../assets/wealll-logo.jpg';
 
 const features = [
   { title: "Real-Time Stock", desc: "Know exactly what you have.", icon: Package, color: "bg-[#4285F4]" }, // Google Blue
@@ -112,17 +113,17 @@ const AuthLayout = () => {
           
           {/* Watermark */}
           <div className="py-6 text-center mt-auto border-t border-gray-200">
-            <p className="text-[11px] text-gray-400 uppercase tracking-[0.2em] font-semibold">
-              Powered by{' '}
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[11px] text-gray-400 uppercase tracking-[0.2em] font-semibold mt-0.5">Powered by</span>
               <a 
                 href="https://wealll.com/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-[#4285F4] font-bold ml-1 hover:underline hover:text-[#3367D6] transition-colors"
+                className="hover:opacity-80 transition-opacity"
               >
-                WeAlll
+                <img src={wealllLogo} alt="WeAlll" className="h-4 object-contain" />
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </div>
