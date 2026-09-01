@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Search, FileText, AlertCircle, TrendingDown } from 'lucide-react';
+import { Plus, X, Search, FileText, AlertCircle, TrendingDown, Eye } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
