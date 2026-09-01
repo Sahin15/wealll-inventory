@@ -6,7 +6,7 @@ exports.uploadImage = (req, res) => {
   }
 
   const protocol = req.get('host').includes('localhost') ? 'http' : 'https';
-  const imageUrl = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  const imageUrl = `${protocol}://${req.get('host')}/api/uploads/${req.file.filename}`;
 
   res.status(200).json({
     success: true,
