@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { formatDate } from '../../utils/dateFormatter';
+import { toast } from 'react-hot-toast';
+import { useDialog } from '../../context/DialogContext';
 
 const ApplicationManager = () => {
+  const { confirm } = useDialog();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('PENDING'); // PENDING, APPROVED, REJECTED
@@ -29,14 +32,20 @@ const ApplicationManager = () => {
   }, []);
 
   const handleApprove = async (id) => {
-    if (!window.confirm('Are you sure you want to approve this application and create a tenant?')) return;
+    const isConfirmed = await confirm({
+      title: 'Approve Application',
+      message: 'Are you sure you want to approve this application and create a tenant?',
+      type: 'success',
+      confirmText: 'Yes, Approve'
+    });
+    if (!isConfirmed) return;
     try {
       await api.post(`/superadmin/applications/${id}/approve`);
       setSelectedApp(null);
       fetchApplications();
-      alert('Application approved successfully. Tenant and Admin account created.');
+      toast.success('Application approved successfully. Tenant and Admin account created.');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to approve application');
+      toast.error(err.response?.data?.error || 'Failed to approve application');
     }
   };
 
@@ -48,9 +57,9 @@ const ApplicationManager = () => {
       setSelectedApp(null);
       setRejectReason('');
       fetchApplications();
-      alert('Application rejected.');
+      toast.success('Application rejected.');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to reject application');
+      toast.error(err.response?.data?.error || 'Failed to reject application');
     }
   };
 

@@ -1,10 +1,12 @@
 const express = require('express');
 const { getSales, createSale, voidSale } = require('../controllers/saleController');
 const { protect, authorize } = require('../middleware/auth');
+const { requireActiveSubscription } = require('../middleware/subscriptionMiddleware');
 
 const router = express.Router();
 
 router.use(protect);
+router.use(requireActiveSubscription);
 
 router.route('/')
   .get(getSales)

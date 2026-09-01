@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Package, Search } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import CategoryBadge from '../../components/CategoryBadge';
@@ -51,8 +52,9 @@ const Products = () => {
       }
       handleCancel();
       fetchData();
+      toast.success(editingId ? 'Product updated successfully' : 'Product created successfully');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save product');
+      toast.error(err.response?.data?.error || 'Failed to save product');
     }
   };
 

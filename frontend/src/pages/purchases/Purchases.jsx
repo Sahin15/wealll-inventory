@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, X, Search, FileText, AlertCircle, TrendingDown } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateFormatter';
@@ -81,21 +82,23 @@ const Purchases = () => {
       });
       setShowForm(false);
       fetchData();
+      toast.success('Purchase recorded successfully');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to record purchase');
+      toast.error(err.response?.data?.error || 'Failed to record purchase');
     }
   };
 
   const handleVoid = async (e) => {
     e.preventDefault();
-    if (!voidReason.trim()) return alert('Void reason is required');
+    if (!voidReason.trim()) return toast.error('Void reason is required');
     try {
       await api.post(`/purchases/${voidModalPurchase._id}/void`, { voidReason });
       setVoidModalPurchase(null);
       setVoidReason('');
       fetchData();
+      toast.success('Purchase voided successfully');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to void purchase');
+      toast.error(err.response?.data?.error || 'Failed to void purchase');
     }
   };
 

@@ -5,7 +5,8 @@ const globalSettingsSchema = new mongoose.Schema({
   announcementText: { type: String, default: '' },
   defaultTaxRate: { type: Number, default: 0 },
   platformName: { type: String, default: 'WeAlll Inventory' },
-  supportEmail: { type: String, default: 'support@wealll.com' }
+  supportEmail: { type: String, default: 'support@wealll.com' },
+  freeTrialDays: { type: Number, default: 7 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('GlobalSettings', globalSettingsSchema);

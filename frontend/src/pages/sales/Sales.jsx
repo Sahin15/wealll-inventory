@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, X, Search, FileText, AlertCircle, Printer, Download, Banknote, ShieldAlert } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import InvoicePrint from '../../components/InvoicePrint';
@@ -7,6 +7,7 @@ import { formatDate } from '../../utils/dateFormatter';
 import CategoryBadge from '../../components/CategoryBadge';
 import { AuthContext } from '../../context/AuthContext';
 import { hasPermission } from '../../utils/permissions';
+import { toast } from 'react-hot-toast';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
@@ -139,7 +140,7 @@ const Sales = () => {
 
   const handleVoid = async (e) => {
     e.preventDefault();
-    if (!voidReason.trim()) return alert('Void reason is required');
+    if (!voidReason.trim()) return toast.error('Void reason is required');
     try {
       setError(null);
       await api.post(`/sales/${voidModalSale._id}/void`, { voidReason });

@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const RegistrationApplication = require('../models/RegistrationApplication');
+const GlobalSettings = require('../models/GlobalSettings');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -96,6 +97,13 @@ exports.login = async (req, res) => {
 
     if (user.tenantId && user.tenantId.status === 'suspended') {
       return res.status(403).json({ success: false, error: 'Your organization account has been suspended. Please contact WeAlll support.' });
+    }
+
+    if (user.role !== 'superadmin') {
+      const settings = await GlobalSettings.findOne();
+      if (settings && settings.maintenanceMode) {
+        return res.status(503).json({ success: false, error: 'System is currently under maintenance. Please try again later.' });
+      }
     }
 
     const token = generateToken(user._id, user.tenantId ? user.tenantId._id : null, user.role);

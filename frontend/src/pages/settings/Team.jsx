@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
+import { useDialog } from '../../context/DialogContext';
 
 const Team = () => {
   const { user } = useAuth();
+  const { confirm } = useDialog();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +39,7 @@ const Team = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      return alert('Passwords do not match');
+      return toast.error('Passwords do not match');
     }
     
     // We don't want to send confirmPassword to the backend
@@ -52,18 +55,26 @@ const Team = () => {
       setFormData({ name: '', email: '', password: '', confirmPassword: '', role: 'staff' });
       setShowForm(false);
       fetchUsers();
+      toast.success('User added successfully');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to add user');
+      toast.error(err.response?.data?.error || 'Failed to add user');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to remove this user?')) return;
+    const isConfirmed = await confirm({
+      title: 'Remove User',
+      message: 'Are you sure you want to remove this user? This action cannot be undone.',
+      type: 'danger',
+      confirmText: 'Yes, Remove'
+    });
+    if (!isConfirmed) return;
     try {
       await api.delete(`/users/${id}`);
       fetchUsers();
+      toast.success('User removed successfully');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete user');
+      toast.error(err.response?.data?.error || 'Failed to delete user');
     }
   };
 

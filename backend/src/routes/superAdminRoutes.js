@@ -1,5 +1,5 @@
 const express = require('express');
-const { getTenants, createTenant, updateTenantStatus, getTenantById, updateTenant, getApplications, approveApplication, rejectApplication, getGlobalSettings, updateGlobalSettings } = require('../controllers/superAdminController');
+const { getTenants, createTenant, updateTenantStatus, getTenantById, updateTenant, getApplications, approveApplication, rejectApplication, getGlobalSettings, updateGlobalSettings, getTenantSubscription, updateTenantSubscription, getPlans, createPlan, updatePlan } = require('../controllers/superAdminController');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -17,6 +17,10 @@ router.route('/tenants/:id')
 
 router.put('/tenants/:id/status', updateTenantStatus);
 
+router.route('/tenants/:id/subscription')
+  .get(getTenantSubscription)
+  .put(updateTenantSubscription);
+
 router.route('/applications')
   .get(getApplications);
 
@@ -26,5 +30,13 @@ router.post('/applications/:id/reject', rejectApplication);
 router.route('/settings')
   .get(getGlobalSettings)
   .put(updateGlobalSettings);
+
+// Plans
+router.route('/plans')
+  .get(getPlans)
+  .post(createPlan);
+  
+router.route('/plans/:id')
+  .put(updatePlan);
 
 module.exports = router;
