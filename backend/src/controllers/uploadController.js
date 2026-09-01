@@ -5,7 +5,8 @@ exports.uploadImage = (req, res) => {
     return res.status(400).json({ success: false, error: 'No image file provided' });
   }
 
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  const protocol = req.get('host').includes('localhost') ? 'http' : 'https';
+  const imageUrl = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
 
   res.status(200).json({
     success: true,

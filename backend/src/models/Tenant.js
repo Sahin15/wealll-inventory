@@ -23,12 +23,11 @@ const tenantSchema = new mongoose.Schema({
   tenantCode: { type: String, unique: true }
 }, { timestamps: true });
 
-tenantSchema.pre('save', function (next) {
+tenantSchema.pre('save', function () {
   if (!this.tenantCode) {
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
     this.tenantCode = `WL-${randomStr}`;
   }
-  next();
 });
 
 module.exports = mongoose.model('Tenant', tenantSchema);
