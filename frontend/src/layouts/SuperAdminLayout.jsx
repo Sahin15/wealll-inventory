@@ -16,7 +16,7 @@ const SuperAdminLayout = () => {
   }
 
   if (user.role !== 'superadmin') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

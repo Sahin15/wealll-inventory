@@ -22,17 +22,21 @@ import ApplicationManager from './pages/superadmin/ApplicationManager';
 import GlobalSettings from './pages/superadmin/GlobalSettings';
 import PwaUpdater from './components/PwaUpdater';
 
+import Landing from './pages/public/Landing';
+
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Landing />} />
+
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
         
         <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/products" element={<Products />} />

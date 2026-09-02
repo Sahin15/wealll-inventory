@@ -40,7 +40,7 @@ const DashboardLayout = () => {
   }
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['admin', 'manager', 'staff'] },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'manager', 'staff'] },
     { name: 'Analytics', href: '/analytics', icon: PieChart, roles: ['admin', 'manager'] },
     { name: 'Categories', href: '/categories', icon: Tags, roles: ['admin', 'manager', 'staff'] },
     { name: 'Products', href: '/products', icon: Package, roles: ['admin', 'manager', 'staff'] },

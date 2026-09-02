@@ -23,7 +23,7 @@ const Login = () => {
       if (user.role === 'superadmin') {
         navigate('/wealll-admin');
       } else {
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to login');
@@ -61,7 +61,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={(e) => e.target.removeAttribute('readonly')}
                 readOnly
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-[#4285F4]/20 focus:border-[#4285F4] transition-all duration-200 text-gray-900 placeholder-gray-400"
+                className="w-full px-4 py-3 sm:py-3.5 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-[#4285F4]/20 focus:border-[#4285F4] transition-all duration-200 text-gray-900 placeholder-gray-400"
                 placeholder="Enter your email address"
                 autoComplete="username"
               />
@@ -77,7 +77,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={(e) => e.target.removeAttribute('readonly')}
                 readOnly
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-[#4285F4]/20 focus:border-[#4285F4] transition-all duration-200 text-gray-900 placeholder-gray-400 pr-12"
+                className="w-full px-4 py-3 sm:py-3.5 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-[#4285F4]/20 focus:border-[#4285F4] transition-all duration-200 text-gray-900 placeholder-gray-400 pr-12"
                 placeholder="Enter your password"
                 autoComplete="current-password"
               />

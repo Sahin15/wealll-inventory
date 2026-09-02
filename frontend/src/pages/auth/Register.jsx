@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
 
-const Register = ({ onClose }) => {
+const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     businessName: '', businessType: 'Makeup Artist / Makeup Studio', businessEmail: '', businessPhone: '',
     businessAddress: '', city: '', state: '', pinCode: '', gstin: '',
@@ -55,7 +57,7 @@ const Register = ({ onClose }) => {
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl p-6 sm:p-8 max-h-[95vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 border border-gray-100">
         
         <button 
-          onClick={onClose} 
+          onClick={() => navigate('/')} 
           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors focus:outline-none z-10"
         >
           <X size={20} />
@@ -78,10 +80,10 @@ const Register = ({ onClose }) => {
             </div>
             <div>
               <button 
-                onClick={onClose} 
+                onClick={() => navigate('/')} 
                 className="group w-full max-w-sm mx-auto bg-[#4285F4] text-white flex justify-center items-center gap-2 text-base py-3.5 rounded-xl font-semibold shadow-[0_8px_20px_-6px_rgba(66,133,244,0.4)] hover:shadow-[0_12px_25px_-6px_rgba(66,133,244,0.5)] hover:bg-[#3367D6] hover:-translate-y-0.5 transition-all duration-200"
               >
-                Close and Return to Login
+                Close and Return to Home
               </button>
             </div>
           </div>
