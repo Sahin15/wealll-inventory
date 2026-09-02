@@ -30,7 +30,7 @@ const AuthLayout = () => {
     <div className="h-screen bg-white flex flex-col lg:flex-row font-sans overflow-hidden w-full">
       
         {/* Marketing Side (Left) */}
-        <div className="lg:w-[55%] xl:w-[60%] text-gray-900 flex flex-col relative overflow-hidden h-screen bg-white">
+        <div className="hidden lg:flex lg:w-[55%] xl:w-[60%] text-gray-900 flex-col relative overflow-hidden h-screen bg-white">
           {/* Subtle SaaS Dotted Background & Google Color Orbs */}
           <div className="absolute inset-0 z-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div>
           
@@ -106,13 +106,22 @@ const AuthLayout = () => {
         </div>
 
         {/* Auth Side (Right) - Light theme */}
-        <div className="flex-1 flex flex-col bg-gray-50/50 border-l border-gray-100 relative overflow-y-auto">
-          <div className="flex-1 flex flex-col justify-center py-10 px-6 sm:px-8 lg:px-12 w-full mx-auto">
+        <div className="flex-1 flex flex-col bg-gray-50/50 lg:border-l border-gray-100 relative h-screen overflow-y-auto">
+          {/* Mobile Header */}
+          <div className="lg:hidden flex flex-col items-center justify-center pt-8 pb-4">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2 mb-1">
+              <Package className="w-6 h-6 text-[#4285F4]" />
+              WeAlll Inventory
+            </h1>
+            <p className="text-xs text-gray-500 font-medium">Smart Inventory. Stronger Business.</p>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-center py-6 px-4 sm:px-8 lg:px-12 w-full mx-auto lg:max-w-none">
             <Outlet />
           </div>
           
           {/* Watermark */}
-          <div className="py-6 text-center mt-auto border-t border-gray-200">
+          <div className="py-6 text-center mt-auto border-t border-gray-200 bg-white lg:bg-transparent">
             <div className="flex items-center justify-center gap-2">
               <span className="text-[11px] text-gray-400 uppercase tracking-[0.2em] font-semibold mt-0.5">Powered by</span>
               <a 
