@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
 
-const Register = () => {
+const Register = ({ onClose }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     businessName: '', businessType: 'Makeup Artist / Makeup Studio', businessEmail: '', businessPhone: '',
@@ -49,15 +50,15 @@ const Register = () => {
     }
   };
 
-  const inputStyles = "w-full px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-[#4285F4]/20 focus:border-[#4285F4] focus:bg-white transition-all duration-200 text-gray-900";
-  const labelStyles = "block text-sm font-medium text-gray-700 mb-1.5";
+  const inputStyles = "w-full px-4 py-2.5 sm:py-3 bg-white/50 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-200 text-slate-900";
+  const labelStyles = "block text-sm font-medium text-slate-700 mb-1.5";
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl p-6 sm:p-8 max-h-[95vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 border border-gray-100">
         
         <button 
-          onClick={() => navigate('/')} 
+          onClick={onClose || (() => navigate('/'))} 
           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors focus:outline-none z-10"
         >
           <X size={20} />
@@ -80,8 +81,8 @@ const Register = () => {
             </div>
             <div>
               <button 
-                onClick={() => navigate('/')} 
-                className="group w-full max-w-sm mx-auto bg-[#4285F4] text-white flex justify-center items-center gap-2 text-base py-3.5 rounded-xl font-semibold shadow-[0_8px_20px_-6px_rgba(66,133,244,0.4)] hover:shadow-[0_12px_25px_-6px_rgba(66,133,244,0.5)] hover:bg-[#3367D6] hover:-translate-y-0.5 transition-all duration-200"
+                onClick={onClose || (() => navigate('/'))} 
+                className="group w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-violet-600 text-white flex justify-center items-center gap-2 text-base py-3.5 rounded-xl font-semibold shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(99,102,241,0.6)] hover:from-blue-500 hover:to-violet-500 hover:-translate-y-0.5 transition-all duration-300 border border-white/20"
               >
                 Close and Return to Home
               </button>
@@ -219,8 +220,8 @@ const Register = () => {
                     </select>
                   </div>
                   <div className="sm:col-span-2 flex items-center mt-3">
-                    <input id="excel" type="checkbox" name="currentlyUsingExcel" checked={formData.currentlyUsingExcel} onChange={handleChange} className="h-5 w-5 text-[#4285F4] border-gray-300 rounded focus:ring-[#4285F4]" />
-                    <label htmlFor="excel" className="ml-3 block text-sm font-medium text-gray-700 cursor-pointer">I currently use Excel/Spreadsheets for inventory management</label>
+                    <input id="excel" type="checkbox" name="currentlyUsingExcel" checked={formData.currentlyUsingExcel} onChange={handleChange} className="h-5 w-5 text-blue-600 border-slate-200 rounded focus:ring-blue-500" />
+                    <label htmlFor="excel" className="ml-3 block text-sm font-medium text-slate-700 cursor-pointer">I currently use Excel/Spreadsheets for inventory management</label>
                   </div>
                 </div>
               </div>
@@ -229,7 +230,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group w-full bg-[#4285F4] text-white flex justify-center items-center gap-2 text-base py-3.5 sm:py-4 rounded-xl font-semibold shadow-[0_8px_20px_-6px_rgba(66,133,244,0.4)] hover:shadow-[0_12px_25px_-6px_rgba(66,133,244,0.5)] hover:bg-[#3367D6] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-70 disabled:hover:translate-y-0"
+                  className="group w-full bg-gradient-to-r from-blue-600 to-violet-600 text-white flex justify-center items-center gap-2 text-base py-3.5 sm:py-4 rounded-xl font-semibold shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(99,102,241,0.6)] hover:from-blue-500 hover:to-violet-500 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0 border border-white/20"
                 >
                   {loading ? 'Submitting Application...' : 'Submit Registration Application'}
                   {!loading && <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>}
@@ -239,7 +240,8 @@ const Register = () => {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
