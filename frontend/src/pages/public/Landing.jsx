@@ -117,7 +117,7 @@ const Landing = () => {
           <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
             <div className="flex items-center group cursor-pointer h-16 sm:h-20 overflow-visible">
-              <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[3] origin-left" />
+              <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[4] origin-left" />
             </div>
 
             {/* Desktop Nav */}
@@ -544,7 +544,7 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center mb-4 h-16 overflow-visible">
-                <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[3] origin-left" />
+                <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[4] origin-left" />
               </div>
               <p className="text-slate-500 text-sm max-w-xs leading-relaxed">Smart Inventory. Stronger Business.</p>
             </div>

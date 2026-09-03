@@ -31,7 +31,7 @@ const AuthLayout = () => {
         {/* Brand Header */}
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity focus:outline-none h-28 overflow-visible">
-            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="h-full object-contain scale-[2.5]" />
+            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="h-full object-contain scale-[3.5]" />
           </Link>
           <p className="text-sm text-slate-600 font-medium">Smart Inventory. Stronger Business.</p>
         </div>
