@@ -93,7 +93,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/30 font-sans selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100/90 via-purple-50/50 to-violet-100/90 font-sans selection:bg-blue-200 selection:text-blue-900 overflow-x-hidden">
       
       {/* Custom Animations injected safely */}
       <style>{`
@@ -110,7 +110,7 @@ const Landing = () => {
       `}</style>
 
       {/* Navigation */}
-      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/50 transition-all">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-50/80 to-violet-50/80 backdrop-blur-xl border-b border-white/50 shadow-sm transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
@@ -130,7 +130,7 @@ const Landing = () => {
               <button onClick={() => scrollToSection('benefits')} className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Benefits</button>
               <div className="flex items-center gap-4 ml-4">
                 <Link to="/login" className="text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors">Sign In</Link>
-                <Link to="/register" className="text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 px-5 py-2.5 rounded-lg shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5">
+                <Link to="/register" className="text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-2.5 rounded-lg shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(99,102,241,0.6)] transition-all duration-300 hover:-translate-y-0.5 border border-white/20">
                   Get Started &rarr;
                 </Link>
               </div>
@@ -157,7 +157,7 @@ const Landing = () => {
               <button onClick={() => scrollToSection('benefits')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Benefits</button>
               <div className="h-px bg-slate-100 my-2 mx-4"></div>
               <Link to="/login" onClick={closeMobileMenu} className="px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sign In</Link>
-              <Link to="/register" onClick={closeMobileMenu} className="mx-4 text-center text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 px-5 py-3.5 rounded-xl shadow-md transition-all">
+              <Link to="/register" onClick={closeMobileMenu} className="mx-4 text-center text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-3.5 rounded-xl shadow-md transition-all">
                 Get Started &rarr;
               </Link>
             </div>
@@ -171,9 +171,11 @@ const Landing = () => {
           {/* Subtle Background Gradients */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0 flex justify-center">
             {/* Left Blue Glow */}
-            <div className="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px]"></div>
+            <div className="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px]"></div>
+            {/* Center Fuchsia Glow */}
+            <div className="absolute top-[10%] left-[40%] w-[400px] h-[400px] bg-fuchsia-500/15 rounded-full blur-[120px]"></div>
             {/* Right Violet Glow */}
-            <div className="absolute top-[20%] -right-[10%] w-[600px] h-[600px] bg-violet-400/15 rounded-full blur-[120px]"></div>
+            <div className="absolute top-[20%] -right-[10%] w-[600px] h-[600px] bg-violet-500/20 rounded-full blur-[100px]"></div>
           </div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -189,7 +191,7 @@ const Landing = () => {
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6 animate-in fade-in slide-in-from-bottom-6 duration-500 delay-100">
-                  The Best Inventory System<br className="hidden sm:block" /> for Small Businesses
+                  The Best Inventory System<br className="hidden sm:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-fuchsia-600 to-violet-600">for Small Businesses</span>
                 </h1>
                 
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-600 mb-6 flex flex-col sm:flex-row sm:gap-2 items-center lg:items-start animate-in fade-in slide-in-from-bottom-8 duration-500 delay-200">
@@ -205,7 +207,7 @@ const Landing = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-12 duration-500 delay-500">
-                  <Link to="/register" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-violet-600 text-white flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-1 transition-all duration-300">
+                  <Link to="/register" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] hover:shadow-[0_15px_35px_-5px_rgba(99,102,241,0.6)] hover:-translate-y-1 transition-all duration-300 border border-white/20">
                     Get Started &rarr;
                   </Link>
                   <Link to="/login" className="w-full sm:w-auto bg-white text-slate-700 border border-slate-200 flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-300">
@@ -243,10 +245,11 @@ const Landing = () => {
                 </div>
 
                 {/* Main Dashboard Mockup */}
-                <div className="relative rounded-2xl bg-white/80 backdrop-blur-md border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5 overflow-hidden transform lg:rotate-1 hover:rotate-0 transition-transform duration-500 group animate-float">
-                  
-                  {/* Subtle outer glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/0 to-violet-400/0 group-hover:from-blue-400/5 group-hover:to-violet-400/5 transition-colors duration-500 -z-10 pointer-events-none"></div>
+                <div className="relative p-[2px] rounded-2xl bg-gradient-to-br from-blue-500/50 via-fuchsia-500/30 to-violet-500/50 shadow-[0_30px_60px_-15px_rgba(59,130,246,0.3)] transform lg:rotate-1 hover:rotate-0 transition-transform duration-500 group animate-float">
+                  <div className="relative rounded-[14px] bg-white/95 backdrop-blur-md overflow-hidden">
+                    
+                    {/* Subtle outer glow on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/0 to-violet-400/0 group-hover:from-blue-400/10 group-hover:to-violet-400/10 transition-colors duration-500 -z-10 pointer-events-none"></div>
 
                   {/* Browser Chrome */}
                   <div className="h-10 border-b border-slate-100 bg-slate-50/80 flex items-center px-4 gap-2 backdrop-blur-sm">
@@ -283,10 +286,10 @@ const Landing = () => {
                       {/* Stat Cards */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
                         {[
-                          { title: 'Total Products', val: '248', icon: '📦' },
-                          { title: 'Low Stock', val: '12', icon: '⚠️' },
-                          { title: 'Monthly Sales', val: '1,450', icon: '📈' },
-                          { title: 'Active Orders', val: '34', icon: '🛒' }
+                          { title: 'Total Products', val: '248', icon: <Package className="w-4 h-4 text-blue-500" /> },
+                          { title: 'Low Stock', val: '12', icon: <AlertCircle className="w-4 h-4 text-amber-500" /> },
+                          { title: 'Monthly Sales', val: '1,450', icon: <TrendingUp className="w-4 h-4 text-emerald-500" /> },
+                          { title: 'Active Orders', val: '34', icon: <ShoppingCart className="w-4 h-4 text-violet-500" /> }
                         ].map((stat, i) => (
                           <div key={i} className="bg-white p-3 sm:p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-2">
@@ -308,7 +311,7 @@ const Landing = () => {
                           {[1,2,3].map(i => (
                             <div key={i} className="flex justify-between items-center text-sm border-b border-slate-50 pb-2 last:border-0">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-xs border border-slate-100">🛍️</div>
+                                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-xs border border-slate-100"><Receipt className="w-3.5 h-3.5 text-slate-400" /></div>
                                 <div>
                                   <div className="font-semibold text-slate-700">Order #{1024 + i}</div>
                                   <div className="text-[10px] text-slate-400">Just now</div>
@@ -322,6 +325,7 @@ const Landing = () => {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
 
             </div>
@@ -338,7 +342,7 @@ const Landing = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 lg:gap-16">
               
-              <div className="group flex flex-col items-center text-center p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+              <div className="group flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-transparent hover:border-blue-100 hover:bg-blue-50/30 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1 transition-all duration-300">
                 <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-blue-500/10 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
                   <Zap className="w-8 h-8" />
                 </div>
@@ -346,7 +350,7 @@ const Landing = () => {
                 <p className="text-slate-600 leading-relaxed">Spend less time maintaining spreadsheets and more time running your business.</p>
               </div>
 
-              <div className="group flex flex-col items-center text-center p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+              <div className="group flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-transparent hover:border-emerald-100 hover:bg-emerald-50/30 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-1 transition-all duration-300">
                 <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-emerald-500/10 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
@@ -354,7 +358,7 @@ const Landing = () => {
                 <p className="text-slate-600 leading-relaxed">Know what's available before you sell, purchase or reorder.</p>
               </div>
 
-              <div className="group flex flex-col items-center text-center p-6 rounded-2xl hover:bg-slate-50 transition-colors duration-300">
+              <div className="group flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-transparent hover:border-violet-100 hover:bg-violet-50/30 hover:shadow-lg hover:shadow-violet-500/5 hover:-translate-y-1 transition-all duration-300">
                 <div className="w-16 h-16 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-violet-500/10 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
                   <Users className="w-8 h-8" />
                 </div>
@@ -367,7 +371,7 @@ const Landing = () => {
         </section>
 
         {/* SMALL BUSINESS POSITIONING */}
-        <section className="py-24 bg-slate-50/50">
+        <section className="py-24 bg-gradient-to-r from-blue-50 to-violet-50">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6 tracking-tight">
               Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">Small & Growing Businesses</span>
@@ -388,7 +392,7 @@ const Landing = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {features.map((feature, idx) => (
-                <div key={idx} className={`group bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ${feature.glow}`}>
+                <div key={idx} className={`group bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ${feature.glow} ${feature.border}`}>
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${feature.bg} ${feature.color}`}>
                     <feature.icon className="w-7 h-7" />
                   </div>
@@ -411,9 +415,9 @@ const Landing = () => {
             {/* Visual Showcase - Larger App Preview */}
             <div className="relative max-w-5xl mx-auto mt-10">
               {/* Giant background glow */}
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-400/10 via-violet-400/5 to-transparent rounded-3xl blur-3xl -z-10 transform scale-110"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-400/20 via-violet-400/10 to-transparent rounded-3xl blur-3xl -z-10 transform scale-110"></div>
               
-              <div className="bg-white/90 backdrop-blur-md border border-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] ring-1 ring-slate-900/5 rounded-2xl overflow-hidden animate-float">
+              <div className="bg-white/90 backdrop-blur-md border border-white shadow-[0_40px_80px_-20px_rgba(59,130,246,0.15)] ring-1 ring-violet-500/10 rounded-2xl overflow-hidden animate-float">
                 <div className="h-14 bg-slate-50/80 backdrop-blur border-b border-slate-100 flex items-center px-6 justify-between">
                   <div className="flex items-center gap-2">
                     <Package className="w-6 h-6 text-blue-600" />
@@ -482,7 +486,7 @@ const Landing = () => {
         <section className="py-16 bg-white border-y border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex items-start gap-5 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+              <div className="flex items-start gap-5 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                   <Shield className="w-6 h-6" />
                 </div>
@@ -491,7 +495,7 @@ const Landing = () => {
                   <p className="text-sm text-slate-600 leading-relaxed">Keep your business data protected with secure access controls.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-5 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+              <div className="flex items-start gap-5 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-violet-100 hover:bg-violet-50/30 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
                   <Smartphone className="w-6 h-6" />
                 </div>
@@ -500,7 +504,7 @@ const Landing = () => {
                   <p className="text-sm text-slate-600 leading-relaxed">Manage your inventory from desktop, tablet or mobile smoothly.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-5 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+              <div className="flex items-start gap-5 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-emerald-100 hover:bg-emerald-50/30 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
@@ -514,11 +518,11 @@ const Landing = () => {
         </section>
 
         {/* FINAL CTA */}
-        <section className="py-24 sm:py-32 bg-slate-50 relative overflow-hidden">
+        <section className="py-24 sm:py-32 bg-gradient-to-br from-blue-50/80 via-white to-violet-50/80 relative overflow-hidden">
           {/* Subtle blurred orbs */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-            <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-blue-400/10 rounded-full blur-[80px]"></div>
-            <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-violet-400/10 rounded-full blur-[80px]"></div>
+            <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px]"></div>
+            <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-violet-400/20 rounded-full blur-[100px]"></div>
           </div>
           
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -539,7 +543,7 @@ const Landing = () => {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-slate-200 py-16">
+      <footer className="bg-slate-50/50 border-t border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
             <div className="col-span-1 md:col-span-2">
