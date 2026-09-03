@@ -14,8 +14,18 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the uploads directory under /api/uploads
 app.use('/api/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Routes
+const { requireActiveSubscription } = require('./middleware/subscriptionMiddleware');
+
+// Routes (Unprotected by subscription)
+app.use('/api/public', require('./routes/publicRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/superadmin', require('./routes/superAdminRoutes'));
+app.use('/api/subscriptions', require('./routes/subscriptionRoutes'));
+app.use('/api/tenants', require('./routes/tenantRoutes'));
+app.use('/api/uploads', require('./routes/uploadRoutes'));
+
+// Routes (Protected by subscription)
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/purchases', require('./routes/purchaseRoutes'));
@@ -24,10 +34,7 @@ app.use('/api/stock', require('./routes/stockRoutes'));
 app.use('/api/classes', require('./routes/classRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/superadmin', require('./routes/superAdminRoutes'));
-app.use('/api/tenants', require('./routes/tenantRoutes'));
-app.use('/api/uploads', require('./routes/uploadRoutes'));
+
 
 // Global Error Handler
 app.use((err, req, res, next) => {

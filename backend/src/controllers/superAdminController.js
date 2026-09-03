@@ -2,6 +2,8 @@ const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const RegistrationApplication = require('../models/RegistrationApplication');
 const GlobalSettings = require('../models/GlobalSettings');
+const Subscription = require('../models/Subscription');
+const SubscriptionPlan = require('../models/SubscriptionPlan');
 const bcrypt = require('bcryptjs');
 
 exports.getGlobalSettings = async (req, res) => {
@@ -23,7 +25,7 @@ exports.updateGlobalSettings = async (req, res) => {
       settings = await GlobalSettings.create({});
     }
     
-    const allowedFields = ['maintenanceMode', 'announcementText', 'defaultTaxRate', 'platformName', 'supportEmail'];
+    const allowedFields = ['maintenanceMode', 'announcementText', 'defaultTaxRate', 'platformName', 'supportEmail', 'freeTrialDays'];
     allowedFields.forEach(field => {
       if (req.body[field] !== undefined) {
         settings[field] = req.body[field];
@@ -72,7 +74,8 @@ exports.getTenantById = async (req, res) => {
       } 
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error('Error fetching tenant details:', error);
+    res.status(500).json({ success: false, error: error.message || 'Server Error' });
   }
 };
 
@@ -103,7 +106,8 @@ exports.updateTenant = async (req, res) => {
 
     res.json({ success: true, data: tenant });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error('Error updating tenant:', error.stack);
+    res.status(500).json({ success: false, error: error.stack || 'Server Error' });
   }
 };
 
@@ -167,6 +171,27 @@ exports.createTenant = async (req, res) => {
       role: 'admin'
     });
 
+    // Create a free trial subscription based on global settings
+    const settings = await GlobalSettings.findOne() || {};
+    const trialDays = settings.freeTrialDays || 14;
+
+    const starterPlan = await SubscriptionPlan.findOne({ slug: 'starter' });
+    if (starterPlan) {
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + trialDays);
+      
+      await Subscription.create({
+        tenantId: tenant._id,
+        planId: starterPlan._id,
+        status: 'TRIAL',
+        billingCycle: 'monthly',
+        trialStartDate: new Date(),
+        trialEndDate: trialEnd,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: trialEnd
+      });
+    }
+
     res.status(201).json({ success: true, data: tenant });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
@@ -218,6 +243,27 @@ exports.approveApplication = async (req, res) => {
       status: 'active'
     });
 
+    // Create a free trial subscription based on global settings
+    const settings = await GlobalSettings.findOne() || {};
+    const trialDays = settings.freeTrialDays || 7;
+
+    const starterPlan = await SubscriptionPlan.findOne({ slug: 'starter' });
+    if (starterPlan) {
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + trialDays);
+      
+      await Subscription.create({
+        tenantId: tenant._id,
+        planId: starterPlan._id,
+        status: 'TRIAL',
+        billingCycle: 'monthly',
+        trialStartDate: new Date(),
+        trialEndDate: trialEnd,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: trialEnd
+      });
+    }
+
     app.status = 'APPROVED';
     app.reviewedBy = req.user.userId;
     app.reviewedAt = Date.now();
@@ -257,3 +303,114 @@ exports.rejectApplication = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server Error' });
   }
 };
+
+exports.getTenantSubscription = async (req, res) => {
+  try {
+    const subscription = await Subscription.findOne({ tenantId: req.params.id }).populate('planId');
+    const plans = await SubscriptionPlan.find({ isActive: true });
+    
+    res.json({ success: true, data: { subscription, plans } });
+  } catch (error) {
+    console.error('Error fetching tenant subscription:', error);
+    res.status(500).json({ success: false, error: error.message || 'Server Error' });
+  }
+};
+
+exports.updateTenantSubscription = async (req, res) => {
+  try {
+    const { status, planId, billingCycle, extensionDays, currentPeriodStart, currentPeriodEnd } = req.body;
+    let subscription = await Subscription.findOne({ tenantId: req.params.id });
+
+    if (!subscription) {
+      const defaultPlan = await SubscriptionPlan.findOne({ isRecommended: true }) || await SubscriptionPlan.findOne();
+      const settings = await GlobalSettings.findOne() || {};
+      const trialDays = settings.freeTrialDays || 7;
+      
+      const start = new Date();
+      const end = new Date();
+      end.setDate(start.getDate() + trialDays);
+
+      subscription = new Subscription({
+        tenantId: req.params.id,
+        planId: defaultPlan?._id,
+        status: 'TRIAL',
+        billingCycle: 'monthly',
+        currentPeriodStart: start,
+        currentPeriodEnd: end
+      });
+    }
+
+    if (status) subscription.status = status;
+    if (planId) {
+      subscription.planId = planId;
+    } else if (!subscription.planId) {
+      // Fix for legacy tenants without a plan
+      const defaultPlan = await SubscriptionPlan.findOne({ isRecommended: true }) || await SubscriptionPlan.findOne();
+      if (defaultPlan) subscription.planId = defaultPlan._id;
+    }
+    
+    if (billingCycle) subscription.billingCycle = billingCycle;
+    if (currentPeriodStart) subscription.currentPeriodStart = new Date(currentPeriodStart);
+    if (currentPeriodEnd) {
+      subscription.currentPeriodEnd = new Date(currentPeriodEnd);
+      if(subscription.status === 'EXPIRED' && subscription.currentPeriodEnd > new Date()) {
+        subscription.status = 'ACTIVE';
+      }
+    }
+
+    if (extensionDays) {
+      // Create a NEW Date object so Mongoose detects the change
+      const currentEnd = new Date(subscription.currentPeriodEnd || new Date());
+      currentEnd.setDate(currentEnd.getDate() + extensionDays);
+      subscription.currentPeriodEnd = currentEnd;
+      if(subscription.status === 'EXPIRED') {
+        subscription.status = 'ACTIVE';
+      }
+    }
+
+    await subscription.save();
+    
+    // Repopulate plan details for return
+    subscription = await Subscription.findById(subscription._id).populate('planId');
+    
+    res.json({ success: true, data: subscription });
+  } catch (error) {
+    console.error('Error updating subscription:', error);
+    res.status(500).json({ success: false, error: error.message || 'Server Error' });
+  }
+};
+
+exports.getPlans = async (req, res) => {
+  try {
+    const plans = await SubscriptionPlan.find();
+    res.json({ success: true, data: plans });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
+exports.createPlan = async (req, res) => {
+  try {
+    if (req.body.isRecommended) {
+      await SubscriptionPlan.updateMany({}, { isRecommended: false });
+    }
+    const plan = await SubscriptionPlan.create(req.body);
+    res.status(201).json({ success: true, data: plan });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+
+exports.updatePlan = async (req, res) => {
+  try {
+    if (req.body.isRecommended) {
+      await SubscriptionPlan.updateMany({ _id: { $ne: req.params.id } }, { isRecommended: false });
+    }
+    const plan = await SubscriptionPlan.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!plan) return res.status(404).json({ success: false, error: 'Plan not found' });
+    res.json({ success: true, data: plan });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
+};
+

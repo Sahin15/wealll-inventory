@@ -3,8 +3,22 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { formatDate } from '../../utils/dateFormatter';
 import { ArrowLeft, Edit2, Save, X, Ban, CheckCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useDialog } from '../../context/DialogContext';
 
 const TenantDetails = () => {
+  const toDatetimeLocal = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const { confirm, alert } = useDialog();
   const { id } = useParams();
   const navigate = useNavigate();
   const [tenant, setTenant] = useState(null);
@@ -12,6 +26,10 @@ const TenantDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [subFormData, setSubFormData] = useState(null);
+  const [plans, setPlans] = useState([]);
+  const [extendingSub, setExtendingSub] = useState(false);
 
   const fetchTenant = async () => {
     setLoading(true);
@@ -19,8 +37,15 @@ const TenantDetails = () => {
       const res = await api.get(`/superadmin/tenants/${id}`);
       setTenant(res.data.data);
       setFormData(res.data.data);
+
+      const subRes = await api.get(`/superadmin/tenants/${id}/subscription`);
+      if (subRes.data.success) {
+        setSubscription(subRes.data.data.subscription);
+        setSubFormData(subRes.data.data.subscription);
+        setPlans(subRes.data.data.plans || []);
+      }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to fetch tenant details');
+      toast.error(err.response?.data?.error || 'Failed to fetch tenant details');
       navigate('/wealll-admin');
     } finally {
       setLoading(false);
@@ -34,15 +59,26 @@ const TenantDetails = () => {
   const handleToggleStatus = async () => {
     if (!tenant) return;
     const newStatus = tenant.status === 'active' ? 'suspended' : 'active';
-    if (!window.confirm(`Are you sure you want to ${newStatus === 'suspended' ? 'suspend' : 'activate'} this tenant? All associated users will be blocked from logging in if suspended.`)) return;
+    const isConfirmed = await confirm({
+      title: 'Confirm Status Change',
+      message: `Are you sure you want to ${newStatus === 'suspended' ? 'suspend' : 'activate'} this tenant? All associated users will be blocked from logging in if suspended.`,
+      type: newStatus === 'suspended' ? 'danger' : 'success',
+      confirmText: newStatus === 'suspended' ? 'Yes, Suspend' : 'Yes, Activate'
+    });
+    if (!isConfirmed) return;
     
     try {
-      await api.put(`/superadmin/tenants/${tenant._id}/status`, { status: newStatus });
-      setTenant({ ...tenant, status: newStatus });
+      const res = await api.put(`/superadmin/tenants/${tenant._id}/status`, { status: newStatus });
+      setTenant(res.data.data);
       setFormData({ ...formData, status: newStatus });
-      alert(`Tenant successfully ${newStatus}!`);
+      alert({
+        title: 'Success',
+        message: `Tenant successfully ${newStatus}!`,
+        type: 'success',
+        confirmText: 'Great'
+      });
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update tenant status');
+      toast.error(err.response?.data?.error || 'Failed to update tenant status');
     }
   };
 
@@ -51,10 +87,22 @@ const TenantDetails = () => {
     try {
       await api.put(`/superadmin/tenants/${tenant._id}`, formData);
       setTenant(formData);
+      
+      if (subFormData) {
+        const res = await api.put(`/superadmin/tenants/${id}/subscription`, subFormData);
+        setSubscription(res.data.data);
+        setSubFormData(res.data.data);
+      }
+
       setIsEditing(false);
-      alert('Tenant details updated successfully!');
+      alert({
+        title: 'Success',
+        message: 'Tenant details and subscription updated successfully!',
+        type: 'success',
+        confirmText: 'Great'
+      });
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update tenant');
+      toast.error(err.response?.data?.error || 'Failed to update tenant');
     } finally {
       setSaving(false);
     }
@@ -62,6 +110,26 @@ const TenantDetails = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubChange = (e) => {
+    setSubFormData({ ...subFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleInitializeTrial = async () => {
+    try {
+      const res = await api.put(`/superadmin/tenants/${id}/subscription`, { status: 'TRIAL' });
+      setSubscription(res.data.data);
+      setSubFormData(res.data.data);
+      alert({
+        title: 'Success',
+        message: 'Free Trial initialized successfully!',
+        type: 'success',
+        confirmText: 'Great'
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to initialize trial');
+    }
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading tenant details...</div>;
@@ -271,6 +339,146 @@ const TenantDetails = () => {
             </div>
 
           </dl>
+        </div>
+      </div>
+
+      {/* Subscription Management Section */}
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Subscription & Billing</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">Manage plan, status, and billing cycle.</p>
+        </div>
+        <div className="px-4 py-5 sm:p-6">
+          {!subscription ? (
+            <div className="text-center py-8">
+              <div className="text-sm text-gray-500 italic mb-4">No subscription found for this tenant. This usually happens for older tenants created before billing was introduced.</div>
+              <button 
+                onClick={handleInitializeTrial}
+                className="inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+              >
+                Initialize Free Trial
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <select 
+                    name="status"
+                    disabled={!isEditing}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md disabled:bg-gray-100 disabled:text-gray-500"
+                    value={subFormData.status || ''}
+                    onChange={handleSubChange}
+                  >
+                    <option value="TRIAL">TRIAL</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="EXPIRED">EXPIRED</option>
+                    <option value="SUSPENDED">SUSPENDED</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Plan</label>
+                  <select 
+                    name="planId"
+                    disabled={!isEditing}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md disabled:bg-gray-100 disabled:text-gray-500"
+                    value={subFormData.planId?._id || subFormData.planId || ''}
+                    onChange={handleSubChange}
+                  >
+                    {plans.map(p => (
+                      <option key={p._id} value={p._id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Billing Cycle</label>
+                  <select 
+                    name="billingCycle"
+                    disabled={!isEditing}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md disabled:bg-gray-100 disabled:text-gray-500"
+                    value={subFormData.billingCycle || ''}
+                    onChange={handleSubChange}
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-sm font-medium text-gray-700">Period Start</label>
+                  <input
+                    type="datetime-local"
+                    name="currentPeriodStart"
+                    disabled={!isEditing}
+                    className="mt-1 block w-full pl-3 pr-4 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border disabled:bg-gray-100 disabled:text-gray-500"
+                    value={toDatetimeLocal(subFormData.currentPeriodStart)}
+                    onChange={handleSubChange}
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-sm font-medium text-gray-700">Period End (Expiry)</label>
+                  <input
+                    type="datetime-local"
+                    name="currentPeriodEnd"
+                    disabled={!isEditing}
+                    className="mt-1 block w-full pl-3 pr-4 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border disabled:bg-gray-100 disabled:text-gray-500"
+                    value={toDatetimeLocal(subFormData.currentPeriodEnd)}
+                    onChange={handleSubChange}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-200">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Grant Free Tier Days</h4>
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 mb-4">
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      min="1"
+                      disabled={!isEditing}
+                      placeholder="Custom days..."
+                      id="customDaysInput"
+                      className="block w-full pl-3 pr-4 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border disabled:bg-gray-100 disabled:text-gray-500"
+                    />
+                  </div>
+                  <button 
+                    disabled={!isEditing}
+                    onClick={() => {
+                      const input = document.getElementById('customDaysInput');
+                      const days = parseInt(input.value);
+                      if (days > 0) {
+                        const currentEnd = new Date(subFormData.currentPeriodEnd || new Date());
+                        currentEnd.setDate(currentEnd.getDate() + days);
+                        
+                        setSubFormData({
+                          ...subFormData,
+                          currentPeriodEnd: currentEnd.toISOString(),
+                          status: subFormData.status === 'EXPIRED' ? 'ACTIVE' : subFormData.status
+                        });
+                        
+                        input.value = '';
+                        toast.success(`${days} days added! Click 'Save Changes' at the top to apply.`);
+                      } else {
+                        toast.error('Please enter a valid number of days');
+                      }
+                    }}
+                    className={`inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-colors ${isEditing ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                  >
+                    Apply Free Days
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-3">
+                  Adding days will push the Period End (Expiry) date forward. If the status is EXPIRED, it will automatically reactivate to ACTIVE.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -25,6 +25,10 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       // window.location.href = '/login'; // Handle redirect in AuthContext or components
     }
+    
+    if (error.response && error.response.status === 403 && error.response.data?.code === 'SUBSCRIPTION_EXPIRED') {
+      window.dispatchEvent(new CustomEvent('subscription_expired'));
+    }
     return Promise.reject(error);
   }
 );

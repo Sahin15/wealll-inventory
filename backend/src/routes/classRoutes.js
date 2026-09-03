@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+const { requireActiveSubscription } = require('../middleware/subscriptionMiddleware');
 const classController = require('../controllers/classController');
 
 // All class routes are private
 router.use(protect);
+router.use(requireActiveSubscription);
 
 router.route('/')
   .get(classController.getBatches)

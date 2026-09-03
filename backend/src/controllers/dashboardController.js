@@ -113,6 +113,7 @@ exports.getDashboardData = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    console.error('Dashboard Error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 };

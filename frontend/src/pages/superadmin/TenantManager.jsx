@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { formatDate } from '../../utils/dateFormatter';
+import { toast } from 'react-hot-toast';
 
 const TenantManager = () => {
   const [tenants, setTenants] = useState([]);
@@ -50,9 +51,9 @@ const TenantManager = () => {
       });
       setShowForm(false);
       fetchTenants();
-      alert('Client successfully onboarded!');
+      toast.success('Client successfully onboarded!');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to onboard client');
+      toast.error(err.response?.data?.error || 'Failed to onboard client');
     }
   };
 

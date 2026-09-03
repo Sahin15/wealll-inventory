@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Search } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import CategoryBadge from '../../components/CategoryBadge';
 import { AuthContext } from '../../context/AuthContext';
@@ -57,8 +59,9 @@ const Categories = () => {
       }
       handleCancel();
       fetchCategories();
+      toast.success(editingId ? 'Category updated successfully' : 'Category created successfully');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save category');
+      toast.error(err.response?.data?.error || 'Failed to save category');
     }
   };
 
