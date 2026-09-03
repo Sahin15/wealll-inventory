@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import wealllLogo from '../../assets/wealll-logo.jpg';
 import wealllMiniLogo from '../../assets/wealll-mini-logo.png';
+import wealllFullLogo from '../../assets/wealll-full-logo.png';
 
 const features = [
   { 
@@ -115,14 +116,8 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
-            <div className="flex items-center gap-2.5 group cursor-pointer">
-              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-sm shadow-slate-200 border border-slate-100 overflow-hidden group-hover:shadow-md transition-shadow p-1.5">
-                <img src={wealllMiniLogo} alt="WeAlll Icon" className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg leading-none tracking-tight text-slate-900">WeAlll Inventory</span>
-                <span className="text-[10px] text-slate-500 font-medium hidden sm:block">Smart Inventory. Stronger Business.</span>
-              </div>
+            <div className="flex items-center group cursor-pointer">
+              <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-10 sm:h-12 object-contain" />
             </div>
 
             {/* Desktop Nav */}
@@ -548,11 +543,8 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center shadow-sm">
-                  <Package className="w-4 h-4 text-white" />
-                </div>
-                <span className="font-bold text-xl text-slate-900">WeAlll Inventory</span>
+              <div className="flex items-center mb-4">
+                <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-8 object-contain" />
               </div>
               <p className="text-slate-500 text-sm max-w-xs leading-relaxed">Smart Inventory. Stronger Business.</p>
             </div>
