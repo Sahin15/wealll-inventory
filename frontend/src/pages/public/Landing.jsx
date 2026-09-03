@@ -7,6 +7,7 @@ import {
   Truck, Receipt, Users, Zap, AlertCircle
 } from 'lucide-react';
 import wealllLogo from '../../assets/wealll-logo.jpg';
+import wealllMiniLogo from '../../assets/wealll-mini-logo.png';
 
 const features = [
   { 
@@ -115,8 +116,8 @@ const Landing = () => {
           <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
             <div className="flex items-center gap-2.5 group cursor-pointer">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-shadow">
-                <Package className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-sm shadow-slate-200 border border-slate-100 overflow-hidden group-hover:shadow-md transition-shadow p-1.5">
+                <img src={wealllMiniLogo} alt="WeAlll Icon" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg leading-none tracking-tight text-slate-900">WeAlll Inventory</span>

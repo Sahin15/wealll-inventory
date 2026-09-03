@@ -3,6 +3,7 @@ import { Navigate, Outlet, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Package } from 'lucide-react';
 import wealllLogo from '../assets/wealll-logo.jpg';
+import wealllMiniLogo from '../assets/wealll-mini-logo.png';
 
 const AuthLayout = () => {
   const { user, loading } = useContext(AuthContext);
@@ -29,8 +30,8 @@ const AuthLayout = () => {
         {/* Brand Header */}
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center gap-2 mb-2 hover:opacity-80 transition-opacity focus:outline-none">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-violet-500 flex items-center justify-center shadow-md shadow-blue-500/20">
-              <Package className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm shadow-slate-200 border border-slate-100 overflow-hidden p-1.5">
+              <img src={wealllMiniLogo} alt="WeAlll Icon" className="w-full h-full object-contain" />
             </div>
             <span className="text-3xl font-bold tracking-tight text-slate-900">WeAlll Inventory</span>
         </Link>
