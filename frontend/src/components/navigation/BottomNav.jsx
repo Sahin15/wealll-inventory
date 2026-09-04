@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ArrowRightLeft, Receipt, ShoppingCart, Menu } from 'lucide-react';
 import MobileDrawer from './MobileDrawer';
 
-const BottomNav = ({ user, navigation }) => {
+const BottomNav = ({ user, navigation, drawerOpen, onOpenDrawer, onCloseDrawer }) => {
   const location = useLocation();
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Core routes for bottom nav (filtered by what the user has access to)
   const allCoreRoutes = [
@@ -45,7 +44,7 @@ const BottomNav = ({ user, navigation }) => {
           })}
           
           <button
-            onClick={() => setDrawerOpen(true)}
+            onClick={onOpenDrawer}
             className="flex-1 flex flex-col items-center justify-center h-full min-h-[44px] min-w-[44px] text-gray-500 hover:text-gray-900"
           >
             <Menu className="h-5 w-5 mb-1" />
@@ -56,7 +55,7 @@ const BottomNav = ({ user, navigation }) => {
       
       <MobileDrawer 
         isOpen={drawerOpen} 
-        onClose={() => setDrawerOpen(false)} 
+        onClose={onCloseDrawer} 
         user={user}
         overflowRoutes={overflowRoutes}
       />

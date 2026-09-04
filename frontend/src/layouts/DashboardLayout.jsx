@@ -18,6 +18,7 @@ import { getContrastYIQ } from '../utils/colorUtils';
 import TopAppBar from '../components/navigation/TopAppBar';
 import BottomNav from '../components/navigation/BottomNav';
 import SubscriptionBlocker from '../components/SubscriptionBlocker';
+import wealllFullLogo from '../assets/wealll-full-logo.png';
 
 const DashboardLayout = () => {
   const { user, logout, loading } = useContext(AuthContext);
@@ -25,6 +26,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isBlocked, setIsBlocked] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handleSubscriptionExpired = () => {
@@ -171,6 +173,11 @@ const DashboardLayout = () => {
               </Link>
             </div>
           )}
+          <div className={`px-4 ${user.role !== 'admin' ? 'mt-auto' : ''}`}>
+            <div className="flex items-center justify-center w-full h-20 overflow-hidden">
+              <img src={wealllFullLogo} alt="WeAlll Inventory" className="w-full h-full object-contain scale-[3] origin-center" />
+            </div>
+          </div>
           <div className="flex-shrink-0 flex border-t border-gray-200 p-4 bg-gray-50">
             <div className="flex items-center w-full">
               <div className="ml-3 flex-1 overflow-hidden">
@@ -191,13 +198,19 @@ const DashboardLayout = () => {
 
       {/* Main Content */}
       <div className={`md:pl-64 flex flex-col flex-1 print:pl-0 min-w-0 h-full ${globalSettings?.announcementText ? 'pt-12' : ''}`}>
-        <TopAppBar />
+        <TopAppBar onOpenDrawer={() => setDrawerOpen(true)} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="py-4 md:py-6 px-4 sm:px-6 md:px-8 pb-6 w-full max-w-full">
+          <div className="py-4 md:py-6 px-4 sm:px-6 md:px-8 pb-10 md:pb-6 w-full max-w-full">
             <Outlet />
           </div>
         </main>
-        <BottomNav user={user} navigation={navigation} />
+        <BottomNav 
+          user={user} 
+          navigation={navigation} 
+          drawerOpen={drawerOpen} 
+          onOpenDrawer={() => setDrawerOpen(true)} 
+          onCloseDrawer={() => setDrawerOpen(false)} 
+        />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X, LogOut, Download } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
+import wealllFullLogo from '../../assets/wealll-full-logo.png';
 
 const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes }) => {
   const { logout } = useContext(AuthContext);
@@ -92,6 +93,10 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes }) => {
             <LogOut className="h-5 w-5 mr-3" />
             Logout
           </button>
+          
+          <div className="mt-8 mb-4 flex justify-center w-full h-12 overflow-hidden opacity-90">
+            <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[3.5] origin-center" />
+          </div>
         </div>
       </div>
     </>

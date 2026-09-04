@@ -10,6 +10,12 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [greeting, setGreeting] = useState('Namaste');
+
+  useEffect(() => {
+    const greetingsList = ['Namaste', 'Namaskar', 'Vanakkam', 'Khurumjari', 'Welcome'];
+    setGreeting(greetingsList[Math.floor(Math.random() * greetingsList.length)]);
+  }, []);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -30,33 +36,28 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-            Welcome to {user?.tenantId?.businessName || user?.tenantId?.appName || 'WeAlll Inventory'}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="flex-1 w-full">
+          <h2 className="text-xl sm:text-2xl font-bold leading-7 text-gray-900 sm:truncate md:text-3xl sm:tracking-tight mt-1">
+            <span key={greeting} className="inline-block animate-in fade-in duration-700">
+              {greeting}
+            </span>
+            , {user?.name || user?.tenantId?.ownerName || 'Admin'}!
           </h2>
-          {user?.tenantId?.ownerName && (
-            <p className="mt-1 flex items-center text-sm text-gray-500">
-              <span className="font-medium mr-2">Admin: {user.tenantId.ownerName}</span>
-              {user.tenantId.businessPhone && (
-                <>
-                  <span className="mx-2">&bull;</span>
-                  <span>{user.tenantId.businessPhone}</span>
-                </>
-              )}
-            </p>
-          )}
+          <p className="mt-2 text-sm text-gray-500">
+            Here's what's happening at <span className="font-medium text-gray-700">{user?.tenantId?.businessName || user?.tenantId?.appName || 'your business'}</span> today.
+          </p>
         </div>
         {/* Quick Actions */}
         {user?.role !== 'staff' && (
-          <div className="flex flex-wrap gap-2">
-            <Link to="/sales" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+            <Link to="/sales" className="justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full sm:w-auto">
               <ShoppingCart className="w-4 h-4 mr-2" /> New Sale
             </Link>
-            <Link to="/classes" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-indigo-100 hover:bg-indigo-200">
+            <Link to="/classes" className="justify-center inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors w-full sm:w-auto">
               <BookOpen className="w-4 h-4 mr-2" /> New Class
             </Link>
-            <Link to="/purchases" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border-gray-300">
+            <Link to="/purchases" className="justify-center inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors w-full sm:w-auto">
               <PlusCircle className="w-4 h-4 mr-2" /> Record Purchase
             </Link>
           </div>
@@ -65,16 +66,16 @@ const Dashboard = () => {
       
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Products */}
-        <div className="bg-white overflow-hidden shadow rounded-lg border-t-4 border-indigo-500">
+        <div className="bg-white overflow-hidden shadow-sm shadow-gray-200/50 rounded-xl border-t-2 border-blue-500 ring-1 ring-gray-100">
           <div className="p-5">
             <div className="flex items-center">
-              <div className="flex-shrink-0 bg-indigo-100 rounded-md p-3">
-                <Package className="h-6 w-6 text-indigo-600" />
+              <div className="flex-shrink-0 bg-blue-50 rounded-lg p-3">
+                <Package className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Products</dt>
-                  <dd className="text-2xl font-bold text-gray-900">{data.totalProducts}</dd>
+                  <dd className="text-2xl font-bold text-gray-900 mt-1">{data.totalProducts}</dd>
                 </dl>
               </div>
             </div>
@@ -84,48 +85,48 @@ const Dashboard = () => {
         {user?.role !== 'staff' && (
           <>
             {/* Total Customers */}
-            <div className="bg-white overflow-hidden shadow rounded-lg border-t-4 border-blue-500">
+            <div className="bg-white overflow-hidden shadow-sm shadow-gray-200/50 rounded-xl border-t-2 border-indigo-500 ring-1 ring-gray-100">
               <div className="p-5">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-blue-100 rounded-md p-3">
-                    <Users className="h-6 w-6 text-blue-600" />
+                  <div className="flex-shrink-0 bg-indigo-50 rounded-lg p-3">
+                    <Users className="h-6 w-6 text-indigo-600" />
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Unique Customers</dt>
-                      <dd className="text-2xl font-bold text-gray-900">{data.totalCustomers}</dd>
+                      <dd className="text-2xl font-bold text-gray-900 mt-1">{data.totalCustomers}</dd>
                     </dl>
                   </div>
                 </div>
               </div>
             </div>
             {/* Today Sales */}
-            <div className="bg-white overflow-hidden shadow rounded-lg border-t-4 border-emerald-500">
+            <div className="bg-white overflow-hidden shadow-sm shadow-gray-200/50 rounded-xl border-t-2 border-green-500 ring-1 ring-gray-100">
               <div className="p-5">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-emerald-100 rounded-md p-3">
-                    <TrendingUp className="h-6 w-6 text-emerald-600" />
+                  <div className="flex-shrink-0 bg-green-50 rounded-lg p-3">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Today's Sales</dt>
-                      <dd className="text-2xl font-bold text-gray-900">{formatCurrency(data.todaySales)}</dd>
+                      <dd className="text-2xl font-bold text-gray-900 mt-1">{formatCurrency(data.todaySales)}</dd>
                     </dl>
                   </div>
                 </div>
               </div>
             </div>
             {/* Active Classes */}
-            <div className="bg-white overflow-hidden shadow rounded-lg border-t-4 border-purple-500">
+            <div className="bg-white overflow-hidden shadow-sm shadow-gray-200/50 rounded-xl border-t-2 border-purple-500 ring-1 ring-gray-100">
               <div className="p-5">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                  <div className="flex-shrink-0 bg-purple-50 rounded-lg p-3">
                     <BookOpen className="h-6 w-6 text-purple-600" />
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Active Batches</dt>
-                      <dd className="text-2xl font-bold text-gray-900">{data.totalClasses}</dd>
+                      <dd className="text-2xl font-bold text-gray-900 mt-1">{data.totalClasses}</dd>
                     </dl>
                   </div>
                 </div>
