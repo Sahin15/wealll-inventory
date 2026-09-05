@@ -55,9 +55,13 @@ const TopAppBar = ({ onOpenDrawer }) => {
         <div className="h-8 w-28 overflow-visible mr-1 flex items-center justify-end">
           <img src={wealllFullLogo} alt="WeAlll" className="h-full object-contain scale-[3.5] origin-right opacity-90" />
         </div>
-        <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shadow-inner flex-shrink-0">
+        <button 
+          onClick={() => navigate('/my-space')}
+          className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shadow-inner flex-shrink-0 hover:bg-gray-200 transition-colors"
+          aria-label="My Profile"
+        >
            <User className="h-4 w-4" />
-        </div>
+        </button>
       </div>
     </div>
   );

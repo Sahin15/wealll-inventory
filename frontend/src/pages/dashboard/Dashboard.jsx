@@ -13,7 +13,7 @@ const Dashboard = () => {
   const [greeting, setGreeting] = useState('Namaste');
 
   useEffect(() => {
-    const greetingsList = ['Namaste', 'Namaskar', 'Vanakkam', 'Khurumjari', 'Welcome'];
+    const greetingsList = ['Namaste', 'Namaskar', 'Vanakkam', 'Khurumjari', 'Aadaab', 'Welcome'];
     setGreeting(greetingsList[Math.floor(Math.random() * greetingsList.length)]);
   }, []);
 
