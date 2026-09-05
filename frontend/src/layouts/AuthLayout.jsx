@@ -38,10 +38,10 @@ const AuthLayout = () => {
 
         {/* Brand Header */}
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8 mt-4 sm:mt-0 flex flex-col items-center">
-          <Link to="/" className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity focus:outline-none w-64 sm:w-80 h-20 sm:h-24">
-            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="w-full h-full object-contain" />
+          <Link to="/" className="relative z-10 inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity focus:outline-none w-64 sm:w-80 h-16 sm:h-20 overflow-visible">
+            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="w-full h-full object-contain scale-[4.5] pointer-events-none" />
           </Link>
-          <p className="text-sm text-slate-600 font-medium mt-2">Smart Inventory. Stronger Business.</p>
+          <p className="text-sm text-slate-600 font-medium mt-2 relative z-20">Smart Inventory. Stronger Business.</p>
         </div>
 
         {/* Auth Card */}
