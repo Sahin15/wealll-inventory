@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Navigate, Outlet, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Package } from 'lucide-react';
+import { Package, ArrowLeft } from 'lucide-react';
 import wealllLogo from '../assets/wealll-logo.jpg';
 import wealllMiniLogo from '../assets/wealll-mini-logo.png';
 import wealllFullLogo from '../assets/wealll-full-logo.png';
@@ -27,13 +27,21 @@ const AuthLayout = () => {
         <div className="absolute top-[20%] -right-[10%] w-[600px] h-[600px] bg-violet-500/20 rounded-full blur-[100px]"></div>
       </div>
 
-      <div className="relative z-10 w-full flex flex-col items-center">
-        {/* Brand Header */}
-        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
-          <Link to="/" className="inline-flex items-center justify-center mb-0 -mt-6 hover:opacity-80 transition-opacity focus:outline-none h-16 overflow-visible">
-            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="h-full object-contain scale-[4.5]" />
+      <div className="relative z-10 w-full flex flex-col items-center pt-8 sm:pt-0">
+        {/* Back Button */}
+        <div className="absolute top-0 left-4 sm:top-8 sm:left-8">
+          <Link to="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors bg-white/50 px-3 py-1.5 rounded-full shadow-sm hover:shadow-md border border-white/60 backdrop-blur-sm">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
           </Link>
-          <p className="text-sm text-slate-600 font-medium mt-1">Smart Inventory. Stronger Business.</p>
+        </div>
+
+        {/* Brand Header */}
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8 mt-4 sm:mt-0 flex flex-col items-center">
+          <Link to="/" className="inline-flex items-center justify-center mb-2 hover:opacity-80 transition-opacity focus:outline-none w-64 sm:w-80 h-20 sm:h-24">
+            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="w-full h-full object-contain" />
+          </Link>
+          <p className="text-sm text-slate-600 font-medium mt-2">Smart Inventory. Stronger Business.</p>
         </div>
 
         {/* Auth Card */}
