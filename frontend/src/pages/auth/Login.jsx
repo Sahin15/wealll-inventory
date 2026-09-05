@@ -34,8 +34,8 @@ const Login = () => {
 
   return (
     <div className="w-full max-w-md mx-auto relative">
-      <div className="mb-10">
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">Welcome back!</h2>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back!</h2>
         <p className="text-sm text-slate-600">Sign in to continue to your business dashboard.</p>
       </div>
 
@@ -50,7 +50,7 @@ const Login = () => {
           </div>
         )}
         
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
             <div className="relative">
@@ -104,7 +104,7 @@ const Login = () => {
           </button>
         </div>
 
-        <div className="text-center text-sm pt-6 mt-6 border-t border-slate-100">
+        <div className="text-center text-sm pt-5 mt-5 border-t border-slate-100">
           <span className="text-slate-500">Don't have an account? </span>
           <button 
             type="button" 
