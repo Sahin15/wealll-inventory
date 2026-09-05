@@ -1,0 +1,40 @@
+name: Deploy to UAT
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into VPS and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Create UAT directory if it doesn't exist
+            if [ ! -d "~/wealll-inventory-uat" ] && [ ! -d "/var/www/wealll-inventory-uat" ]; then
+              git clone https://github.com/Sahin15/wealll-inventory.git ~/wealll-inventory-uat || git clone https://github.com/Sahin15/wealll-inventory.git /var/www/wealll-inventory-uat
+            fi
+            
+            cd ~/wealll-inventory-uat || cd /var/www/wealll-inventory-uat
+            git remote set-url origin https://github.com/Sahin15/wealll-inventory.git
+            git fetch origin
+            git checkout staging
+            git reset --hard origin/staging
+            chmod +x deploy-uat.sh
+            ./deploy-uat.sh staging
+            
+            echo "Aggressive copy to UAT web roots..."
+            # Try to copy to standard UAT locations
+            mkdir -p /var/www/uat.wealll.com 2>/dev/null || true
+            cp -r ~/wealll-inventory-uat/frontend/dist/* /var/www/uat.wealll.com/ 2>/dev/null || true
+            cp -r /var/www/wealll-inventory-uat/frontend/dist/* /var/www/uat.wealll.com/ 2>/dev/null || true
+            
+            # Change permissions
+            chown -R www-data:www-data /var/www/uat.wealll.com 2>/dev/null || true
