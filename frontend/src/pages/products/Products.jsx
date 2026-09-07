@@ -107,7 +107,7 @@ const Products = () => {
                     <input type="number" step="0.01" required value={formData.purchasePrice} onChange={e => setFormData({...formData, purchasePrice: e.target.value})} className="input-field mt-1" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Selling Price</label>
+                    <label className="block text-sm font-medium text-gray-700">Selling Price (MRP)</label>
                     <input type="number" step="0.01" required value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} className="input-field mt-1" />
                   </div>
                 </div>
@@ -156,7 +156,7 @@ const Products = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price (MRP)</th>
                       {canManage && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
                     </tr>
                   </thead>
@@ -212,7 +212,7 @@ const Products = () => {
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Price: </span>
+                            <span className="text-gray-500">Price (MRP): </span>
                             <span className="font-medium text-gray-900">{formatCurrency(prod.sellingPrice)}</span>
                           </div>
                         </div>
