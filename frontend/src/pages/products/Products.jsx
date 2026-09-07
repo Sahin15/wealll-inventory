@@ -17,7 +17,7 @@ const Products = () => {
   const canManage = hasPermission(user?.role, 'products.manage');
 
   const [formData, setFormData] = useState({
-    name: '', sku: '', categoryId: '', purchasePrice: '', sellingPrice: '', minimumStock: ''
+    name: '', sku: '', categoryId: '', purchasePrice: '', mrp: '', minimumStock: ''
   });
 
   const fetchData = async () => {
@@ -65,14 +65,14 @@ const Products = () => {
       sku: prod.sku,
       categoryId: prod.categoryId?._id || '',
       purchasePrice: prod.purchasePrice,
-      sellingPrice: prod.sellingPrice,
+      mrp: prod.mrp,
       minimumStock: prod.minimumStock
     });
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setFormData({ name: '', sku: '', categoryId: categories[0]?._id || '', purchasePrice: '', sellingPrice: '', minimumStock: '' });
+    setFormData({ name: '', sku: '', categoryId: categories[0]?._id || '', purchasePrice: '', mrp: '', minimumStock: '' });
   };
 
   return (
@@ -103,12 +103,12 @@ const Products = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Purchase Price</label>
+                    <label className="block text-sm font-medium text-gray-700">Purchase Price (Cost)</label>
                     <input type="number" step="0.01" required value={formData.purchasePrice} onChange={e => setFormData({...formData, purchasePrice: e.target.value})} className="input-field mt-1" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Selling Price (MRP)</label>
-                    <input type="number" step="0.01" required value={formData.sellingPrice} onChange={e => setFormData({...formData, sellingPrice: e.target.value})} className="input-field mt-1" />
+                    <label className="block text-sm font-medium text-gray-700">MRP (₹)</label>
+                    <input type="number" step="0.01" required value={formData.mrp} onChange={e => setFormData({...formData, mrp: e.target.value})} className="input-field mt-1" />
                   </div>
                 </div>
                 <div>
@@ -156,7 +156,7 @@ const Products = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price (MRP)</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">MRP (₹)</th>
                       {canManage && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
                     </tr>
                   </thead>
@@ -177,7 +177,7 @@ const Products = () => {
                             {prod.currentStock}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{formatCurrency(prod.sellingPrice)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{formatCurrency(prod.mrp)}</td>
                         {canManage && (
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button onClick={() => handleEdit(prod)} className="text-indigo-600 hover:text-indigo-900">
@@ -212,8 +212,8 @@ const Products = () => {
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Price (MRP): </span>
-                            <span className="font-medium text-gray-900">{formatCurrency(prod.sellingPrice)}</span>
+                            <span className="text-gray-500">MRP: </span>
+                            <span className="font-medium text-gray-900">{formatCurrency(prod.mrp)}</span>
                           </div>
                         </div>
                         {canManage && (

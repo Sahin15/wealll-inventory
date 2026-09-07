@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   unit: { type: String, default: 'pcs' },
   purchasePrice: { type: Number, required: true, min: 0 },
-  sellingPrice: { type: Number, required: true, min: 0 },
+  mrp: { type: Number, required: true, min: 0 },
   currentStock: { type: Number, default: 0, min: 0 },
   minimumStock: { type: Number, default: 0, min: 0 },
   status: { type: String, enum: ['active', 'archived'], default: 'active' }

@@ -11,11 +11,11 @@ exports.getProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, sku, brand, categoryId, unit, purchasePrice, sellingPrice, minimumStock } = req.body;
+    const { name, sku, brand, categoryId, unit, purchasePrice, mrp, minimumStock } = req.body;
     
     const product = await Product.create({
       tenantId: req.user.tenantId,
-      name, sku, brand, categoryId, unit, purchasePrice, sellingPrice, minimumStock
+      name, sku, brand, categoryId, unit, purchasePrice, mrp, minimumStock
     });
     
     await product.populate('categoryId', 'name');

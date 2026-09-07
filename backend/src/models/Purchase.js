@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const purchaseItemSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   quantity: { type: Number, required: true, min: 1 },
-  purchasePrice: { type: Number, required: true, min: 0 },
+  unitCost: { type: Number, required: true, min: 0 },
   total: { type: Number, required: true, min: 0 }
 });
 

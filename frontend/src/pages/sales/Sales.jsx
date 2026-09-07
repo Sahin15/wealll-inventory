@@ -36,8 +36,9 @@ const Sales = () => {
     classBatchId: '',
     productId: '',
     quantity: '',
-    unitPrice: '',
-    discount: '0'
+    mrp: '',
+    discount: '0',
+    discountType: 'FLAT'
   });
 
   const fetchData = async () => {
@@ -54,7 +55,7 @@ const Sales = () => {
       setSettings(settingsRes.data.data);
       setStudents(studentsRes.data.data);
       if (prodRes.data.data.length > 0) {
-        setFormData(f => ({ ...f, productId: prodRes.data.data[0]._id, unitPrice: prodRes.data.data[0].sellingPrice }));
+        setFormData(f => ({ ...f, productId: prodRes.data.data[0]._id, mrp: prodRes.data.data[0].mrp }));
       }
     } catch (err) {
       console.error(err);
@@ -73,7 +74,9 @@ const Sales = () => {
     setFormData({
       ...formData,
       productId: pId,
-      unitPrice: prod ? prod.sellingPrice : ''
+      mrp: prod ? prod.mrp : '',
+      discount: '0',
+      discountType: 'FLAT'
     });
   };
 
@@ -93,12 +96,18 @@ const Sales = () => {
     setError(null);
     try {
       const quantity = Number(formData.quantity);
-      const sellingPrice = Number(formData.unitPrice);
-      const discount = Number(formData.discount);
+      const mrp = Number(formData.mrp);
+      const discountInput = Number(formData.discount) || 0;
+      
+      const itemDiscountAmount = formData.discountType === 'PERCENTAGE' 
+        ? (mrp * (discountInput / 100)) 
+        : discountInput;
+
+      const sellingPrice = Math.max(0, mrp - itemDiscountAmount);
       
       const itemTotal = quantity * sellingPrice;
       const subtotal = itemTotal;
-      const finalTotal = subtotal - discount;
+      const finalTotal = subtotal;
 
       const payload = {
         invoiceNumber: formData.invoiceNumber,
@@ -106,12 +115,13 @@ const Sales = () => {
         studentId: isStudentPurchase ? formData.studentId : undefined,
         classBatchId: isStudentPurchase ? formData.classBatchId : undefined,
         subtotal: subtotal,
-        discount: discount,
+        discount: 0,
         total: finalTotal,
         items: [
           {
             productId: formData.productId,
             quantity: quantity,
+            mrp: mrp,
             sellingPrice: sellingPrice,
             total: itemTotal
           }
@@ -127,8 +137,9 @@ const Sales = () => {
         classBatchId: '',
         productId: products[0]?._id || '',
         quantity: '',
-        unitPrice: products[0]?.sellingPrice || '',
-        discount: '0'
+        mrp: products[0]?.mrp || '',
+        discount: '0',
+        discountType: 'FLAT'
       });
       setShowForm(false);
       setIsStudentPurchase(false);
@@ -250,7 +261,7 @@ const Sales = () => {
 
             <div className="border-t border-gray-200 pt-4 mt-4">
               <h4 className="text-sm font-medium text-gray-900 mb-3">Item Details</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div className="lg:col-span-2">
                   <label className="block text-sm font-medium text-gray-700">Product</label>
                   <select required value={formData.productId} onChange={handleProductChange} className="input-field mt-1">
@@ -270,12 +281,42 @@ const Sales = () => {
                   <input type="number" required min="1" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} className="input-field mt-1" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Unit Price (₹)</label>
-                  <input type="number" required step="0.01" min="0" value={formData.unitPrice} onChange={e => setFormData({...formData, unitPrice: e.target.value})} className="input-field mt-1" />
+                  <label className="block text-sm font-medium text-gray-700">MRP (₹)</label>
+                  <input type="number" disabled value={formData.mrp} className="input-field mt-1 bg-gray-100 cursor-not-allowed" />
                 </div>
-                <div className="lg:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Discount Amount (₹)</label>
-                  <input type="number" step="0.01" min="0" value={formData.discount} onChange={e => setFormData({...formData, discount: e.target.value})} className="input-field mt-1" />
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700">Discount</label>
+                  <div className="flex mt-1 gap-1">
+                    <select 
+                      value={formData.discountType} 
+                      onChange={e => setFormData({...formData, discountType: e.target.value})} 
+                      className="input-field w-2/5 px-1"
+                    >
+                      <option value="FLAT">₹</option>
+                      <option value="PERCENTAGE">%</option>
+                    </select>
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      min="0" 
+                      max={formData.discountType === 'PERCENTAGE' ? '100' : undefined}
+                      value={formData.discount} 
+                      onChange={e => setFormData({...formData, discount: e.target.value})} 
+                      className="input-field w-3/5" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Selling Price (₹)</label>
+                  {(() => {
+                    const m = Number(formData.mrp) || 0;
+                    const d = Number(formData.discount) || 0;
+                    const discAmt = formData.discountType === 'PERCENTAGE' ? (m * (d / 100)) : d;
+                    const sp = Math.max(0, m - discAmt);
+                    return (
+                      <input type="number" disabled value={sp.toFixed(2)} className="input-field mt-1 bg-emerald-50 font-semibold text-emerald-700 cursor-not-allowed" />
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -287,15 +328,15 @@ const Sales = () => {
         </div>
       )}
 
-      <div className="card overflow-hidden">
+      <div className="card">
         {loading ? (
           <div className="p-6 text-center text-gray-500">Loading sales...</div>
         ) : sales.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No sales recorded yet.</div>
         ) : (
-          <div className="overflow-hidden min-h-[16rem]">
+          <div className="min-h-[16rem]">
             {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-visible">
               <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -309,7 +350,7 @@ const Sales = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sales.map((sale) => (
+                {sales.map((sale, idx) => (
                   <tr key={sale._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatDate(sale.saleDate)}
@@ -363,7 +404,9 @@ const Sales = () => {
                             </svg>
                           </button>
                           {revealId === sale._id && (
-                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div className={`absolute right-0 w-40 bg-white rounded-md shadow-lg z-50 border border-gray-200 ${
+                              idx >= sales.length - 2 && sales.length > 3 ? 'bottom-full mb-2' : 'mt-2'
+                            }`}>
                               <button 
                                 onClick={() => {
                                   setViewModalSale(sale);

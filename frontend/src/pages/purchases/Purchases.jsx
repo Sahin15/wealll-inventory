@@ -65,7 +65,7 @@ const Purchases = () => {
           {
             productId: formData.productId,
             quantity: quantity,
-            purchasePrice: unitCost,
+            unitCost: unitCost,
             total: itemTotal
           }
         ]
@@ -161,7 +161,7 @@ const Purchases = () => {
                   <input type="number" required min="1" value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} className="input-field mt-1" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Unit Cost (₹)</label>
+                  <label className="block text-sm font-medium text-gray-700">Unit Cost (From Supplier)</label>
                   <input type="number" required step="0.01" min="0" value={formData.unitCost} onChange={e => setFormData({...formData, unitCost: e.target.value})} className="input-field mt-1" />
                 </div>
               </div>
@@ -174,15 +174,15 @@ const Purchases = () => {
         </div>
       )}
 
-      <div className="card overflow-hidden">
+      <div className="card">
         {loading ? (
           <div className="p-6 text-center text-gray-500">Loading purchases...</div>
         ) : purchases.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No purchases recorded yet.</div>
         ) : (
-          <div className="overflow-hidden min-h-[16rem]">
+          <div className="min-h-[16rem]">
             {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-visible">
               <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -196,7 +196,7 @@ const Purchases = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {purchases.map((purchase) => (
+                {purchases.map((purchase, idx) => (
                   <tr key={purchase._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatDate(purchase.purchaseDate)}
@@ -237,7 +237,9 @@ const Purchases = () => {
                             </svg>
                           </button>
                           {revealId === purchase._id && (
-                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div className={`absolute right-0 w-40 bg-white rounded-md shadow-lg z-50 border border-gray-200 ${
+                              idx >= purchases.length - 2 && purchases.length > 3 ? 'bottom-full mb-2' : 'mt-2'
+                            }`}>
                               <button 
                                 onClick={() => {
                                   setViewModalPurchase(purchase);
@@ -370,7 +372,7 @@ const Purchases = () => {
                 <ul className="list-disc pl-5 space-y-1">
                   {viewModalPurchase.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'} @ {formatCurrency(item.purchasePrice)} = {formatCurrency(item.total)}
+                      {item.quantity}x {item.productId?.name || item.product?.name || 'Unknown Product'} @ {formatCurrency(item.unitCost)} = {formatCurrency(item.total)}
                     </li>
                   ))}
                 </ul>
