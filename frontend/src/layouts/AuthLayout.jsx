@@ -28,7 +28,6 @@ const AuthLayout = () => {
       </div>
 
       <div className="relative z-10 w-full flex flex-col items-center pt-10 sm:pt-0">
-      <div className="relative z-10 w-full flex flex-col items-center">
         {/* Back Button */}
         <div className="absolute top-0 left-4 sm:-top-4 sm:left-8">
           <Link to="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors bg-white/50 px-3 py-1.5 rounded-full shadow-sm hover:shadow-md border border-white/60 backdrop-blur-sm">
