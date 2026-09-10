@@ -6,7 +6,11 @@ import {
   Search, 
   X, 
   Boxes, 
-  ArrowRight
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  Layers
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
@@ -22,6 +26,10 @@ const Products = () => {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -154,7 +162,39 @@ const Products = () => {
 
   // Quick Stats
   const totalProducts = products.length;
-  const lowStockProducts = products.filter(p => (p.currentStock || 0) <= (p.minimumStock || 0)).length;
+  const lowStockProducts = useMemo(() => 
+    products.filter(p => (p.currentStock || 0) <= (p.minimumStock || 0)).length,
+    [products]
+  );
+  const totalStockUnits = useMemo(() => 
+    products.reduce((sum, p) => sum + (Number(p.currentStock) || 0), 0),
+    [products]
+  );
+  const totalInventoryValue = useMemo(() => 
+    products.reduce((sum, p) => sum + ((Number(p.currentStock) || 0) * (Number(p.purchasePrice) || 0)), 0),
+    [products]
+  );
+
+  // Pagination calculations
+  const totalFiltered = filteredProducts.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+
+  // Auto-reset page when filter changes or if out of bounds
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryFilter]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalFiltered);
+  const paginatedProducts = useMemo(() => {
+    return filteredProducts.slice(startIndex, endIndex);
+  }, [filteredProducts, startIndex, endIndex]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -163,7 +203,7 @@ const Products = () => {
         <div>
           <h2 className="text-2xl font-bold leading-7 text-gray-900 flex items-center gap-2">
             <Boxes className="text-indigo-600" size={26} />
-            Products
+            Products Catalog
           </h2>
           <p className="text-sm text-gray-500 mt-0.5">
             Manage your product inventory, pricing, SKU codes, and reorder thresholds.
@@ -179,6 +219,62 @@ const Products = () => {
             <span>Add Product</span>
           </button>
         )}
+      </div>
+
+      {/* KPI Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Total Products Option / KPI */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Total Products</span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-1">
+              {totalProducts}
+            </div>
+            <span className="text-xs text-gray-500 mt-1 block">
+              {categories.length} active {categories.length === 1 ? 'category' : 'categories'}
+              {searchTerm || categoryFilter !== 'ALL' ? ` (${totalFiltered} matched)` : ''}
+            </span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-inner">
+            <Package size={24} />
+          </div>
+        </div>
+
+        {/* In-Stock Units & Valuation */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Total Stock Units</span>
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">
+              {totalStockUnits.toLocaleString()}
+            </div>
+            <span className="text-xs text-gray-500 mt-1 block">
+              Value: {formatCurrency(totalInventoryValue)}
+            </span>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-inner">
+            <Layers size={24} />
+          </div>
+        </div>
+
+        {/* Low Stock Alerts */}
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Stock Health</span>
+            <div className={`text-2xl sm:text-3xl font-extrabold mt-1 ${lowStockProducts > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+              {lowStockProducts}
+            </div>
+            <span className="text-xs text-gray-500 mt-1 block">
+              {lowStockProducts > 0 ? `${lowStockProducts} item(s) low stock` : 'All inventory levels healthy'}
+            </span>
+          </div>
+          <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shadow-inner ${
+            lowStockProducts > 0 
+              ? 'bg-amber-50 border-amber-100 text-amber-600' 
+              : 'bg-emerald-50 border-emerald-100 text-emerald-600'
+          }`}>
+            <AlertCircle size={24} />
+          </div>
+        </div>
       </div>
 
       {/* Floating Action Button for Mobile */}
@@ -198,7 +294,7 @@ const Products = () => {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search products by name, SKU, brand..."
+            aria-label="Search products by name, SKU, or brand"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
@@ -285,7 +381,7 @@ const Products = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredProducts.map((prod) => {
+                  {paginatedProducts.map((prod) => {
                     const isLow = (prod.currentStock || 0) <= (prod.minimumStock || 0);
                     return (
                       <tr key={prod._id} className="hover:bg-indigo-50/25 transition-colors">
@@ -340,7 +436,7 @@ const Products = () => {
 
             {/* Mobile Card View */}
             <div className="md:hidden divide-y divide-gray-100">
-              {filteredProducts.map((prod) => {
+              {paginatedProducts.map((prod) => {
                 const isLow = (prod.currentStock || 0) <= (prod.minimumStock || 0);
                 return (
                   <div key={prod._id} className="p-4 flex flex-col gap-2.5 hover:bg-gray-50">
@@ -390,16 +486,115 @@ const Products = () => {
                   </div>
                 );
               })}
+
+              {/* Mobile View More Products Button */}
+              {endIndex < totalFiltered && (
+                <div className="p-3 bg-gray-50/70 border-t border-gray-100">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                  >
+                    <span>View More Products ({totalFiltered - endIndex} remaining)</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Table Footer */}
-            <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
-              <span>Showing {filteredProducts.length} of {products.length} products</span>
-              {lowStockProducts > 0 && (
-                <span className="text-amber-600 font-bold">
-                  ⚠️ {lowStockProducts} product(s) low in stock
+            {/* Pagination & Navigation Footer */}
+            <div className="bg-gray-50 px-4 sm:px-6 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+              {/* Count & Page Size */}
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                <span className="font-medium">
+                  Showing <span className="font-bold text-gray-900">{totalFiltered === 0 ? 0 : startIndex + 1}</span> to <span className="font-bold text-gray-900">{endIndex}</span> of <span className="font-bold text-gray-900">{totalFiltered}</span> products
+                  {totalProducts !== totalFiltered && (
+                    <span className="text-gray-400 ml-1">({totalProducts} total)</span>
+                  )}
                 </span>
-              )}
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-gray-500 font-medium">Per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* View More Button + Page Controls */}
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                {endIndex < totalFiltered && (
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    className="hidden lg:inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-100 transition"
+                  >
+                    <span>View More (+{Math.min(pageSize, totalFiltered - endIndex)})</span>
+                    <ArrowRight size={13} />
+                  </button>
+                )}
+
+                <div className="inline-flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                  {/* Previous Page */}
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition"
+                    title="Previous Page"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  {/* Page numbers */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      // Show first, last, and pages within 1 step of currentPage
+                      if (totalPages <= 5) return true;
+                      return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                    })
+                    .map((page, idx, arr) => {
+                      const prev = arr[idx - 1];
+                      const showEllipsis = prev && page - prev > 1;
+
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && (
+                            <span className="px-1 text-gray-400 select-none">...</span>
+                          )}
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            className={`min-w-[28px] h-7 px-2 text-xs font-bold rounded transition ${
+                              currentPage === page
+                                ? 'bg-indigo-600 text-white shadow-sm'
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
+
+                  {/* Next Page */}
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition"
+                    title="Next Page"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -12,7 +12,10 @@ import {
   IndianRupee,
   SlidersHorizontal,
   X,
-  Boxes
+  Boxes,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
@@ -33,6 +36,14 @@ const Stock = () => {
   // Filters for Stock Ledger
   const [ledgerSearch, setLedgerSearch] = useState('');
   const [ledgerTypeFilter, setLedgerTypeFilter] = useState('ALL'); // 'ALL' | 'IN' | 'OUT' | 'ADJUSTMENT'
+
+  // Pagination for Available Stock
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Pagination for Stock Ledger
+  const [ledgerPage, setLedgerPage] = useState(1);
+  const [ledgerPageSize, setLedgerPageSize] = useState(15);
 
   const fetchData = async () => {
     setLoading(true);
@@ -126,6 +137,48 @@ const Stock = () => {
       return true;
     });
   }, [movements, ledgerSearch, ledgerTypeFilter]);
+
+  // Reset page when Available Stock filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, categoryFilter]);
+
+  // Reset ledger page when Ledger filters change
+  useEffect(() => {
+    setLedgerPage(1);
+  }, [ledgerSearch, ledgerTypeFilter]);
+
+  // Available Stock Pagination calculations
+  const totalStockFiltered = filteredProducts.length;
+  const totalStockPages = Math.max(1, Math.ceil(totalStockFiltered / pageSize));
+
+  useEffect(() => {
+    if (currentPage > totalStockPages) {
+      setCurrentPage(totalStockPages);
+    }
+  }, [totalStockPages, currentPage]);
+
+  const stockStartIndex = (currentPage - 1) * pageSize;
+  const stockEndIndex = Math.min(stockStartIndex + pageSize, totalStockFiltered);
+  const paginatedStockProducts = useMemo(() => {
+    return filteredProducts.slice(stockStartIndex, stockEndIndex);
+  }, [filteredProducts, stockStartIndex, stockEndIndex]);
+
+  // Stock Ledger Pagination calculations
+  const totalLedgerFiltered = filteredMovements.length;
+  const totalLedgerPages = Math.max(1, Math.ceil(totalLedgerFiltered / ledgerPageSize));
+
+  useEffect(() => {
+    if (ledgerPage > totalLedgerPages) {
+      setLedgerPage(totalLedgerPages);
+    }
+  }, [totalLedgerPages, ledgerPage]);
+
+  const ledgerStartIndex = (ledgerPage - 1) * ledgerPageSize;
+  const ledgerEndIndex = Math.min(ledgerStartIndex + ledgerPageSize, totalLedgerFiltered);
+  const paginatedLedgerMovements = useMemo(() => {
+    return filteredMovements.slice(ledgerStartIndex, ledgerEndIndex);
+  }, [filteredMovements, ledgerStartIndex, ledgerEndIndex]);
 
   // Helper to switch to ledger for a specific product
   const handleViewProductHistory = (productName) => {
@@ -362,7 +415,7 @@ const Stock = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by product name or SKU..."
+                aria-label="Search by product name or SKU"
                 className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
               />
               {searchQuery && (
@@ -489,7 +542,7 @@ const Stock = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
-                      {filteredProducts.map((p) => {
+                      {paginatedStockProducts.map((p) => {
                         const current = p.currentStock || 0;
                         const min = p.minimumStock || 0;
                         const isLow = current <= min && current > 0;
@@ -592,7 +645,7 @@ const Stock = () => {
 
                 {/* Mobile / Tablet Card View */}
                 <div className="lg:hidden divide-y divide-gray-100">
-                  {filteredProducts.map((p) => {
+                  {paginatedStockProducts.map((p) => {
                     const current = p.currentStock || 0;
                     const min = p.minimumStock || 0;
                     const isLow = current <= min && current > 0;
@@ -658,21 +711,113 @@ const Stock = () => {
                       </div>
                     );
                   })}
+
+                  {/* Mobile View More Items Button */}
+                  {stockEndIndex < totalStockFiltered && (
+                    <div className="p-3 bg-gray-50/70 border-t border-gray-100">
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalStockPages, p + 1))}
+                        className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                      >
+                        <span>View More Items ({totalStockFiltered - stockEndIndex} remaining)</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Table Footer Summary */}
-                <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
-                  <div>
-                    Showing <span className="font-semibold text-gray-800">{filteredProducts.length}</span> of{' '}
-                    <span className="font-semibold text-gray-800">{products.length}</span> items
+                {/* Available Stock Pagination & Navigation Footer */}
+                <div className="bg-gray-50 px-4 sm:px-6 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+                  {/* Count & Page Size */}
+                  <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                    <span className="font-medium">
+                      Showing <span className="font-bold text-gray-900">{totalStockFiltered === 0 ? 0 : stockStartIndex + 1}</span> to <span className="font-bold text-gray-900">{stockEndIndex}</span> of <span className="font-bold text-gray-900">{totalStockFiltered}</span> items
+                      {products.length !== totalStockFiltered && (
+                        <span className="text-gray-400 ml-1">({products.length} total)</span>
+                      )}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-500 font-medium">Per page:</span>
+                      <select
+                        value={pageSize}
+                        onChange={(e) => {
+                          setPageSize(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className="bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    {metrics.lowStock > 0 && (
-                      <span className="text-amber-600 font-semibold mr-3">
-                        ⚠️ {metrics.lowStock} item(s) low in stock
-                      </span>
+
+                  {/* View More Button + Page Controls */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                    {stockEndIndex < totalStockFiltered && (
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalStockPages, p + 1))}
+                        className="hidden lg:inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-100 transition"
+                      >
+                        <span>View More (+{Math.min(pageSize, totalStockFiltered - stockEndIndex)})</span>
+                        <ArrowRight size={13} />
+                      </button>
                     )}
-                    Total inventory units: <span className="font-bold text-gray-900">{metrics.totalUnits}</span>
+
+                    <div className="inline-flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                      {/* Previous Page */}
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition"
+                        title="Previous Page"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+
+                      {/* Page numbers */}
+                      {Array.from({ length: totalStockPages }, (_, i) => i + 1)
+                        .filter(page => {
+                          if (totalStockPages <= 5) return true;
+                          return page === 1 || page === totalStockPages || Math.abs(page - currentPage) <= 1;
+                        })
+                        .map((page, idx, arr) => {
+                          const prev = arr[idx - 1];
+                          const showEllipsis = prev && page - prev > 1;
+
+                          return (
+                            <React.Fragment key={page}>
+                              {showEllipsis && (
+                                <span className="px-1 text-gray-400 select-none">...</span>
+                              )}
+                              <button
+                                onClick={() => setCurrentPage(page)}
+                                className={`min-w-[28px] h-7 px-2 text-xs font-bold rounded transition ${
+                                  currentPage === page
+                                    ? 'bg-indigo-600 text-white shadow-sm'
+                                    : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+
+                      {/* Next Page */}
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalStockPages, p + 1))}
+                        disabled={currentPage === totalStockPages}
+                        className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition"
+                        title="Next Page"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -692,7 +837,7 @@ const Stock = () => {
                 type="text"
                 value={ledgerSearch}
                 onChange={(e) => setLedgerSearch(e.target.value)}
-                placeholder="Search product, invoice, or note..."
+                aria-label="Search product, invoice, or note"
                 className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
               />
               {ledgerSearch && (
@@ -784,7 +929,7 @@ const Stock = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
-                      {filteredMovements.map((m) => (
+                      {paginatedLedgerMovements.map((m) => (
                         <tr key={m._id} className="hover:bg-gray-50/80 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium">
                             {formatDate(m.createdAt, true)}
@@ -820,7 +965,7 @@ const Stock = () => {
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-gray-100">
-                  {filteredMovements.map((m) => (
+                  {paginatedLedgerMovements.map((m) => (
                     <div key={m._id} className="p-4 flex flex-col gap-2.5">
                       <div className="flex justify-between items-start gap-2">
                         <div>
@@ -852,11 +997,114 @@ const Stock = () => {
                       )}
                     </div>
                   ))}
+
+                  {/* Mobile View More Movements */}
+                  {ledgerEndIndex < totalLedgerFiltered && (
+                    <div className="p-3 bg-gray-50/70 border-t border-gray-100">
+                      <button
+                        onClick={() => setLedgerPage(p => Math.min(totalLedgerPages, p + 1))}
+                        className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5"
+                      >
+                        <span>View More Movements ({totalLedgerFiltered - ledgerEndIndex} remaining)</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Footer */}
-                <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 text-xs text-gray-500 font-medium">
-                  Showing <span className="font-semibold text-gray-800">{filteredMovements.length}</span> transactions
+                {/* Ledger Pagination Footer */}
+                <div className="bg-gray-50 px-4 sm:px-6 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+                  {/* Count & Page Size */}
+                  <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                    <span className="font-medium">
+                      Showing <span className="font-bold text-gray-900">{totalLedgerFiltered === 0 ? 0 : ledgerStartIndex + 1}</span> to <span className="font-bold text-gray-900">{ledgerEndIndex}</span> of <span className="font-bold text-gray-900">{totalLedgerFiltered}</span> transactions
+                      {movements.length !== totalLedgerFiltered && (
+                        <span className="text-gray-400 ml-1">({movements.length} total)</span>
+                      )}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-500 font-medium">Per page:</span>
+                      <select
+                        value={ledgerPageSize}
+                        onChange={(e) => {
+                          setLedgerPageSize(Number(e.target.value));
+                          setLedgerPage(1);
+                        }}
+                        className="bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value={10}>10</option>
+                        <option value={15}>15</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* View More Button + Page Controls */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                    {ledgerEndIndex < totalLedgerFiltered && (
+                      <button
+                        onClick={() => setLedgerPage(p => Math.min(totalLedgerPages, p + 1))}
+                        className="hidden lg:inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-100 transition"
+                      >
+                        <span>View More (+{Math.min(ledgerPageSize, totalLedgerFiltered - ledgerEndIndex)})</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    )}
+
+                    <div className="inline-flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                      {/* Previous Page */}
+                      <button
+                        onClick={() => setLedgerPage(p => Math.max(1, p - 1))}
+                        disabled={ledgerPage === 1}
+                        className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition"
+                        title="Previous Page"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+
+                      {/* Page numbers */}
+                      {Array.from({ length: totalLedgerPages }, (_, i) => i + 1)
+                        .filter(page => {
+                          if (totalLedgerPages <= 5) return true;
+                          return page === 1 || page === totalLedgerPages || Math.abs(page - ledgerPage) <= 1;
+                        })
+                        .map((page, idx, arr) => {
+                          const prev = arr[idx - 1];
+                          const showEllipsis = prev && page - prev > 1;
+
+                          return (
+                            <React.Fragment key={page}>
+                              {showEllipsis && (
+                                <span className="px-1 text-gray-400 select-none">...</span>
+                              )}
+                              <button
+                                onClick={() => setLedgerPage(page)}
+                                className={`min-w-[28px] h-7 px-2 text-xs font-bold rounded transition ${
+                                  ledgerPage === page
+                                    ? 'bg-indigo-600 text-white shadow-sm'
+                                    : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+
+                      {/* Next Page */}
+                      <button
+                        onClick={() => setLedgerPage(p => Math.min(totalLedgerPages, p + 1))}
+                        disabled={ledgerPage === totalLedgerPages}
+                        className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition"
+                        title="Next Page"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
