@@ -1,5 +1,5 @@
 const express = require('express');
-const { getSales, createSale, voidSale } = require('../controllers/saleController');
+const { getSales, createSale, voidSale, addPayment } = require('../controllers/saleController');
 const { protect, authorize } = require('../middleware/auth');
 const { requireActiveSubscription } = require('../middleware/subscriptionMiddleware');
 
@@ -11,6 +11,9 @@ router.use(requireActiveSubscription);
 router.route('/')
   .get(getSales)
   .post(createSale);
+
+router.route('/:id/payments')
+  .post(addPayment);
 
 router.route('/:id/void')
   .post(authorize('admin', 'manager'), voidSale);

@@ -18,7 +18,7 @@ exports.getBatches = async (req, res) => {
 // @access  Private
 exports.getAllStudents = async (req, res) => {
   try {
-    const batches = await ClassBatch.find({ tenantId: req.user.tenantId }).select('batchNumber topic students');
+    const batches = await ClassBatch.find({ tenantId: req.user.tenantId }).select('batchNumber topic seatPrice location date students');
     
     let allStudents = [];
     batches.forEach(batch => {
@@ -27,7 +27,10 @@ exports.getAllStudents = async (req, res) => {
           ...student.toObject(),
           batchId: batch._id,
           batchNumber: batch.batchNumber,
-          batchTopic: batch.topic
+          batchTopic: batch.topic,
+          seatPrice: batch.seatPrice,
+          batchDate: batch.date,
+          batchLocation: batch.location
         });
       });
     });
@@ -111,11 +114,50 @@ exports.updateBatch = async (req, res) => {
 // @access  Private
 exports.addStudent = async (req, res) => {
   try {
-    const { name, phone, location, address, paymentStatus } = req.body;
+    const { 
+      name, 
+      phone, 
+      location, 
+      address, 
+      paymentStatus = 'Pending', 
+      paidAmount = 0, 
+      paymentMethod = 'CASH', 
+      notes 
+    } = req.body;
 
     const batch = await ClassBatch.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
     if (!batch) {
       return res.status(404).json({ success: false, error: 'Batch not found' });
+    }
+
+    const seatFee = batch.seatPrice || 0;
+    let finalPaid = 0;
+    let finalStatus = paymentStatus;
+
+    if (paymentStatus === 'Paid') {
+      finalPaid = seatFee;
+    } else if (paymentStatus === 'Pending') {
+      finalPaid = 0;
+    } else if (paymentStatus === 'Partial') {
+      const parsed = Number(paidAmount) || 0;
+      finalPaid = Math.max(0, Math.min(seatFee, parsed));
+      if (finalPaid >= seatFee && seatFee > 0) {
+        finalStatus = 'Paid';
+      } else if (finalPaid <= 0) {
+        finalStatus = 'Pending';
+      }
+    }
+
+    const finalDue = Math.max(0, seatFee - finalPaid);
+    const initialPayments = [];
+    if (finalPaid > 0) {
+      initialPayments.push({
+        amount: finalPaid,
+        paymentDate: new Date(),
+        paymentMethod: paymentMethod || 'CASH',
+        notes: notes || 'Advance / Initial Tuition Fee',
+        recordedBy: req.user.userId
+      });
     }
 
     batch.students.push({
@@ -123,7 +165,10 @@ exports.addStudent = async (req, res) => {
       phone,
       location,
       address,
-      paymentStatus: paymentStatus || 'Pending',
+      paymentStatus: finalStatus,
+      paidAmount: finalPaid,
+      dueAmount: finalDue,
+      payments: initialPayments,
       attended: false
     });
 
@@ -152,11 +197,93 @@ exports.updateStudent = async (req, res) => {
     }
 
     if (attended !== undefined) student.attended = attended;
-    if (paymentStatus !== undefined) student.paymentStatus = paymentStatus;
+    if (paymentStatus !== undefined) {
+      student.paymentStatus = paymentStatus;
+      const seatFee = batch.seatPrice || 0;
+      if (paymentStatus === 'Paid') {
+        const currentPaid = typeof student.paidAmount === 'number' ? student.paidAmount : 0;
+        const diff = Math.max(0, seatFee - currentPaid);
+        if (diff > 0) {
+          student.payments.push({
+            amount: diff,
+            paymentDate: new Date(),
+            paymentMethod: 'CASH',
+            notes: 'Settled to Paid',
+            recordedBy: req.user.userId
+          });
+        }
+        student.paidAmount = seatFee;
+        student.dueAmount = 0;
+      } else if (paymentStatus === 'Pending') {
+        student.dueAmount = seatFee;
+        student.paidAmount = 0;
+      }
+    }
 
     await batch.save();
     res.json({ success: true, data: batch });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message || 'Error updating student' });
+  }
+};
+
+// @desc    Add installment payment for a student
+// @route   POST /api/classes/:id/students/:studentId/payments
+// @access  Private
+exports.addStudentPayment = async (req, res) => {
+  try {
+    const { amount, paymentMethod = 'CASH', paymentDate, notes } = req.body;
+    const payAmount = Number(amount);
+    if (!payAmount || payAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'Payment amount must be greater than 0' });
+    }
+
+    const batch = await ClassBatch.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+    if (!batch) {
+      return res.status(404).json({ success: false, error: 'Batch not found' });
+    }
+
+    const student = batch.students.id(req.params.studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, error: 'Student not found' });
+    }
+
+    const seatFee = batch.seatPrice || 0;
+    const currentPaid = typeof student.paidAmount === 'number' ? student.paidAmount : (student.paymentStatus === 'Paid' ? seatFee : 0);
+    const currentDue = typeof student.dueAmount === 'number' ? student.dueAmount : Math.max(0, seatFee - currentPaid);
+
+    if (currentDue <= 0) {
+      return res.status(400).json({ success: false, error: 'Tuition for this student is already fully paid.' });
+    }
+
+    if (payAmount > currentDue) {
+      return res.status(400).json({ 
+        success: false, 
+        error: `Payment amount (₹${payAmount}) cannot exceed remaining balance due of ₹${currentDue}.` 
+      });
+    }
+
+    student.payments.push({
+      amount: payAmount,
+      paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+      paymentMethod,
+      notes: notes || 'Installment Payment',
+      recordedBy: req.user.userId
+    });
+
+    student.paidAmount = currentPaid + payAmount;
+    student.dueAmount = Math.max(0, seatFee - student.paidAmount);
+
+    if (student.dueAmount === 0) {
+      student.paymentStatus = 'Paid';
+    } else {
+      student.paymentStatus = 'Partial';
+    }
+
+    await batch.save();
+    res.json({ success: true, data: batch });
+  } catch (error) {
+    console.error('Error adding student payment:', error);
+    res.status(500).json({ success: false, error: error.message || 'Error recording student payment' });
   }
 };

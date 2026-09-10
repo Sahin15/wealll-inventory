@@ -24,6 +24,5 @@ const purchaseSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
-purchaseSchema.index({ tenantId: 1, invoiceNumber: 1 }, { unique: true });
-
+purchaseSchema.index({ tenantId: 1, invoiceNumber: 1 });
 module.exports = mongoose.model('Purchase', purchaseSchema);

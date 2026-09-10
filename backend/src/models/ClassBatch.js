@@ -1,11 +1,26 @@
 const mongoose = require('mongoose');
 
+const studentPaymentRecordSchema = new mongoose.Schema({
+  amount: { type: Number, required: true, min: 0 },
+  paymentDate: { type: Date, default: Date.now },
+  paymentMethod: { 
+    type: String, 
+    enum: ['CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'OTHER'], 
+    default: 'CASH' 
+  },
+  notes: { type: String },
+  recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String, required: true },
   location: { type: String },
   address: { type: String },
-  paymentStatus: { type: String, enum: ['Paid', 'Pending'], default: 'Pending' },
+  paymentStatus: { type: String, enum: ['Paid', 'Partial', 'Pending'], default: 'Pending' },
+  paidAmount: { type: Number, default: 0, min: 0 },
+  dueAmount: { type: Number, default: 0, min: 0 },
+  payments: [studentPaymentRecordSchema],
   attended: { type: Boolean, default: false },
   enrolledAt: { type: Date, default: Date.now }
 });

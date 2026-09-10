@@ -75,9 +75,11 @@ exports.getDashboardData = async (req, res) => {
       if (batch.students && batch.students.length > 0) {
         totalStudents += batch.students.length;
         
-        // calculate revenue from paid students
-        const paidStudents = batch.students.filter(s => s.paymentStatus === 'Paid').length;
-        batchRevenue += (paidStudents * batch.seatPrice);
+        // calculate revenue from student paid amounts (supporting partial payments)
+        batch.students.forEach(s => {
+          const paid = typeof s.paidAmount === 'number' ? s.paidAmount : (s.paymentStatus === 'Paid' ? (batch.seatPrice || 0) : 0);
+          batchRevenue += paid;
+        });
       }
       
       // Collect upcoming batches

@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Search } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Plus, 
+  Edit2, 
+  Search, 
+  X, 
+  Tag, 
+  Palette, 
+  ArrowRight
+} from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import CategoryBadge from '../../components/CategoryBadge';
@@ -24,170 +32,414 @@ const CATEGORY_COLORS = [
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('#e5e7eb');
-  const [editingId, setEditingId] = useState(null);
+
+  // Search Filter
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-  
+
   const { user } = React.useContext(AuthContext);
   const canManage = hasPermission(user?.role, 'categories.manage');
 
-  const fetchCategories = async () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const res = await api.get('/categories');
-      setCategories(res.data.data);
+      const [catRes, prodRes] = await Promise.all([
+        api.get('/categories'),
+        api.get('/products').catch(() => ({ data: { data: [] } }))
+      ]);
+      setCategories(catRes.data.data || []);
+      setProducts(prodRes.data.data || []);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to load categories');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchData();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingId) {
-        await api.put(`/categories/${editingId}`, { name, description, color });
-      } else {
-        await api.post('/categories', { name, description, color });
-      }
-      handleCancel();
-      fetchCategories();
-      toast.success(editingId ? 'Category updated successfully' : 'Category created successfully');
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to save category');
-    }
+  const openAddModal = () => {
+    setEditingId(null);
+    setName('');
+    setDescription('');
+    setColor('#e5e7eb');
+    setIsModalOpen(true);
   };
 
   const handleEdit = (cat) => {
     setEditingId(cat._id);
-    setName(cat.name);
+    setName(cat.name || '');
     setDescription(cat.description || '');
     setColor(cat.color || '#e5e7eb');
+    setIsModalOpen(true);
   };
 
-  const handleCancel = () => {
+  const closeModal = () => {
+    setIsModalOpen(false);
     setEditingId(null);
     setName('');
     setDescription('');
     setColor('#e5e7eb');
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) return toast.error('Category name is required');
+
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        await api.put(`/categories/${editingId}`, { name: name.trim(), description: description.trim(), color });
+        toast.success('Category updated successfully');
+      } else {
+        await api.post('/categories', { name: name.trim(), description: description.trim(), color });
+        toast.success('Category created successfully');
+      }
+      closeModal();
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to save category');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Compute products count per category
+  const productCountMap = useMemo(() => {
+    const map = {};
+    products.forEach(p => {
+      const cId = p.categoryId?._id || p.categoryId;
+      if (cId) {
+        map[cId] = (map[cId] || 0) + 1;
+      }
+    });
+    return map;
+  }, [products]);
+
+  // Filtered categories
+  const filteredCategories = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+    return categories.filter(c => {
+      return !q || c.name.toLowerCase().includes(q) || (c.description && c.description.toLowerCase().includes(q));
+    });
+  }, [categories, searchTerm]);
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          Categories
-        </h2>
-      </div>
-      
-      <div className="flex flex-col md:flex-row gap-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 flex items-center gap-2">
+            <Tag className="text-indigo-600" size={26} />
+            Categories
+          </h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Organize your beauty products and inventory into branded, color-coded categories.
+          </p>
+        </div>
+
         {canManage && (
-          <div className="md:w-1/3">
-            <div className="card p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">{editingId ? 'Edit Category' : 'Add Category'}</h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="input-field mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="input-field mt-1"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Color</label>
-                  <div className="flex flex-wrap gap-2">
-                    {CATEGORY_COLORS.map(c => (
-                      <button
-                        key={c.hex}
-                        type="button"
-                        onClick={() => setColor(c.hex)}
-                        title={c.name}
-                        className={`w-8 h-8 rounded-full border-2 focus:outline-none transition-transform hover:scale-110 ${color === c.hex ? 'border-gray-900 shadow-md scale-110' : 'border-transparent shadow-sm'}`}
-                        style={{ backgroundColor: c.hex }}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <button type="submit" className="btn-primary flex-1">{editingId ? 'Update' : 'Save'}</button>
-                  {editingId && (
-                    <button type="button" onClick={handleCancel} className="btn-primary bg-gray-500 hover:bg-gray-600 flex-1">
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </form>
-            </div>
-          </div>
+          <button 
+            onClick={openAddModal}
+            className="btn-primary inline-flex items-center justify-center gap-2 shadow-sm py-2.5 px-4 font-semibold text-sm"
+          >
+            <Plus size={18} />
+            <span>Add Category</span>
+          </button>
         )}
-        
-        <div className={canManage ? "md:w-2/3" : "w-full"}>
-          <div className="mb-4">
+      </div>
+
+      {/* Floating Action Button for Mobile */}
+      {canManage && (
+        <button
+          onClick={openAddModal}
+          className="sm:hidden fixed bottom-20 right-4 z-40 bg-indigo-600 text-white rounded-full p-4 shadow-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 min-h-[56px] min-w-[56px] flex items-center justify-center"
+          title="Add Category"
+        >
+          <Plus size={24} />
+        </button>
+      )}
+
+      {/* Stats and Search Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Total Categories Stat Card */}
+        <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-5 flex items-center border-l-4 border-indigo-600">
+          <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 mr-4">
+            <Tag size={24} />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Categories</p>
+            <p className="text-2xl font-extrabold text-gray-900 mt-0.5">{categories.length}</p>
+          </div>
+        </div>
+
+        {/* Search Bar Container */}
+        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm md:col-span-2 flex items-center">
+          <div className="relative w-full">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search categories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field w-full md:w-1/2"
+              className="w-full pl-10 pr-9 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
             />
-          </div>
-          <div className="card overflow-hidden">
-            {loading ? (
-              <div className="p-6 text-center text-gray-500">Loading...</div>
-            ) : categories.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">No categories found.</div>
-            ) : (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    {canManage && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>}
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {categories
-                    .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                    .map((cat) => (
-                    <tr key={cat._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <CategoryBadge category={cat} />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{cat.description}</td>
-                      {canManage && (
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button onClick={() => handleEdit(cat)} className="text-indigo-600 hover:text-indigo-900">
-                            Edit
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={14} />
+              </button>
             )}
           </div>
         </div>
       </div>
+
+      {/* Full-Width Categories Table */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="p-12 text-center text-gray-500 font-medium">Loading categories...</div>
+        ) : filteredCategories.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
+              <Tag className="text-gray-400" size={24} />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">No categories found</h3>
+            <p className="mt-1 text-sm text-gray-500 max-w-sm mx-auto">
+              {searchTerm 
+                ? 'No categories match your search criteria.' 
+                : 'Get started by creating your first product category.'}
+            </p>
+            {canManage && (
+              <button 
+                onClick={openAddModal} 
+                className="mt-4 btn-primary inline-flex items-center gap-2 text-xs py-2 px-3.5"
+              >
+                <Plus size={15} />
+                <span>Add Category</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead>
+                  <tr className="bg-gray-50/80">
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Badge Preview</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Category Name</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Description</th>
+                    <th className="px-6 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Products</th>
+                    {canManage && (
+                      <th className="px-6 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {filteredCategories.map((cat) => {
+                    const prodCount = productCountMap[cat._id] || 0;
+                    return (
+                      <tr key={cat._id} className="hover:bg-indigo-50/25 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <CategoryBadge category={cat} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="font-bold text-gray-900 text-sm">{cat.name}</span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
+                          {cat.description || <span className="text-gray-300 italic">No description provided</span>}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-200">
+                            {prodCount} products
+                          </span>
+                        </td>
+                        {canManage && (
+                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <button 
+                              onClick={() => handleEdit(cat)} 
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-lg transition"
+                            >
+                              <Edit2 size={13} />
+                              <span>Edit</span>
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {filteredCategories.map((cat) => {
+                const prodCount = productCountMap[cat._id] || 0;
+                return (
+                  <div key={cat._id} className="p-4 flex flex-col gap-2.5 hover:bg-gray-50">
+                    <div className="flex justify-between items-center">
+                      <CategoryBadge category={cat} />
+                      <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
+                        {prodCount} products
+                      </span>
+                    </div>
+                    {cat.description && (
+                      <p className="text-xs text-gray-500 mt-0.5">{cat.description}</p>
+                    )}
+                    {canManage && (
+                      <div className="pt-2 flex justify-end border-t border-gray-50">
+                        <button
+                          onClick={() => handleEdit(cat)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg hover:bg-indigo-100 transition"
+                        >
+                          <Edit2 size={12} />
+                          <span>Edit</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Table Footer */}
+            <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
+              <span>Showing {filteredCategories.length} of {categories.length} categories</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* ADD / EDIT CATEGORY MODAL                                                 */}
+      {/* ========================================================================= */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm">
+                  <Tag size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {editingId ? 'Edit Category' : 'Add New Category'}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {editingId ? 'Update category name, badge color, and description' : 'Create a category to classify your inventory'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Category Name */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Category Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Description (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+                />
+              </div>
+
+              {/* Color Swatches */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Palette size={14} className="text-indigo-600" />
+                  Badge Color
+                </label>
+                <div className="flex flex-wrap gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  {CATEGORY_COLORS.map(c => (
+                    <button
+                      key={c.hex}
+                      type="button"
+                      onClick={() => setColor(c.hex)}
+                      title={c.name}
+                      className={`w-7 h-7 rounded-full border-2 focus:outline-none transition-transform hover:scale-110 ${
+                        color === c.hex ? 'border-gray-900 shadow-md scale-115 ring-2 ring-indigo-300' : 'border-white shadow-sm'
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                </div>
+                {/* Live Preview */}
+                <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                  <span>Badge Preview:</span>
+                  <CategoryBadge category={{ name: name || 'Preview', color }} />
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold shadow-sm"
+                >
+                  {submitting ? (
+                    <>
+                      <span className="animate-spin mr-1">⏳</span>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{editingId ? 'Update Category' : 'Create Category'}</span>
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

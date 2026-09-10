@@ -8,6 +8,18 @@ const saleItemSchema = new mongoose.Schema({
   total: { type: Number, required: true, min: 0 }
 });
 
+const paymentRecordSchema = new mongoose.Schema({
+  amount: { type: Number, required: true, min: 0 },
+  paymentDate: { type: Date, default: Date.now },
+  paymentMethod: { 
+    type: String, 
+    enum: ['CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'OTHER'], 
+    default: 'CASH' 
+  },
+  notes: { type: String },
+  recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
 const saleSchema = new mongoose.Schema({
   tenantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
   invoiceNumber: { type: String, required: true },
@@ -19,7 +31,11 @@ const saleSchema = new mongoose.Schema({
   subtotal: { type: Number, required: true, min: 0 },
   discount: { type: Number, default: 0, min: 0 },
   total: { type: Number, required: true, min: 0 },
+  paidAmount: { type: Number, default: 0, min: 0 },
+  dueAmount: { type: Number, default: 0, min: 0 },
   paymentStatus: { type: String, enum: ['PAID', 'PENDING', 'PARTIAL'], default: 'PAID' },
+  paymentMethod: { type: String, enum: ['CASH', 'UPI', 'CARD', 'BANK_TRANSFER', 'OTHER'], default: 'CASH' },
+  payments: [paymentRecordSchema],
   notes: { type: String },
   status: { type: String, enum: ['COMPLETED', 'VOIDED'], default: 'COMPLETED' },
   voidedAt: { type: Date },

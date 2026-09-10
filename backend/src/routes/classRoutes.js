@@ -25,4 +25,7 @@ router.route('/:id/students')
 router.route('/:id/students/:studentId')
   .put(classController.updateStudent);
 
+router.route('/:id/students/:studentId/payments')
+  .post(classController.addStudentPayment);
+
 module.exports = router;

@@ -111,6 +111,24 @@ const InvoicePrint = ({ sale, settings }) => {
             <span className="text-base font-bold text-gray-900">Total</span>
             <span className="text-lg font-bold text-gray-900">{formatCurrency(grandTotal)}</span>
           </div>
+          <div className="flex justify-between py-2 border-b border-gray-200">
+            <span className="text-sm font-semibold text-gray-700">Amount Paid</span>
+            <span className="text-sm font-bold text-emerald-700">
+              {formatCurrency(typeof sale.paidAmount === 'number' ? sale.paidAmount : (sale.paymentStatus === 'PAID' ? grandTotal : 0))}
+            </span>
+          </div>
+          {(typeof sale.dueAmount === 'number' ? sale.dueAmount : (sale.paymentStatus === 'PAID' ? 0 : grandTotal)) > 0 && (
+            <div className="flex justify-between py-2 border-b border-gray-200 bg-rose-50 px-2 rounded mt-1">
+              <span className="text-sm font-bold text-rose-700">Balance Due</span>
+              <span className="text-sm font-bold text-rose-700">
+                {formatCurrency(typeof sale.dueAmount === 'number' ? sale.dueAmount : grandTotal)}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between py-2 text-xs text-gray-500">
+            <span>Payment Status</span>
+            <span className="font-bold text-gray-800">{sale.paymentStatus || 'PAID'}</span>
+          </div>
         </div>
       </div>
 
