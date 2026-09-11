@@ -146,7 +146,7 @@ const MySpace = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto animate-pulse">
+      <div className="space-y-6 max-w-7xl mx-auto w-full animate-pulse">
         <div className="h-44 bg-gray-200 rounded-2xl"></div>
         <div className="h-96 bg-white rounded-2xl border border-gray-200"></div>
       </div>
@@ -160,7 +160,7 @@ const MySpace = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12 w-full">
       {/* ========================================================================= */}
       {/* Header Profile Summary Banner                                             */}
       {/* ========================================================================= */}
@@ -425,77 +425,82 @@ const MySpace = () => {
                 </p>
               </div>
 
-              <div className="space-y-6 max-w-2xl">
-                {/* App Name */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Custom Application Name
-                  </label>
-                  <p className="text-xs text-gray-400 mb-2">
-                    Displayed in the sidebar, header, and invoice documents.
-                  </p>
-                  <input
-                    type="text"
-                    aria-label="Custom Application Name"
-                    value={settings.appName}
-                    onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
+              <div className="space-y-6 w-full">
+                {/* App Name & Logo Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* App Name */}
+                  <div className="p-5 rounded-2xl border border-gray-200 bg-gray-50/60 flex flex-col justify-between">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Custom Application Name
+                      </label>
+                      <p className="text-xs text-gray-400 mb-3">
+                        Displayed in the sidebar, header, and invoice documents.
+                      </p>
+                    </div>
+                    <input
+                      type="text"
+                      aria-label="Custom Application Name"
+                      value={settings.appName}
+                      onChange={(e) => setSettings({ ...settings, appName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition shadow-xs"
+                    />
+                  </div>
 
-                {/* Logo Image */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Business Logo
-                  </label>
-                  <p className="text-xs text-gray-400 mb-3">
-                    Recommended dimensions: 400x100 pixels (PNG or SVG with transparent background).
-                  </p>
+                  {/* Business Logo */}
+                  <div className="p-5 rounded-2xl border border-gray-200 bg-gray-50/60">
+                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                      Business Logo
+                    </label>
+                    <p className="text-xs text-gray-400 mb-3">
+                      Recommended dimensions: 400x100 pixels (PNG or SVG with transparent background).
+                    </p>
 
-                  <div className="flex flex-col sm:flex-row items-start gap-4">
-                    <div className="flex-1 w-full">
-                      <div className="p-6 border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-2xl bg-gray-50 hover:bg-gray-100/50 transition-all text-center">
-                        <Upload size={32} className="mx-auto text-gray-400 mb-2" />
-                        <label htmlFor="logo-file-upload" className="cursor-pointer font-semibold text-xs text-indigo-600 hover:text-indigo-800">
-                          <span>Click to upload image</span>
-                          <input 
-                            id="logo-file-upload" 
-                            name="logo-file-upload" 
-                            type="file" 
-                            className="sr-only" 
-                            accept="image/*" 
-                            onChange={handleFileUpload} 
-                            disabled={uploadingLogo} 
-                          />
-                        </label>
-                        <p className="text-[11px] text-gray-400 mt-1">PNG, JPG, or SVG up to 2MB</p>
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                      <div className="flex-1 w-full">
+                        <div className="p-4 border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-2xl bg-white hover:bg-gray-50 transition-all text-center">
+                          <Upload size={28} className="mx-auto text-gray-400 mb-1.5" />
+                          <label htmlFor="logo-file-upload" className="cursor-pointer font-semibold text-xs text-indigo-600 hover:text-indigo-800">
+                            <span>Click to upload image</span>
+                            <input 
+                              id="logo-file-upload" 
+                              name="logo-file-upload" 
+                              type="file" 
+                              className="sr-only" 
+                              accept="image/*" 
+                              onChange={handleFileUpload} 
+                              disabled={uploadingLogo} 
+                            />
+                          </label>
+                          <p className="text-[11px] text-gray-400 mt-0.5">PNG, JPG, or SVG up to 2MB</p>
+                        </div>
+                        {uploadingLogo && (
+                          <p className="text-xs text-indigo-600 font-semibold mt-2 flex items-center gap-1.5">
+                            <RefreshCw size={12} className="animate-spin" />
+                            <span>Uploading logo image...</span>
+                          </p>
+                        )}
                       </div>
-                      {uploadingLogo && (
-                        <p className="text-xs text-indigo-600 font-semibold mt-2 flex items-center gap-1.5">
-                          <RefreshCw size={12} className="animate-spin" />
-                          <span>Uploading logo image...</span>
-                        </p>
+
+                      {settings.logoUrl && (
+                        <div className="w-full sm:w-44 flex-shrink-0 flex flex-col items-center">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                            Active Preview
+                          </span>
+                          <div className="p-3 border border-gray-200 rounded-2xl bg-white w-full flex items-center justify-center relative group min-h-[84px] shadow-xs">
+                            <img src={settings.logoUrl} alt="Logo Preview" className="max-h-12 max-w-full object-contain" />
+                            <button
+                              type="button"
+                              onClick={() => setSettings({ ...settings, logoUrl: '' })}
+                              className="absolute -top-2 -right-2 bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-700 transition"
+                              title="Remove logo"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        </div>
                       )}
                     </div>
-
-                    {settings.logoUrl && (
-                      <div className="w-full sm:w-48 flex-shrink-0 flex flex-col items-center">
-                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-                          Active Preview
-                        </span>
-                        <div className="p-3 border border-gray-200 rounded-2xl bg-white w-full flex items-center justify-center relative group min-h-[90px] shadow-sm">
-                          <img src={settings.logoUrl} alt="Logo Preview" className="max-h-14 max-w-full object-contain" />
-                          <button
-                            type="button"
-                            onClick={() => setSettings({ ...settings, logoUrl: '' })}
-                            className="absolute -top-2 -right-2 bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-700 transition"
-                            title="Remove logo"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 
