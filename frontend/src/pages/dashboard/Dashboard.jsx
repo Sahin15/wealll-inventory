@@ -10,7 +10,6 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { 
-  Package, 
   TrendingUp, 
   AlertTriangle, 
   Users, 
@@ -26,7 +25,6 @@ import {
   IndianRupee, 
   Clock, 
   ChevronRight, 
-  AlertOctagon, 
   CheckCircle2, 
   GraduationCap,
   Sparkles,
@@ -106,7 +104,7 @@ const Dashboard = () => {
   const [chartMetric, setChartMetric] = useState('revenue'); // 'revenue' | 'orders'
 
   // Multi-language Pan-Indian greetings: picks a fresh greeting on every visit or page refresh
-  const greeting = useMemo(() => {
+  const [greeting] = useState(() => {
     const greetingsList = [
       'Namaste',
       'Nomoshkar',
@@ -119,7 +117,7 @@ const Dashboard = () => {
       'Welcome'
     ];
     return greetingsList[Math.floor(Math.random() * greetingsList.length)];
-  }, []);
+  });
 
   const fetchDashboard = async (isManualRefresh = false) => {
     try {
@@ -535,302 +533,386 @@ const Dashboard = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 4. MAIN OPERATIONAL 2-COLUMN GRID                                         */}
+      {/* 4. MAIN OPERATIONAL 2-COLUMN GRID (Balanced 2x2 direct grid items)        */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* ======================================================================= */}
-        {/* LEFT COLUMN: UPCOMING BATCHES & RECENT SALES                            */}
+        {/* CARD 1: RECENT INVOICES & SALES (Row 1 Left)                            */}
         {/* ======================================================================= */}
-        <div className="space-y-6">
-          {/* Upcoming Batches Card */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
-                  <BookOpen size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900">Upcoming Batches & Classes</h3>
-                  <p className="text-xs text-gray-500">Upcoming cohort dates and student enrollment levels</p>
-                </div>
+        <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                <ShoppingCart size={18} />
               </div>
-              <Link to="/classes" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-                <span>View all</span>
-                <ChevronRight size={14} />
-              </Link>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <span>Recent Invoices & Sales</span>
+                  {data.recentSales?.length > 0 && (
+                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                      Latest {Math.min(5, data.recentSales.length)}
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-gray-500">Live retail and counter transaction stream</p>
+              </div>
             </div>
+            <Link to="/sales" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <span>All sales</span>
+              <ChevronRight size={14} />
+            </Link>
+          </div>
 
-            {data.upcomingBatches?.length > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {data.upcomingBatches.map(batch => (
+          {data.recentSales?.length > 0 ? (
+            <div className="divide-y divide-gray-100 max-h-[340px] overflow-y-auto flex-1">
+              {data.recentSales.slice(0, 5).map(sale => {
+                const isVoided = sale.status === 'VOIDED';
+                return (
                   <Link 
-                    key={batch._id} 
-                    to={`/classes/${batch._id}`} 
+                    key={sale._id} 
+                    to="/sales" 
                     className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-4"
                   >
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
-                          {batch.batchNumber}
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                          {sale.invoiceNumber}
                         </span>
-                        <span className="font-bold text-gray-900 text-sm">{batch.topic}</span>
+                        <span className="font-semibold text-gray-900 text-sm truncate max-w-[160px] sm:max-w-[220px]">
+                          {sale.customerName || 'Walk-in Customer'}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} className="text-gray-400" />
-                          {formatDate(batch.date)}
-                        </span>
-                        <span>•</span>
-                        <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[11px]">
-                          {formatCurrency(batch.seatPrice || 0)} / seat
-                        </span>
+                      <div className="text-xs text-gray-400">
+                        {formatDate(sale.saleDate || sale.createdAt, true)}
                       </div>
                     </div>
 
-                    <div className="text-right flex flex-col items-end">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                        <Users size={12} />
-                        <span>{batch.students?.length || 0} Enrolled</span>
+                    <div className="text-right">
+                      <div className="font-extrabold text-sm text-gray-900">
+                        {formatCurrency(sale.total)}
+                      </div>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider mt-0.5 ${
+                        isVoided 
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200' 
+                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      }`}>
+                        {sale.status || 'COMPLETED'}
                       </span>
                     </div>
                   </Link>
-                ))}
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center flex flex-col items-center justify-center flex-1 my-auto">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100 shadow-xs">
+                <ShoppingCart size={22} />
               </div>
-            ) : (
-              <div className="p-8 text-center text-gray-400 text-xs font-medium">
-                <BookOpen size={24} className="mx-auto mb-2 text-gray-300" />
-                <p>No upcoming batches scheduled</p>
-                <Link to="/classes" className="mt-2 inline-flex items-center gap-1 text-indigo-600 hover:underline text-xs font-semibold">
-                  <span>Schedule your first batch</span>
-                  <ArrowRight size={12} />
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Recent Sales Activity */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-                  <ShoppingCart size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900">Recent Invoices & Sales</h3>
-                  <p className="text-xs text-gray-500">Live retail and counter transaction stream</p>
-                </div>
-              </div>
-              <Link to="/sales" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-                <span>All sales</span>
-                <ChevronRight size={14} />
+              <h4 className="text-sm font-bold text-gray-900">No Sales Recorded Today</h4>
+              <p className="text-xs text-gray-500 max-w-xs mt-1 mb-4">
+                Record POS sales or counter customer invoices to track live revenue and trends.
+              </p>
+              <Link
+                to="/sales"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition min-h-[38px]"
+              >
+                <PlusCircle size={14} />
+                <span>Create New Sale</span>
               </Link>
             </div>
+          )}
 
-            {data.recentSales?.length > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {data.recentSales.map(sale => {
-                  const isVoided = sale.status === 'VOIDED';
-                  return (
-                    <Link 
-                      key={sale._id} 
-                      to="/sales" 
-                      className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
-                            {sale.invoiceNumber}
-                          </span>
-                          <span className="font-semibold text-gray-900 text-sm truncate max-w-[160px] sm:max-w-[220px]">
-                            {sale.customerName || 'Walk-in Customer'}
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {formatDate(sale.saleDate || sale.createdAt, true)}
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <div className="font-extrabold text-sm text-gray-900">
-                          {formatCurrency(sale.total)}
-                        </div>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider mt-0.5 ${
-                          isVoided 
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        }`}>
-                          {sale.status || 'COMPLETED'}
-                        </span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="p-8 text-center text-gray-400 text-xs font-medium">
-                <ShoppingCart size={24} className="mx-auto mb-2 text-gray-300" />
-                <p>No recorded sales transactions yet</p>
-              </div>
-            )}
-          </div>
+          {data.recentSales?.length > 5 && (
+            <div className="p-2.5 bg-gray-50/70 border-t border-gray-100 text-center">
+              <Link to="/sales" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                View all {data.recentSales.length} sales →
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* ======================================================================= */}
-        {/* RIGHT COLUMN: INVENTORY WATCHLIST & STOCK MOVEMENTS AUDIT              */}
+        {/* CARD 2: RECENT STOCK MOVEMENTS (Row 1 Right)                            */}
         {/* ======================================================================= */}
-        <div className="space-y-6">
-          {/* Critical Stock Reorder Alerts */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-amber-50/40 to-transparent">
-              <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-xl ${lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-600'}`}>
-                  <AlertTriangle size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    <span>Reorder & Low Stock Watchlist</span>
-                    {lowStockCount > 0 && (
-                      <span className="bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                        {lowStockCount} ALERT{lowStockCount === 1 ? '' : 'S'}
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-gray-500">Products currently below replenishment threshold</p>
-                </div>
+        <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+                <Layers size={18} />
               </div>
-              <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-                <span>Manage stock</span>
-                <ChevronRight size={14} />
-              </Link>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <span>Recent Stock Movements</span>
+                  {data.recentMovements?.length > 0 && (
+                    <span className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                      Latest {Math.min(5, data.recentMovements.length)}
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-gray-500">Live ledger of purchases, shipments, & adjustments</p>
+              </div>
             </div>
-
-            {lowStockCount > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {data.lowStockProducts.map(p => {
-                  const current = Number(p.currentStock) || 0;
-                  const min = Number(p.minimumStock) || 1;
-                  const isOut = current === 0;
-                  const ratioPercent = Math.min(100, Math.round((current / min) * 100));
-
-                  return (
-                    <Link 
-                      key={p._id} 
-                      to="/stock" 
-                      className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors space-y-2 block"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="font-bold text-gray-900 text-sm">{p.name}</div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-mono text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">
-                              SKU: {p.sku}
-                            </span>
-                            {p.brand && (
-                              <span className="text-xs text-gray-400">{p.brand}</span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <span className={`text-sm font-extrabold ${isOut ? 'text-rose-600' : 'text-amber-600'}`}>
-                            {current} / {min} {p.unit || 'pcs'}
-                          </span>
-                          <span className={`block text-[10px] font-bold ${isOut ? 'text-rose-600' : 'text-amber-600'}`}>
-                            {isOut ? 'Out of Stock' : 'Low Stock Alert'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Visual Health Gauge Bar */}
-                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            isOut ? 'bg-rose-500 w-0' : ratioPercent <= 50 ? 'bg-rose-500' : 'bg-amber-500'
-                          }`}
-                          style={{ width: `${Math.max(ratioPercent, 4)}%` }}
-                        />
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="p-8 text-center text-emerald-600 text-xs font-semibold flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                  <CheckCircle2 size={20} className="text-emerald-600" />
-                </div>
-                <span>All products are above minimum safety thresholds!</span>
-              </div>
-            )}
+            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <span>View ledger</span>
+              <ChevronRight size={14} />
+            </Link>
           </div>
 
-          {/* Recent Stock Movement Audit Stream */}
-          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                  <Layers size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900">Recent Stock Movements</h3>
-                  <p className="text-xs text-gray-500">Live ledger of purchases, shipments, & adjustments</p>
-                </div>
+          {data.recentMovements?.length > 0 ? (
+            <div className="divide-y divide-gray-100 max-h-[340px] overflow-y-auto flex-1">
+              {data.recentMovements.slice(0, 5).map(m => {
+                const isIn = m.type === 'IN';
+                const isOut = m.type === 'OUT';
+                return (
+                  <Link 
+                    key={m._id} 
+                    to="/stock" 
+                    className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        isIn ? 'bg-indigo-50 text-indigo-600' : isOut ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
+                        {isIn ? <ArrowDownLeft size={16} /> : isOut ? <ArrowUpRight size={16} /> : <RefreshCw size={14} />}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900 text-xs sm:text-sm">
+                          {m.productId?.name || 'Item Transaction'}
+                        </div>
+                        <div className="text-[11px] text-gray-400">
+                          {formatDate(m.createdAt, true)}
+                          {m.referenceType && <span className="ml-1 font-mono text-gray-500">({m.referenceType})</span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <span className={`text-sm font-extrabold ${
+                        isIn ? 'text-indigo-600' : isOut ? 'text-emerald-600' : 'text-amber-600'
+                      }`}>
+                        {isIn ? `+${m.quantity}` : isOut ? `-${m.quantity}` : m.quantity}
+                      </span>
+                      <span className="block text-[10px] font-semibold text-gray-400 uppercase">
+                        {m.type}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center flex flex-col items-center justify-center flex-1 my-auto">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 border border-blue-100 shadow-xs">
+                <Layers size={22} />
               </div>
-              <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-                <span>View ledger</span>
-                <ChevronRight size={14} />
+              <h4 className="text-sm font-bold text-gray-900">No Stock Movements Logged</h4>
+              <p className="text-xs text-gray-500 max-w-xs mt-1 mb-4">
+                Purchases, sales, and stock adjustments will appear here automatically.
+              </p>
+              <Link
+                to="/purchases"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition min-h-[38px]"
+              >
+                <PlusCircle size={14} />
+                <span>Record New Purchase</span>
               </Link>
             </div>
+          )}
 
-            {data.recentMovements?.length > 0 ? (
-              <div className="divide-y divide-gray-100">
-                {data.recentMovements.map(m => {
-                  const isIn = m.type === 'IN';
-                  const isOut = m.type === 'OUT';
-                  return (
-                    <Link 
-                      key={m._id} 
-                      to="/stock" 
-                      className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          isIn ? 'bg-indigo-50 text-indigo-600' : isOut ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                        }`}>
-                          {isIn ? <ArrowDownLeft size={16} /> : isOut ? <ArrowUpRight size={16} /> : <RefreshCw size={14} />}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900 text-xs sm:text-sm">
-                            {m.productId?.name || 'Item Transaction'}
-                          </div>
-                          <div className="text-[11px] text-gray-400">
-                            {formatDate(m.createdAt, true)}
-                            {m.referenceType && <span className="ml-1 font-mono text-gray-500">({m.referenceType})</span>}
-                          </div>
+          {data.recentMovements?.length > 5 && (
+            <div className="p-2.5 bg-gray-50/70 border-t border-gray-100 text-center">
+              <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                View all {data.recentMovements.length} movements →
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* ======================================================================= */}
+        {/* CARD 3: REORDER & LOW STOCK WATCHLIST (Row 2 Left)                      */}
+        {/* ======================================================================= */}
+        <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-amber-50/40 to-transparent">
+            <div className="flex items-center gap-2.5">
+              <div className={`p-2 rounded-xl ${lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-600'}`}>
+                <AlertTriangle size={18} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <span>Reorder & Low Stock Watchlist</span>
+                  {lowStockCount > 0 && (
+                    <span className="bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                      {lowStockCount} ALERT{lowStockCount === 1 ? '' : 'S'}
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-gray-500">Products currently below replenishment threshold</p>
+              </div>
+            </div>
+            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <span>Manage stock</span>
+              <ChevronRight size={14} />
+            </Link>
+          </div>
+
+          {lowStockCount > 0 ? (
+            <div className="divide-y divide-gray-100 max-h-[340px] overflow-y-auto flex-1">
+              {data.lowStockProducts.slice(0, 5).map(p => {
+                const current = Number(p.currentStock) || 0;
+                const min = Number(p.minimumStock) || 1;
+                const isOut = current === 0;
+                const ratioPercent = Math.min(100, Math.round((current / min) * 100));
+
+                return (
+                  <Link 
+                    key={p._id} 
+                    to="/stock" 
+                    className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors space-y-2 block"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-bold text-gray-900 text-sm">{p.name}</div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="font-mono text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">
+                            SKU: {p.sku}
+                          </span>
+                          {p.brand && (
+                            <span className="text-xs text-gray-400">{p.brand}</span>
+                          )}
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <span className={`text-sm font-extrabold ${
-                          isIn ? 'text-indigo-600' : isOut ? 'text-emerald-600' : 'text-amber-600'
-                        }`}>
-                          {isIn ? `+${m.quantity}` : isOut ? `-${m.quantity}` : m.quantity}
+                        <span className={`text-sm font-extrabold ${isOut ? 'text-rose-600' : 'text-amber-600'}`}>
+                          {current} / {min} {p.unit || 'pcs'}
                         </span>
-                        <span className="block text-[10px] font-semibold text-gray-400 uppercase">
-                          {m.type}
+                        <span className={`block text-[10px] font-bold ${isOut ? 'text-rose-600' : 'text-amber-600'}`}>
+                          {isOut ? 'Out of Stock' : 'Low Stock Alert'}
                         </span>
                       </div>
-                    </Link>
-                  );
-                })}
+                    </div>
+
+                    {/* Visual Health Gauge Bar */}
+                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isOut ? 'bg-rose-500 w-0' : ratioPercent <= 50 ? 'bg-rose-500' : 'bg-amber-500'
+                        }`}
+                        style={{ width: `${Math.max(ratioPercent, 4)}%` }}
+                      />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-emerald-600 text-xs font-semibold flex flex-col items-center justify-center gap-2 flex-1 my-auto">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-1">
+                <CheckCircle2 size={24} className="text-emerald-600" />
               </div>
-            ) : (
-              <div className="p-8 text-center text-gray-400 text-xs font-medium">
-                <Layers size={24} className="mx-auto mb-2 text-gray-300" />
-                <p>No recent stock movement logs found</p>
+              <span className="text-sm font-bold text-gray-900">Inventory Levels Healthy</span>
+              <span className="text-xs text-gray-500 font-normal max-w-xs">All products are currently above their safety thresholds.</span>
+            </div>
+          )}
+
+          {lowStockCount > 5 && (
+            <div className="p-2.5 bg-gray-50/70 border-t border-gray-100 text-center">
+              <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                View all {lowStockCount} low stock alerts →
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* ======================================================================= */}
+        {/* CARD 4: UPCOMING BATCHES & CLASSES (Row 2 Right)                         */}
+        {/* ======================================================================= */}
+        <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
+                <BookOpen size={18} />
               </div>
-            )}
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <span>Upcoming Batches & Classes</span>
+                  {data.upcomingBatches?.length > 0 && (
+                    <span className="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                      Next {Math.min(5, data.upcomingBatches.length)}
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-gray-500">Upcoming cohort dates and student enrollment levels</p>
+              </div>
+            </div>
+            <Link to="/classes" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <span>View all</span>
+              <ChevronRight size={14} />
+            </Link>
           </div>
+
+          {data.upcomingBatches?.length > 0 ? (
+            <div className="divide-y divide-gray-100 max-h-[340px] overflow-y-auto flex-1">
+              {data.upcomingBatches.slice(0, 5).map(batch => (
+                <Link 
+                  key={batch._id} 
+                  to={`/classes/${batch._id}`} 
+                  className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
+                        {batch.batchNumber}
+                      </span>
+                      <span className="font-bold text-gray-900 text-sm">{batch.topic}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Clock size={12} className="text-gray-400" />
+                        {formatDate(batch.date)}
+                      </span>
+                      <span>•</span>
+                      <span className="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[11px]">
+                        {formatCurrency(batch.seatPrice || 0)} / seat
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-right flex flex-col items-end">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                      <Users size={12} />
+                      <span>{batch.students?.length || 0} Enrolled</span>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center flex flex-col items-center justify-center flex-1 my-auto">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mb-3 border border-purple-100 shadow-xs">
+                <BookOpen size={22} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">No Batches Scheduled</h4>
+              <p className="text-xs text-gray-500 max-w-xs mt-1 mb-4">
+                Schedule makeup classes, workshops, or training batches to track students and fee collections.
+              </p>
+              <Link
+                to="/classes"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm transition min-h-[38px]"
+              >
+                <PlusCircle size={14} />
+                <span>Schedule New Batch</span>
+              </Link>
+            </div>
+          )}
+
+          {data.upcomingBatches?.length > 5 && (
+            <div className="p-2.5 bg-gray-50/70 border-t border-gray-100 text-center">
+              <Link to="/classes" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                View all {data.upcomingBatches.length} batches →
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

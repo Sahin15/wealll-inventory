@@ -11,7 +11,9 @@ import {
   Receipt, 
   Calendar, 
   PackagePlus,
-  ArrowRight
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
@@ -45,6 +47,10 @@ const Purchases = () => {
   const [filterProductName, setFilterProductName] = useState('');
   const [filterInvoiceNumber, setFilterInvoiceNumber] = useState('');
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -68,6 +74,11 @@ const Purchases = () => {
     const today = new Date();
     setFilterMonth(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`);
   }, []);
+
+  // Reset pagination when search filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterMonth, filterProductName, filterInvoiceNumber]);
 
   // Initialize a clean new purchase modal form without preselecting any product
   const handleOpenPurchaseModal = () => {
@@ -259,6 +270,14 @@ const Purchases = () => {
 
   const displayMonthName = new Date(summaryMonth + '-01').toLocaleString('default', { month: 'long', year: 'numeric' });
 
+  // Pagination Calculations
+  const totalFiltered = filteredPurchases.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalFiltered);
+  const paginatedPurchases = filteredPurchases.slice(startIndex, endIndex);
+
   const { grandTotal: formGrandTotal, totalUnits: formTotalUnits } = modalCalculations();
 
   return (
@@ -392,7 +411,7 @@ const Purchases = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredPurchases.map((purchase) => (
+                  {paginatedPurchases.map((purchase) => (
                     <tr key={purchase._id} className="hover:bg-gray-50/80 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium">
                         {formatDate(purchase.purchaseDate)}
@@ -405,16 +424,21 @@ const Purchases = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         <div className="flex flex-col gap-1.5 max-w-xs">
-                          {purchase.items.map((item, i) => (
+                          {purchase.items.slice(0, 3).map((item, i) => (
                             <div key={i} className="flex items-center gap-2">
-                              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 flex-shrink-0">
                                 {item.quantity} {item.productId?.unit || 'pcs'}
                               </span>
-                              <span className="text-gray-800 font-medium truncate">
+                              <span className="text-gray-800 font-medium truncate max-w-[200px]" title={item.productId?.name || item.product?.name}>
                                 {item.productId?.name || item.product?.name || 'Unknown Product'}
                               </span>
                             </div>
                           ))}
+                          {purchase.items.length > 3 && (
+                            <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50/70 border border-indigo-100/80 px-2 py-0.5 rounded-md w-fit">
+                              +{purchase.items.length - 3} more items
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-extrabold text-gray-900">
@@ -455,7 +479,7 @@ const Purchases = () => {
 
             {/* Mobile Card View */}
             <div className="md:hidden divide-y divide-slate-100">
-              {filteredPurchases.map((purchase) => (
+              {paginatedPurchases.map((purchase) => (
                 <div 
                   key={purchase._id} 
                   onClick={() => setViewModalPurchase(purchase)}
@@ -478,16 +502,21 @@ const Purchases = () => {
                       Supplier: <span className="text-slate-900 font-bold">{purchase.supplierName}</span>
                     </div>
                     <div className="mt-2 text-xs text-slate-700 space-y-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                      {purchase.items.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between">
-                          <span className="font-medium text-slate-800 truncate">
+                      {purchase.items.slice(0, 3).map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-slate-800 truncate" title={item.productId?.name || item.product?.name}>
                             {item.productId?.name || item.product?.name || 'Unknown Product'}
                           </span>
-                          <span className="font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-slate-200">
+                          <span className="font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-slate-200 flex-shrink-0">
                             {item.quantity} {item.productId?.unit || 'pcs'}
                           </span>
                         </div>
                       ))}
+                      {purchase.items.length > 3 && (
+                        <div className="text-[11px] font-bold text-indigo-600 pt-0.5 text-center">
+                          +{purchase.items.length - 3} more products (tap Details to view all)
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -522,10 +551,119 @@ const Purchases = () => {
               ))}
             </div>
 
-            {/* Table Footer */}
-            <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
-              <span>Showing {filteredPurchases.length} of {purchases.length} invoices</span>
-              <span>Month Total: <strong className="text-gray-900">{formatCurrency(monthlyTotal)}</strong></span>
+            {/* Mobile View More Purchases Button */}
+            {endIndex < totalFiltered && (
+              <div className="p-3 bg-gray-50/70 border-t border-gray-100 md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition flex items-center justify-center gap-1.5 min-h-[44px]"
+                >
+                  <span>View More Invoices ({totalFiltered - endIndex} remaining)</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            )}
+
+            {/* Pagination & Navigation Footer */}
+            <div className="bg-gray-50 px-4 sm:px-6 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+              {/* Count & Page Size */}
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                <span className="font-medium">
+                  Showing <span className="font-bold text-gray-900">{totalFiltered === 0 ? 0 : startIndex + 1}</span> to <span className="font-bold text-gray-900">{endIndex}</span> of <span className="font-bold text-gray-900">{totalFiltered}</span> invoices
+                  {purchases.length !== totalFiltered && (
+                    <span className="text-gray-400 ml-1">({purchases.length} total)</span>
+                  )}
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-gray-500 font-medium">Per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="bg-white border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                <span className="hidden lg:inline-block text-gray-300">|</span>
+                <span className="hidden lg:inline-block font-medium">Month Total: <strong className="text-gray-900">{formatCurrency(monthlyTotal)}</strong></span>
+              </div>
+
+              {/* View More Button + Page Controls */}
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                {endIndex < totalFiltered && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    className="hidden lg:inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-100 transition"
+                  >
+                    <span>View More (+{Math.min(pageSize, totalFiltered - endIndex)})</span>
+                    <ArrowRight size={13} />
+                  </button>
+                )}
+
+                <div className="inline-flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                  {/* Previous Page */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={safeCurrentPage === 1}
+                    className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                    title="Previous Page"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  {/* Page numbers */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      if (totalPages <= 5) return true;
+                      return page === 1 || page === totalPages || Math.abs(page - safeCurrentPage) <= 1;
+                    })
+                    .map((page, idx, arr) => {
+                      const prev = arr[idx - 1];
+                      const showEllipsis = prev && page - prev > 1;
+
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && (
+                            <span className="px-1 text-gray-400 select-none">...</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage(page)}
+                            className={`min-w-[28px] h-7 px-2 text-xs font-bold rounded transition cursor-pointer ${
+                              safeCurrentPage === page
+                                ? 'bg-indigo-600 text-white shadow-sm'
+                                : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
+
+                  {/* Next Page */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={safeCurrentPage === totalPages}
+                    className="p-1.5 rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                    title="Next Page"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -646,7 +784,7 @@ const Purchases = () => {
                 <div className="col-span-1 text-center">Action</div>
               </div>
 
-              <div className="divide-y divide-gray-100 bg-white">
+              <div className="divide-y divide-gray-100 bg-white max-h-72 overflow-y-auto">
                 {formData.items.map((item, idx) => {
                   const lineTotal = (Number(item.quantity) || 0) * (Number(item.unitCost) || 0);
                   return (
@@ -699,10 +837,10 @@ const Purchases = () => {
                           type="button"
                           disabled={formData.items.length <= 1}
                           onClick={() => handleRemoveItemRow(idx)}
-                          className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+                          className="text-gray-400 hover:text-rose-600 disabled:opacity-20 disabled:hover:text-gray-400 p-1 rounded-md transition cursor-pointer"
                           title="Remove item"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
@@ -712,7 +850,7 @@ const Purchases = () => {
             </div>
 
             {/* Mobile Card List View */}
-            <div className="sm:hidden space-y-3">
+            <div className="sm:hidden space-y-3 max-h-96 overflow-y-auto pr-1">
               {formData.items.map((item, idx) => {
                 const lineTotal = (Number(item.quantity) || 0) * (Number(item.unitCost) || 0);
                 return (
