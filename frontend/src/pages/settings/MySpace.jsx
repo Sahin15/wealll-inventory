@@ -27,8 +27,7 @@ import {
   DESIGNER_PRESETS, 
   PRESET_CATEGORIES, 
   PRIMARY_QUICK_SWATCHES, 
-  SECONDARY_QUICK_SWATCHES, 
-  getHarmoniousRecommendations 
+  SECONDARY_QUICK_SWATCHES 
 } from '../../utils/colorUtils';
 
 const MySpace = () => {
@@ -662,44 +661,6 @@ const MySpace = () => {
                     </div>
                   </div>
 
-                  {/* Dynamic Harmonious Recommendations */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50/50 via-purple-50/30 to-pink-50/30 border border-indigo-100/70">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Sparkles size={15} className="text-amber-500" />
-                      <span className="text-xs font-bold text-gray-800">
-                        Smart Harmonic Recommendations for {settings.brandColor?.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-gray-500 mb-3">
-                      Calculated using color harmony principles to match your selected primary shade:
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                      {getHarmoniousRecommendations(settings.brandColor).map((rec, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setSettings({ ...settings, secondaryColor: rec.hex })}
-                          className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-left bg-white hover:border-indigo-300 hover:shadow-sm ${
-                            (settings.secondaryColor || '').toLowerCase() === rec.hex.toLowerCase()
-                              ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
-                              : 'border-gray-200'
-                          }`}
-                        >
-                          <span 
-                            className="w-6 h-6 rounded-lg border border-black/10 shadow-inner flex-shrink-0"
-                            style={{ backgroundColor: rec.hex }}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="text-xs font-bold text-gray-800 truncate">{rec.name}</div>
-                            <div className="text-[10px] text-gray-500 truncate">{rec.reason}</div>
-                          </div>
-                          {(settings.secondaryColor || '').toLowerCase() === rec.hex.toLowerCase() && (
-                            <Check size={14} className="text-indigo-600 flex-shrink-0" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
                   {/* Curated Designer Presets with Categories */}
                   <div>
