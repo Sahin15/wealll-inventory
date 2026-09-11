@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { 
   Save, 
@@ -17,7 +17,6 @@ import {
   Percent, 
   FileText, 
   Sparkles,
-  ShieldCheck,
   RefreshCw,
   Check,
   ChevronDown,
@@ -103,7 +102,6 @@ const DEFAULT_SUBSCRIPTION_PLANS = [
 const MySpace = () => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
-  const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(location.search);
@@ -164,9 +162,29 @@ const MySpace = () => {
     }).filter(Boolean);
   }, [plans]);
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
+  // Dynamic recommendation: next upgraded plan from current tier, or 'professional' for new/plan-less users
+  const recommendedPlanSlug = React.useMemo(() => {
+    const currentPlanSlug = 
+      (subscription?.planId?.slug || subscription?.planId?.name || '').toLowerCase();
+
+    // First time user or no active plan -> Recommend Professional
+    if (!currentPlanSlug || !subscription) {
+      return 'professional';
+    }
+
+    // Always recommend next upgraded tier in hierarchy: Free -> Starter -> Professional -> Business
+    if (currentPlanSlug === 'free') {
+      return 'starter';
+    }
+    if (currentPlanSlug === 'starter') {
+      return 'professional';
+    }
+    if (currentPlanSlug === 'professional') {
+      return 'business';
+    }
+    // Already on top tier (Business)
+    return null;
+  }, [subscription]);
 
   const fetchData = async () => {
     try {
@@ -201,6 +219,10 @@ const MySpace = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -953,7 +975,7 @@ const MySpace = () => {
               {/* Available Plans Grid */}
               <div className="space-y-4 pt-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Available Subscription Tiers</h3>
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Available Subscription Plans</h3>
                   <span className="text-xs text-gray-400 font-medium">From Free starter to full Business enterprise</span>
                 </div>
 
@@ -966,24 +988,32 @@ const MySpace = () => {
                         subscription?.planId?._id === p._id ||
                         (subscription?.planId?.slug && subscription.planId.slug.toLowerCase() === p.slug?.toLowerCase()) ||
                         (subscription?.planId?.name && subscription.planId.name.toLowerCase() === p.name?.toLowerCase());
+                      const isRecommended = !isCurrent && recommendedPlanSlug === (p.slug || '').toLowerCase();
                       const price = billingCycle === 'yearly' ? p.yearlyPrice : p.monthlyPrice;
                       return (
                         <div
                           key={p.slug || p._id}
-                          className={`rounded-2xl p-6 flex flex-col justify-between border transition-all ${
+                          className={`rounded-2xl p-6 flex flex-col justify-between border transition-all relative ${
                             isCurrent
                               ? 'border-2 border-indigo-600 bg-indigo-50/20 shadow-md ring-2 ring-indigo-100'
+                              : isRecommended
+                              ? 'border-2 border-indigo-500 bg-gradient-to-b from-indigo-50/40 via-white to-white shadow-lg ring-2 ring-indigo-200/70'
                               : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
                           }`}
                         >
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <h4 className="text-base font-bold text-gray-900">{p.name}</h4>
-                              {isCurrent && (
-                                <span className="text-[10px] font-extrabold bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase">
+                              {isCurrent ? (
+                                <span className="text-[10px] font-extrabold bg-indigo-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
                                   Current
                                 </span>
-                              )}
+                              ) : isRecommended ? (
+                                <span className="text-[10px] font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1">
+                                  <Sparkles size={10} />
+                                  <span>Recommended</span>
+                                </span>
+                              ) : null}
                             </div>
                             <p className="text-xs text-gray-500 mb-4 min-h-[32px]">{p.description}</p>
 
@@ -1016,13 +1046,15 @@ const MySpace = () => {
 
                           <button
                             onClick={() => !isCurrent && setShowPaymentModal(true)}
-                            className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all ${
+                            className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                               isCurrent
-                                ? 'bg-indigo-100 text-indigo-700 cursor-default'
+                                ? 'bg-indigo-100 text-indigo-700 cursor-default shadow-xs'
+                                : isRecommended
+                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md ring-2 ring-indigo-200'
                                 : 'bg-gray-900 text-white hover:bg-indigo-600'
                             }`}
                           >
-                            {isCurrent ? 'Active Plan' : 'Select Tier'}
+                            {isCurrent ? 'Active Plan' : 'Select Plan'}
                           </button>
                         </div>
                       );
