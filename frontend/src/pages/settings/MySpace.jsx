@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { 
   Save, 
@@ -25,7 +25,6 @@ import {
 import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import wealllFullLogo from '../../assets/wealll-full-logo-cropped.png';
 import { 
   DESIGNER_PRESETS, 
   PRESET_CATEGORIES, 
@@ -103,12 +102,15 @@ const DEFAULT_SUBSCRIPTION_PLANS = [
 
 const MySpace = () => {
   const { user } = useContext(AuthContext);
-  const location = useLocation();
-  
-  const [activeTab, setActiveTab] = useState(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get('tab') || 'profile';
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Directly derive activeTab from URL search query parameter (e.g. ?tab=payments)
+  const urlTab = searchParams.get('tab');
+  const activeTab = (urlTab && ['profile', 'branding', 'payments'].includes(urlTab)) ? urlTab : 'profile';
+
+  const handleTabChange = (tabId) => {
+    setSearchParams({ tab: tabId }, { replace: true });
+  };
 
   const [selectedPresetCategory, setSelectedPresetCategory] = useState('all');
   const [isPresetsExpanded, setIsPresetsExpanded] = useState(false);
@@ -224,7 +226,7 @@ const MySpace = () => {
 
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+  }, []);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -362,7 +364,7 @@ const MySpace = () => {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex-1 min-w-[150px] sm:min-w-[170px] flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl transition-all text-left flex-shrink-0 ${
                   isActive 
                     ? 'bg-white text-indigo-700 shadow-sm border border-gray-200/80 font-bold' 
@@ -1066,21 +1068,6 @@ const MySpace = () => {
               </div>
             </div>
           )}
-        </div>
-
-        {/* WeAlll Inventory Platform Branding Footer */}
-        <div className="border-t border-gray-100 bg-gray-50/60 py-6 px-4 flex flex-col items-center justify-center gap-1.5 text-center">
-          <span className="text-[10px] font-bold text-gray-400 tracking-wider uppercase">
-            Powered by
-          </span>
-          <img 
-            src={wealllFullLogo} 
-            alt="WeAlll Inventory Management System" 
-            className="h-8 sm:h-9 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" 
-          />
-          <p className="text-[11px] text-gray-400 font-medium">
-            Smart Inventory. Stronger Business.
-          </p>
         </div>
       </div>
 

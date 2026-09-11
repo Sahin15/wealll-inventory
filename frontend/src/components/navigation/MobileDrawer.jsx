@@ -87,26 +87,7 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
           <div className="w-10 h-1 bg-slate-300 rounded-full" />
         </div>
 
-        {/* WeAlll Platform Branding Header Bar */}
-        <div className="px-5 pt-2 pb-2.5 flex items-center justify-between border-b border-slate-100 bg-slate-50/70">
-          <div className="flex items-center">
-            <img
-              src={wealllFullLogo}
-              alt="WeAlll Inventory Management System"
-              className="h-6 w-auto object-contain"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="p-1.5 -mr-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded-full min-w-[36px] min-h-[36px] flex items-center justify-center tap-highlight-transparent"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Header with User & Workspace Card */}
+        {/* Header with User & Workspace Card + Close Button */}
         <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3 bg-white">
           <div className="flex items-center gap-3 min-w-0">
             <div
@@ -128,6 +109,14 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="p-1.5 -mr-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 active:bg-slate-200 rounded-full min-w-[36px] min-h-[36px] flex items-center justify-center tap-highlight-transparent shrink-0"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Scrollable Categories List */}

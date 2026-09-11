@@ -22,6 +22,7 @@ import SubscriptionBlocker from '../components/SubscriptionBlocker';
 import OfflineBanner from '../components/mobile/OfflineBanner';
 import PwaUpdater from '../components/PwaUpdater';
 import BrandSplash from '../components/common/BrandSplash';
+import BrandFooter from '../components/common/BrandFooter';
 
 const DashboardLayout = () => {
   const { user, logout, loading } = useContext(AuthContext);
@@ -271,9 +272,12 @@ const DashboardLayout = () => {
       <div className={`md:pl-64 flex flex-col flex-1 print:pl-0 min-w-0 h-full ${globalSettings?.announcementText ? 'pt-12' : ''}`}>
         <OfflineBanner />
         <TopAppBar onOpenDrawer={() => setDrawerOpen(true)} />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="py-4 md:py-6 px-3.5 sm:px-6 md:px-8 pb-safe-nav md:pb-6 w-full max-w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col justify-between">
+          <div className="py-4 md:py-6 px-3.5 sm:px-6 md:px-8 w-full max-w-full flex-1">
             <Outlet />
+          </div>
+          <div className="pb-safe-nav md:pb-3 print:hidden">
+            <BrandFooter />
           </div>
         </main>
         <BottomNav 
