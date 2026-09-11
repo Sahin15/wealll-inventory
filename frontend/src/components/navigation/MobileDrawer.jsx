@@ -2,10 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X, LogOut, Download, Sparkles, ChevronRight, Shield } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
-import wealllFullLogo from '../../assets/wealll-full-logo.png';
+import { useDialog } from '../../context/DialogContext';
+import wealllFullLogo from '../../assets/wealll-full-logo-cropped.png';
 
 const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
   const { logout } = useContext(AuthContext);
+  const { confirm } = useDialog();
   const location = useLocation();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
@@ -33,6 +35,20 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const isConfirmed = await confirm({
+      title: 'Sign Out Confirmation',
+      message: 'Are you sure you want to sign out of WeAlll Inventory?',
+      confirmText: 'Yes, Sign Out',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (isConfirmed) {
+      onClose();
+      logout();
     }
   };
 
@@ -71,8 +87,27 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
           <div className="w-10 h-1 bg-slate-300 rounded-full" />
         </div>
 
+        {/* WeAlll Platform Branding Header Bar */}
+        <div className="px-5 pt-2 pb-2.5 flex items-center justify-between border-b border-slate-100 bg-slate-50/70">
+          <div className="flex items-center">
+            <img
+              src={wealllFullLogo}
+              alt="WeAlll Inventory Management System"
+              className="h-6 w-auto object-contain"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="p-1.5 -mr-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded-full min-w-[36px] min-h-[36px] flex items-center justify-center tap-highlight-transparent"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
         {/* Header with User & Workspace Card */}
-        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3 bg-white">
           <div className="flex items-center gap-3 min-w-0">
             <div
               className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shadow-sm shrink-0"
@@ -82,7 +117,7 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
             </div>
             <div className="min-w-0">
               <h2 className="text-sm font-bold text-slate-900 truncate">
-                {user?.tenantId?.businessName || 'WeAlll Inventory'}
+                {user?.tenantId?.businessName || 'Your Workspace'}
               </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="text-xs text-slate-500 truncate">{user?.name}</span>
@@ -93,14 +128,6 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="p-2 -mr-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full min-w-[40px] min-h-[40px] flex items-center justify-center"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
         {/* Scrollable Categories List */}
@@ -260,18 +287,21 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
         <div className="border-t border-slate-100 px-5 py-3 bg-slate-50/50 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={logout}
+            onClick={handleSignOut}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-rose-600 bg-rose-50/80 hover:bg-rose-100 active:bg-rose-200 border border-rose-200/70 rounded-xl transition-colors min-h-[44px]"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
 
-          <div className="flex items-center justify-center pt-1 opacity-70">
+          <div className="flex flex-col items-center justify-center pt-2 pb-1 gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Powered by
+            </span>
             <img
               src={wealllFullLogo}
-              alt="WeAlll"
-              className="h-5 object-contain"
+              alt="WeAlll Inventory Management System"
+              className="h-7 w-auto object-contain"
             />
           </div>
         </div>

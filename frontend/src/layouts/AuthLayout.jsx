@@ -4,13 +4,14 @@ import { AuthContext } from '../context/AuthContext';
 import { Package, ArrowLeft } from 'lucide-react';
 import wealllLogo from '../assets/wealll-logo.jpg';
 import wealllMiniLogo from '../assets/wealll-mini-logo.png';
-import wealllFullLogo from '../assets/wealll-full-logo.png';
+import wealllFullLogo from '../assets/wealll-full-logo-cropped.png';
+import BrandSplash from '../components/common/BrandSplash';
 
 const AuthLayout = () => {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-900">Loading...</div>;
+    return <BrandSplash message="Verifying session..." tagline="Smart Inventory. Stronger Business." />;
   }
 
   if (user) {
@@ -38,10 +39,10 @@ const AuthLayout = () => {
 
         {/* Brand Header */}
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6 mt-2 sm:mt-0 flex flex-col items-center">
-          <Link to="/" className="relative z-10 inline-flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none w-64 sm:w-80 h-16 overflow-visible">
-            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="w-full h-full object-contain pointer-events-none" style={{ transform: 'scale(4.5)' }} />
+          <Link to="/" className="relative z-10 inline-flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none h-16 w-auto">
+            <img src={wealllFullLogo} alt="WeAlll Inventory Logo" className="h-14 sm:h-16 w-auto object-contain pointer-events-none" />
           </Link>
-          <p className="text-sm text-slate-600 font-medium mt-1 relative z-20">Smart Inventory. Stronger Business.</p>
+          <p className="text-sm text-slate-600 font-medium mt-2 relative z-20">Smart Inventory. Stronger Business.</p>
         </div>
 
         {/* Auth Card */}

@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import { useGlobalSettings } from '../context/GlobalSettingsContext';
 import { 
   LayoutDashboard, PieChart, 
@@ -8,7 +9,7 @@ import {
   Tags, 
   ArrowRightLeft, 
   ShoppingCart, 
-  Receipt,
+  Receipt, 
   Users,
   LogOut,
   UserCircle,
@@ -20,15 +21,30 @@ import BottomNav from '../components/navigation/BottomNav';
 import SubscriptionBlocker from '../components/SubscriptionBlocker';
 import OfflineBanner from '../components/mobile/OfflineBanner';
 import PwaUpdater from '../components/PwaUpdater';
-import wealllFullLogo from '../assets/wealll-full-logo.png';
+import wealllFullLogo from '../assets/wealll-full-logo-cropped.png';
+import BrandSplash from '../components/common/BrandSplash';
 
 const DashboardLayout = () => {
   const { user, logout, loading } = useContext(AuthContext);
+  const { confirm } = useDialog();
   const { globalSettings, loadingSettings } = useGlobalSettings();
   const location = useLocation();
   const navigate = useNavigate();
   const [isBlocked, setIsBlocked] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    const isConfirmed = await confirm({
+      title: 'Sign Out Confirmation',
+      message: 'Are you sure you want to sign out of WeAlll Inventory?',
+      confirmText: 'Yes, Sign Out',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (isConfirmed) {
+      logout();
+    }
+  };
 
   useEffect(() => {
     const handleSubscriptionExpired = () => {
@@ -50,9 +66,10 @@ const DashboardLayout = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
+      <BrandSplash 
+        message="Loading your workspace..." 
+        tagline="Smart Inventory. Stronger Business." 
+      />
     );
   }
 
@@ -219,8 +236,8 @@ const DashboardLayout = () => {
             </div>
           )}
           <div className={`px-4 pb-2 ${user.role !== 'admin' ? 'mt-auto' : ''}`}>
-            <div className="flex items-center justify-center w-full h-16 overflow-hidden opacity-85 hover:opacity-100 transition-opacity">
-              <img src={wealllFullLogo} alt="WeAlll Inventory" className="w-full h-full object-contain scale-[2.7] origin-center" />
+            <div className="flex items-center justify-center w-full h-12 opacity-90 hover:opacity-100 transition-opacity">
+              <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-9 w-auto object-contain" />
             </div>
           </div>
           <div 
@@ -245,7 +262,7 @@ const DashboardLayout = () => {
                 </p>
               </div>
               <button 
-                onClick={logout} 
+                onClick={handleSignOut} 
                 className="ml-auto flex-shrink-0 p-1.5 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"
                 title="Sign Out"
               >

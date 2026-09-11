@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
-import wealllFullLogo from '../../assets/wealll-full-logo.png';
+import wealllFullLogo from '../../assets/wealll-full-logo-cropped.png';
 
 /**
  * MobileHeader:
@@ -102,11 +102,11 @@ const MobileHeader = ({ title, subtitle, action, showBack, onBack }) => {
                   />
                 </div>
               ) : (
-                <div className="h-6 w-16 overflow-hidden flex items-center justify-end opacity-80">
+                <div className="h-7 flex items-center justify-end">
                   <img
                     src={wealllFullLogo}
-                    alt="WeAlll"
-                    className="h-full object-contain scale-[2.8] origin-right"
+                    alt="WeAlll Inventory"
+                    className="h-5 w-auto object-contain"
                   />
                 </div>
               )}

@@ -3,6 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import Register from './Register';
+import BrandSplash from '../../components/common/BrandSplash';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,8 +19,13 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    const minDisplayTime = new Promise((resolve) => setTimeout(resolve, 2200));
+
     try {
-      const user = await login(email, password);
+      const [user] = await Promise.all([
+        login(email, password),
+        minDisplayTime
+      ]);
       if (user.role === 'superadmin') {
         navigate('/wealll-admin');
       } else {
@@ -27,13 +33,18 @@ const Login = () => {
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to login');
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto relative">
+      {loading && (
+        <BrandSplash 
+          message="Signing you in to your workspace..." 
+          tagline="Smart Inventory. Stronger Business." 
+        />
+      )}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back!</h2>
         <p className="text-sm text-slate-600">Sign in to continue to your business dashboard.</p>
