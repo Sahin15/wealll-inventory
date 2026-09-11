@@ -671,84 +671,218 @@ const MySpace = () => {
                     </div>
                   </div>
 
-                  {/* Live Dual-Color Interactive Preview Card */}
-                  <div className="rounded-2xl border border-gray-200 overflow-hidden bg-slate-900 text-white shadow-md">
-                    <div className="px-4 py-2.5 bg-slate-800/80 border-b border-white/10 flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-200 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Live Preview of Active Palette
-                      </span>
-                      <span className="text-[11px] font-mono text-slate-400">
-                        {settings.brandColor?.toUpperCase()} &times; {(settings.secondaryColor || '#f43f5e').toUpperCase()}
-                      </span>
+                  {/* Live Dual-Color Interactive Preview Card (Original Dashboard Light Theme) */}
+                  <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all">
+                    {/* Preview Card Bar */}
+                    <div className="px-4 py-3 bg-gray-50/80 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-xs font-bold text-gray-800">
+                          Live Dashboard Preview (Light Theme)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-mono">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 font-bold shadow-xs">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: settings.brandColor || '#4f46e5' }} />
+                          <span>Primary: {(settings.brandColor || '#4f46e5').toUpperCase()}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 font-bold shadow-xs">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }} />
+                          <span>Secondary: {(settings.secondaryColor || '#f43f5e').toUpperCase()}</span>
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4 space-y-3">
-                      {/* Top Bar simulation */}
+                    {/* Preview Dashboard Elements Container */}
+                    <div className="p-4 sm:p-5 bg-gray-50/40 space-y-3.5">
+                      {/* 1. Mini Dashboard Hero Banner */}
                       <div 
-                        className="h-1.5 rounded-full"
-                        style={{
-                          background: `linear-gradient(90deg, ${settings.brandColor || '#4f46e5'}, ${settings.secondaryColor || '#f43f5e'})`
-                        }}
-                      />
+                        className="rounded-xl border border-gray-200/90 bg-white p-3.5 relative overflow-hidden shadow-xs"
+                      >
+                        {/* Top Dual Brand Accent Bar */}
+                        <div 
+                          className="absolute top-0 left-0 right-0 h-1" 
+                          style={{
+                            background: `linear-gradient(90deg, ${settings.brandColor || '#4f46e5'}, ${settings.secondaryColor || '#f43f5e'})`
+                          }}
+                        />
+                        {/* Dual Ambient Orbs */}
+                        <div 
+                          className="absolute -top-6 -left-6 w-24 h-24 rounded-full pointer-events-none opacity-20 blur-xl"
+                          style={{ backgroundColor: settings.brandColor || '#4f46e5' }}
+                        />
+                        <div 
+                          className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20 blur-xl"
+                          style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }}
+                        />
 
-                      {/* Mock Elements */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-                        {/* Mock Primary CTA */}
-                        <div className="p-3 rounded-xl bg-slate-800/60 border border-white/5 flex flex-col justify-between">
-                          <span className="text-[10px] text-slate-400 uppercase font-semibold">Primary Element</span>
-                          <button
-                            type="button"
-                            tabIndex={-1}
-                            style={{ backgroundColor: settings.brandColor || '#4f46e5' }}
-                            className="mt-2 text-xs font-bold text-white px-3 py-1.5 rounded-lg shadow-sm w-full text-center"
+                        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-extrabold text-gray-900">
+                                Namaste, {settings.ownerName ? settings.ownerName.split(' ')[0] : 'Partner'}!
+                              </span>
+                              <span 
+                                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                style={{
+                                  backgroundColor: `${settings.brandColor || '#4f46e5'}15`,
+                                  color: settings.brandColor || '#4f46e5'
+                                }}
+                              >
+                                Live Workspace
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-gray-500 mt-0.5">
+                              Real-time inventory and sales operations
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              style={{ backgroundColor: settings.brandColor || '#4f46e5' }}
+                              className="text-[11px] font-bold text-white px-3 py-1.5 rounded-lg shadow-xs hover:opacity-90 transition"
+                            >
+                              + New Sale
+                            </button>
+                            <span 
+                              className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg border"
+                              style={{
+                                backgroundColor: `${settings.secondaryColor || '#f43f5e'}12`,
+                                borderColor: `${settings.secondaryColor || '#f43f5e'}30`,
+                                color: settings.secondaryColor || '#f43f5e'
+                              }}
+                            >
+                              Batch Active
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. Mini KPI Cards (Revenue & Batch Metrics) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* KPI 1: Primary Revenue Card */}
+                        <div className="bg-white p-3 rounded-xl border border-gray-200/90 shadow-xs flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                              Total Revenue (Primary)
+                            </span>
+                            <div 
+                              className="text-base font-extrabold mt-0.5"
+                              style={{ color: settings.brandColor || '#4f46e5' }}
+                            >
+                              ₹1,42,850
+                            </div>
+                            <span className="text-[10px] text-emerald-600 font-semibold">+18.4% vs last week</span>
+                          </div>
+                          <div 
+                            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shadow-xs"
+                            style={{
+                              backgroundColor: `${settings.brandColor || '#4f46e5'}15`,
+                              color: settings.brandColor || '#4f46e5'
+                            }}
                           >
-                            Primary CTA
-                          </button>
+                            ₹
+                          </div>
                         </div>
 
-                        {/* Mock Secondary Accent */}
-                        <div className="p-3 rounded-xl bg-slate-800/60 border border-white/5 flex flex-col justify-between">
-                          <span className="text-[10px] text-slate-400 uppercase font-semibold">Secondary Accent</span>
+                        {/* KPI 2: Secondary Batch Revenue Card */}
+                        <div 
+                          className="bg-white p-3 rounded-xl border shadow-xs flex items-center justify-between"
+                          style={{
+                            borderColor: `${settings.secondaryColor || '#f43f5e'}40`
+                          }}
+                        >
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                Batch Revenue (Secondary)
+                              </span>
+                              <span 
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                                style={{
+                                  backgroundColor: `${settings.secondaryColor || '#f43f5e'}18`,
+                                  color: settings.secondaryColor || '#f43f5e'
+                                }}
+                              >
+                                Contrast
+                              </span>
+                            </div>
+                            <div 
+                              className="text-base font-extrabold mt-0.5"
+                              style={{ color: settings.secondaryColor || '#f43f5e' }}
+                            >
+                              ₹54,200
+                            </div>
+                            <span className="text-[10px] font-medium" style={{ color: settings.secondaryColor || '#f43f5e' }}>
+                              Batch Sales Stream
+                            </span>
+                          </div>
                           <div 
-                            style={{ 
-                              backgroundColor: `${settings.secondaryColor || '#f43f5e'}25`,
-                              borderColor: `${settings.secondaryColor || '#f43f5e'}50`,
+                            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shadow-xs"
+                            style={{
+                              backgroundColor: `${settings.secondaryColor || '#f43f5e'}18`,
                               color: settings.secondaryColor || '#f43f5e'
                             }}
-                            className="mt-2 text-xs font-bold px-3 py-1.5 rounded-lg border text-center"
                           >
-                            +34.8% Batch Surge
+                            ★
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. Mini 7-Day Performance Trends Chart (Light Canvas) */}
+                      <div className="bg-white p-3.5 rounded-xl border border-gray-200/90 shadow-xs">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[11px] font-bold text-gray-800">
+                            7-Day Performance Trends
+                          </span>
+                          <div className="flex items-center gap-3 text-[10px]">
+                            <span className="flex items-center gap-1 font-semibold" style={{ color: settings.brandColor || '#4f46e5' }}>
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.brandColor || '#4f46e5' }} />
+                              Revenue
+                            </span>
+                            <span className="flex items-center gap-1 font-semibold" style={{ color: settings.secondaryColor || '#f43f5e' }}>
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }} />
+                              Orders Volume
+                            </span>
                           </div>
                         </div>
 
-                        {/* Mock Dual Curve Chart */}
-                        <div className="p-3 rounded-xl bg-slate-800/60 border border-white/5 flex flex-col justify-between">
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-slate-400 font-semibold">Dual Metric Trend</span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.brandColor || '#4f46e5' }} />
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }} />
-                            </div>
-                          </div>
-                          {/* Mini SVG Curve */}
-                          <div className="h-7 w-full mt-1 flex items-end">
-                            <svg className="w-full h-full" viewBox="0 0 100 28" fill="none">
-                              <path 
-                                d="M 0 20 Q 25 5, 50 15 T 100 8" 
-                                stroke={settings.brandColor || '#4f46e5'} 
-                                strokeWidth="2.5" 
-                                strokeLinecap="round" 
-                              />
-                              <path 
-                                d="M 0 24 Q 25 18, 50 20 T 100 12" 
-                                stroke={settings.secondaryColor || '#f43f5e'} 
-                                strokeWidth="2" 
-                                strokeDasharray="3 3"
-                                strokeLinecap="round" 
-                              />
-                            </svg>
-                          </div>
+                        {/* Chart Area */}
+                        <div className="h-14 w-full relative">
+                          <svg className="w-full h-full" viewBox="0 0 400 56" fill="none" preserveAspectRatio="none">
+                            <defs>
+                              <linearGradient id="previewDashPrimaryFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={settings.brandColor || '#4f46e5'} stopOpacity="0.22" />
+                                <stop offset="100%" stopColor={settings.brandColor || '#4f46e5'} stopOpacity="0.0" />
+                              </linearGradient>
+                            </defs>
+                            {/* Grid lines */}
+                            <line x1="0" y1="14" x2="400" y2="14" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+                            <line x1="0" y1="32" x2="400" y2="32" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+                            <line x1="0" y1="52" x2="400" y2="52" stroke="#e2e8f0" strokeWidth="1" />
+                            
+                            {/* Primary Line with Area */}
+                            <path
+                              d="M 0 44 Q 70 12, 140 28 T 280 16 T 400 8 L 400 56 L 0 56 Z"
+                              fill="url(#previewDashPrimaryFill)"
+                            />
+                            <path
+                              d="M 0 44 Q 70 12, 140 28 T 280 16 T 400 8"
+                              stroke={settings.brandColor || '#4f46e5'}
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                            />
+
+                            {/* Secondary Line */}
+                            <path
+                              d="M 0 50 Q 70 34, 140 40 T 280 28 T 400 20"
+                              stroke={settings.secondaryColor || '#f43f5e'}
+                              strokeWidth="2"
+                              strokeDasharray="4 4"
+                              strokeLinecap="round"
+                            />
+                          </svg>
                         </div>
                       </div>
                     </div>
