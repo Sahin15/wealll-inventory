@@ -121,6 +121,9 @@ export const PRESET_CATEGORIES = [
   { id: 'tech', name: 'Tech & SaaS' },
   { id: 'retail', name: 'Beauty & Lifestyle' },
   { id: 'commerce', name: 'Commerce & Food' },
+  { id: 'wellness', name: 'Health & Wellness' },
+  { id: 'creative', name: 'Creative & Studio' },
+  { id: 'industrial', name: 'Logistics & Trade' },
   { id: 'luxury', name: 'Executive & Dark' }
 ];
 
@@ -133,23 +136,53 @@ export const DESIGNER_PRESETS = [
   { id: 'cyber_violet', category: 'tech', name: 'Cobalt & Violet', primary: '#2563eb', secondary: '#8b5cf6', desc: 'Cloud, AI & Platforms' },
   { id: 'electric_emerald', category: 'tech', name: 'Sapphire & Mint', primary: '#1d4ed8', secondary: '#10b981', desc: 'FinTech & Analytics' },
   { id: 'teal_sky', category: 'tech', name: 'Teal & Sky', primary: '#0d9488', secondary: '#38bdf8', desc: 'Clean Digital Workspace' },
+  { id: 'neon_iris', category: 'tech', name: 'Electric Iris & Fuchsia', primary: '#6366f1', secondary: '#ec4899', desc: 'Next-Gen Apps & Startups' },
+  { id: 'deep_ocean', category: 'tech', name: 'Deep Ocean & Cyan', primary: '#0369a1', secondary: '#14b8a6', desc: 'Data Systems & Cloud' },
 
   // Beauty, Fashion & Lifestyle
   { id: 'crimson_rose', category: 'retail', name: 'Crimson & Rose', primary: '#ce3b3b', secondary: '#fb7185', desc: 'Beauty, Makeover & Salon' },
-  { id: 'amethyst_orchid', category: 'retail', name: 'Amethyst & Orchid', primary: '#7c3aed', secondary: '#ec4899', desc: 'Creative Design & Studio' },
-  { id: 'coral_amber', category: 'retail', name: 'Coral & Sunset', primary: '#f43f5e', secondary: '#fb923c', desc: 'Bakery, Florist & Boutique' },
+  { id: 'amethyst_orchid', category: 'retail', name: 'Amethyst & Orchid', primary: '#7c3aed', secondary: '#ec4899', desc: 'Fashion Boutique & Styling' },
+  { id: 'coral_amber', category: 'retail', name: 'Coral & Sunset', primary: '#f43f5e', secondary: '#fb923c', desc: 'Cosmetics & Glamour' },
   { id: 'berry_gold', category: 'retail', name: 'Berry & Champagne', primary: '#9333ea', secondary: '#f59e0b', desc: 'Luxury Apparel & Jewelry' },
+  { id: 'blush_peach', category: 'retail', name: 'Blush Rose & Peach', primary: '#e11d48', secondary: '#fda4af', desc: 'Skincare & Cosmetics' },
+  { id: 'plum_rose', category: 'retail', name: 'Velvet Plum & Rose', primary: '#831843', secondary: '#fb7185', desc: 'Haute Couture & Perfumery' },
 
-  // Commerce, Groceries & Trade
+  // Commerce, Food & Beverage
   { id: 'emerald_gold', category: 'commerce', name: 'Emerald & Gold', primary: '#059669', secondary: '#f59e0b', desc: 'Growth, Wealth & Trade' },
   { id: 'forest_mint', category: 'commerce', name: 'Forest & Mint', primary: '#047857', secondary: '#34d399', desc: 'Organics & Supermarket' },
-  { id: 'copper_tangerine', category: 'commerce', name: 'Copper & Amber', primary: '#ea580c', secondary: '#f59e0b', desc: 'Hardware & Construction' },
+  { id: 'copper_tangerine', category: 'commerce', name: 'Copper & Amber', primary: '#ea580c', secondary: '#f59e0b', desc: 'Hardware & Tools' },
   { id: 'royal_coral', category: 'commerce', name: 'Royal & Coral', primary: '#1d4ed8', secondary: '#f97316', desc: 'Energetic Retail & Trade' },
+  { id: 'espresso_caramel', category: 'commerce', name: 'Espresso & Caramel', primary: '#78350f', secondary: '#f59e0b', desc: 'Artisan Cafe & Bakery' },
+  { id: 'chili_lime', category: 'commerce', name: 'Chili & Lime', primary: '#dc2626', secondary: '#84cc16', desc: 'Restaurant & Food Service' },
+  { id: 'navy_sun', category: 'commerce', name: 'Navy & Sunflower', primary: '#1e3a8a', secondary: '#eab308', desc: 'Department Store & Mart' },
+
+  // Health, Medical & Wellness
+  { id: 'cyan_emerald', category: 'wellness', name: 'Cyan & Mint', primary: '#0891b2', secondary: '#10b981', desc: 'Pharmacy & Clinic' },
+  { id: 'teal_sage', category: 'wellness', name: 'Teal & Sage', primary: '#0f766e', secondary: '#86efac', desc: 'Wellness Spa & Therapeutics' },
+  { id: 'cobalt_ice', category: 'wellness', name: 'Cobalt & Ice Blue', primary: '#2563eb', secondary: '#67e8f9', desc: 'Dental & Diagnostics' },
+  { id: 'leaf_sun', category: 'wellness', name: 'Leaf Green & Amber', primary: '#16a34a', secondary: '#eab308', desc: 'Nutrition & Herbal Stores' },
+  { id: 'lavender_sky', category: 'wellness', name: 'Lavender & Sky', primary: '#7c3aed', secondary: '#38bdf8', desc: 'Physiotherapy & Care' },
+
+  // Creative, Studio & Events
+  { id: 'fuchsia_amber', category: 'creative', name: 'Fuchsia & Amber', primary: '#c026d3', secondary: '#f59e0b', desc: 'Creative Agency & Events' },
+  { id: 'violet_gold', category: 'creative', name: 'Violet & Gold', primary: '#6d28d9', secondary: '#facc15', desc: 'Media & Production' },
+  { id: 'coral_teal', category: 'creative', name: 'Coral & Turquoise', primary: '#ff5a5f', secondary: '#06b6d4', desc: 'Interior Design & Decor' },
+  { id: 'magenta_cyan', category: 'creative', name: 'Magenta & Cyan Pop', primary: '#db2777', secondary: '#00f2fe', desc: 'Print & Graphic Studio' },
+  { id: 'botanical_poppy', category: 'creative', name: 'Botanical & Poppy', primary: '#15803d', secondary: '#f43f5e', desc: 'Florist & Event Design' },
+
+  // Logistics, Industry & Trade
+  { id: 'slate_tangerine', category: 'industrial', name: 'Slate & Tangerine', primary: '#334155', secondary: '#f97316', desc: 'Warehousing & Logistics' },
+  { id: 'steel_gold', category: 'industrial', name: 'Steel Blue & Gold', primary: '#1e40af', secondary: '#eab308', desc: 'Freight & Machinery' },
+  { id: 'charcoal_emerald', category: 'industrial', name: 'Charcoal & Emerald', primary: '#1f2937', secondary: '#10b981', desc: 'Supply Chain & Cargo' },
+  { id: 'iron_flame', category: 'industrial', name: 'Iron & Crimson', primary: '#475569', secondary: '#ef4444', desc: 'Automotive & Industrial' },
 
   // Executive, Dark & Luxury
   { id: 'obsidian_amber', category: 'luxury', name: 'Obsidian & Gold', primary: '#18181b', secondary: '#eab308', desc: 'Executive Carbon Black' },
   { id: 'midnight_cyan', category: 'luxury', name: 'Midnight & Cyan', primary: '#0f172a', secondary: '#38bdf8', desc: 'Corporate & Consulting' },
-  { id: 'slate_emerald', category: 'luxury', name: 'Slate & Emerald', primary: '#334155', secondary: '#10b981', desc: 'Logistics & Supply Chain' }
+  { id: 'slate_emerald', category: 'luxury', name: 'Slate & Emerald', primary: '#1e293b', secondary: '#10b981', desc: 'Private Wealth & Assets' },
+  { id: 'monochrome_pearl', category: 'luxury', name: 'Onyx & Pearl', primary: '#09090b', secondary: '#94a3b8', desc: 'Minimalist Prestige' },
+  { id: 'bordeaux_gold', category: 'luxury', name: 'Bordeaux & Gold', primary: '#4c0519', secondary: '#f59e0b', desc: 'Fine Dining & Vintage' },
+  { id: 'royal_champagne', category: 'luxury', name: 'Royal & Champagne', primary: '#312e81', secondary: '#fbbf24', desc: 'Heritage & High-End' }
 ];
 
 /**

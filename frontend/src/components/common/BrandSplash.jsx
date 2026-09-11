@@ -66,6 +66,9 @@ const BrandSplash = ({
           <img
             src={wealllFullLogo}
             alt="WeAlll Inventory Management System"
+            width="200"
+            height="64"
+            decoding="async"
             className="h-14 sm:h-16 w-auto object-contain animate-pulse-subtle"
           />
         </div>

@@ -2,6 +2,35 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function() {
+        var isVitalsBug = function(msg, stack) {
+          var m = String(msg || '');
+          var s = String(stack || '');
+          return m.indexOf('startTime') !== -1 || m.indexOf('reportAllChanges') !== -1 || s.indexOf('reportAllChanges') !== -1;
+        };
+        window.addEventListener('error', function(e) {
+          if (isVitalsBug(e.message, e.error && e.error.stack)) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return true;
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(e) {
+          var r = e.reason;
+          if (isVitalsBug(r && (r.message || r), r && r.stack)) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+          }
+        }, true);
+        var _err = console.error;
+        console.error = function() {
+          var text = Array.prototype.slice.call(arguments).map(function(a) { return String(a && a.stack ? a.stack : a); }).join(' ');
+          if (isVitalsBug(text, text)) return;
+          _err.apply(console, arguments);
+        };
+      })();
+    </script>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>WeAlll Inventory</title>
@@ -12,9 +41,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="WeAlll" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    </noscript>
   </head>
   <body class="font-sans bg-gray-50 text-gray-900 antialiased">
     <div id="root"></div>

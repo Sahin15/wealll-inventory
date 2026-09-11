@@ -290,6 +290,10 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
             <img
               src={wealllFullLogo}
               alt="WeAlll Inventory Management System"
+              width="140"
+              height="28"
+              loading="lazy"
+              decoding="async"
               className="h-7 w-auto object-contain"
             />
           </div>

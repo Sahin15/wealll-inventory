@@ -156,6 +156,8 @@ const DashboardLayout = () => {
               <img 
                 src={user.tenantId.logoUrl} 
                 alt={user?.tenantId?.businessName || "Business Logo"} 
+                width="160"
+                height="48"
                 className="max-h-full max-w-full object-contain"
                 loading="eager"
                 fetchPriority="high"

@@ -98,6 +98,10 @@ const MobileHeader = ({ title, subtitle, action, showBack, onBack }) => {
                   <img
                     src={user.tenantId.logoUrl}
                     alt={user?.tenantId?.businessName || 'Logo'}
+                    width="80"
+                    height="24"
+                    loading="lazy"
+                    decoding="async"
                     className="max-h-6 max-w-full object-contain"
                   />
                 </div>
@@ -106,6 +110,10 @@ const MobileHeader = ({ title, subtitle, action, showBack, onBack }) => {
                   <img
                     src={wealllFullLogo}
                     alt="WeAlll Inventory"
+                    width="100"
+                    height="20"
+                    loading="lazy"
+                    decoding="async"
                     className="h-5 w-auto object-contain"
                   />
                 </div>
