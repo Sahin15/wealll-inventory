@@ -124,10 +124,15 @@ const DashboardLayout = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm print:hidden ${globalSettings?.announcementText ? 'mt-12' : ''}`}>
+      <div 
+        className={`hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200/80 shadow-sm print:hidden ${globalSettings?.announcementText ? 'mt-12' : ''}`}
+        style={{
+          backgroundImage: 'linear-gradient(180deg, var(--brand-tint) 0%, rgba(255, 255, 255, 0) 22%)'
+        }}
+      >
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center justify-center h-20 w-full py-3 px-4 flex-shrink-0 border-b border-gray-100 bg-white relative">
-            <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'var(--brand-gradient)' }} />
+          <div className="flex items-center justify-center h-20 w-full py-3 px-4 flex-shrink-0 border-b border-gray-100/90 bg-white/80 backdrop-blur-sm relative">
+            <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'var(--brand-gradient)' }} />
             {user?.tenantId?.logoUrl ? (
               <img 
                 src={user.tenantId.logoUrl} 
@@ -144,40 +149,65 @@ const DashboardLayout = () => {
             )}
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto">
-            <nav className="flex-1 px-2 py-4 space-y-1">
+            <nav className="flex-1 px-3 py-4 space-y-1.5">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all ${
-                      isActive ? 'shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    className={`group flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all ${
+                      isActive 
+                        ? 'shadow-sm font-semibold' 
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                     style={isActive ? { 
-                      backgroundColor: 'var(--brand-color)', 
+                      background: 'var(--brand-gradient)', 
                       color: 'var(--brand-text-color)',
                       boxShadow: 'var(--brand-glow)'
                     } : {}}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = 'var(--brand-tint)';
+                        e.currentTarget.style.color = 'var(--brand-primary)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = '';
+                      }
+                    }}
                   >
-                    <item.icon
-                      className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                        isActive ? '' : 'text-gray-400 group-hover:text-gray-500'
+                    <div 
+                      className={`mr-3 flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                        isActive 
+                          ? 'bg-white/20 shadow-inner' 
+                          : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:shadow-sm'
                       }`}
                       style={isActive ? { color: 'var(--brand-text-color)' } : {}}
-                      aria-hidden="true"
-                    />
-                    {item.name}
+                    >
+                      <item.icon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <span className="truncate">{item.name}</span>
+                    {isActive && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white opacity-90" />
+                    )}
                   </Link>
                 );
               })}
             </nav>
           </div>
           {user.role === 'admin' && (
-            <div className="px-4 pb-4 mt-auto">
+            <div className="px-4 pb-3 mt-auto">
               <Link 
                 to="/my-space?tab=payments" 
-                className="flex items-center justify-center w-full bg-indigo-50 border border-indigo-100 text-indigo-700 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-100 hover:shadow transition-all"
+                className="flex items-center justify-center w-full border py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all"
+                style={{
+                  backgroundColor: 'var(--brand-tint)',
+                  borderColor: 'var(--brand-border)',
+                  color: 'var(--brand-primary)'
+                }}
               >
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -186,23 +216,39 @@ const DashboardLayout = () => {
               </Link>
             </div>
           )}
-          <div className={`px-4 ${user.role !== 'admin' ? 'mt-auto' : ''}`}>
-            <div className="flex items-center justify-center w-full h-20 overflow-hidden">
-              <img src={wealllFullLogo} alt="WeAlll Inventory" className="w-full h-full object-contain scale-[3] origin-center" />
+          <div className={`px-4 pb-2 ${user.role !== 'admin' ? 'mt-auto' : ''}`}>
+            <div className="flex items-center justify-center w-full h-16 overflow-hidden opacity-85 hover:opacity-100 transition-opacity">
+              <img src={wealllFullLogo} alt="WeAlll Inventory" className="w-full h-full object-contain scale-[2.7] origin-center" />
             </div>
           </div>
-          <div className="flex-shrink-0 flex border-t border-gray-200 p-4 bg-gray-50">
+          <div 
+            className="flex-shrink-0 flex border-t border-gray-100 p-3.5 transition-all"
+            style={{ backgroundColor: 'var(--brand-tint)' }}
+          >
             <div className="flex items-center w-full">
+              <div 
+                className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0"
+                style={{
+                  background: 'var(--brand-gradient)',
+                  color: 'var(--brand-text-color)'
+                }}
+              >
+                {(user.name || user.tenantId?.businessName || 'U').charAt(0).toUpperCase()}
+              </div>
               <div className="ml-3 flex-1 overflow-hidden">
-                <p className="text-sm font-semibold text-gray-900 truncate" title={user.tenantId?.businessName}>
+                <p className="text-xs font-bold text-gray-900 truncate" title={user.tenantId?.businessName}>
                   {user.tenantId?.businessName || 'Business Profile'}
                 </p>
-                <p className="text-xs font-medium text-gray-500 truncate" title={user.name}>
-                  {user.name} <span className="uppercase text-[10px] bg-gray-200 px-1 rounded">{user.role}</span>
+                <p className="text-[11px] font-medium text-gray-500 truncate" title={user.name}>
+                  {user.name} <span className="uppercase text-[9px] font-bold bg-white/90 border border-gray-200 px-1 py-0.5 rounded ml-1 text-gray-700">{user.role}</span>
                 </p>
               </div>
-              <button onClick={logout} className="ml-auto flex-shrink-0 p-1 text-gray-400 hover:text-red-500 rounded-full">
-                <LogOut className="h-5 w-5" />
+              <button 
+                onClick={logout} 
+                className="ml-auto flex-shrink-0 p-1.5 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
               </button>
             </div>
           </div>
