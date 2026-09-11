@@ -17,6 +17,7 @@ import {
   Percent, 
   FileText, 
   Sparkles,
+  ShieldCheck,
   RefreshCw,
   Check
 } from 'lucide-react';
@@ -27,6 +28,7 @@ import { DESIGNER_PRESETS, getHarmoniousRecommendations } from '../../utils/colo
 const MySpace = () => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
+  const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(location.search);
@@ -158,46 +160,48 @@ const MySpace = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12 w-full">
+    <div className="max-w-5xl mx-auto space-y-6 pb-12">
       {/* ========================================================================= */}
-      {/* Header Profile Summary Banner (Clean, Consistent Light Theme)              */}
+      {/* Header Profile Summary Banner                                             */}
       {/* ========================================================================= */}
-      <div className="bg-white rounded-3xl shadow-sm p-6 sm:p-8 border border-gray-200/80 relative overflow-hidden transition-all duration-300">
-        {/* Top Dual Brand Accent Line using saved workspace colors */}
-        <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'var(--brand-dual-line)' }} />
-
-        {/* Ambient subtle glow from brand tint */}
-        <div 
-          className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 rounded-full pointer-events-none opacity-60 blur-3xl"
-          style={{ background: 'radial-gradient(circle, var(--brand-tint), transparent 70%)' }}
-        />
+      <div 
+        className="rounded-3xl shadow-xl p-6 sm:p-8 text-white relative overflow-hidden transition-all duration-300 border border-white/10"
+        style={{
+          background: settings.brandColor && settings.brandColor !== '#000000' 
+            ? `linear-gradient(135deg, ${settings.brandColor}, ${settings.secondaryColor || '#f43f5e'}, #1e1b4b)`
+            : 'linear-gradient(135deg, #4338ca, #f43f5e, #1e1b4b)'
+        }}
+      >
+        {/* Subtle Decorative Elements */}
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-indigo-400/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-2xl p-2.5 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-200/80">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/95 rounded-2xl p-2 shadow-xl flex-shrink-0 flex items-center justify-center overflow-hidden border-2 border-white/20">
               {settings.logoUrl ? (
                 <img src={settings.logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
               ) : (
-                <Building2 className="w-10 h-10 text-gray-400" />
+                <Building2 className="w-10 h-10 text-indigo-600" />
               )}
             </div>
 
             <div>
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
                   {settings.businessName || 'Your Business Workspace'}
                 </h1>
               </div>
-              <p className="text-gray-500 text-sm mt-0.5 font-medium">
+              <p className="text-indigo-200 text-sm mt-0.5 font-medium">
                 Owner: {settings.ownerName || user?.name}
               </p>
 
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 mt-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shadow-xs">
-                  <Star size={12} className="text-amber-500 fill-amber-400" />
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/25 shadow-inner">
+                  <Star size={12} className="text-amber-300" />
                   <span>{subscription ? `${subscription.planId?.name || 'Standard Plan'} (${subscription.status})` : 'Active Business'}</span>
                 </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-medium bg-gray-100 text-gray-600 border border-gray-200/80">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-medium bg-black/20 backdrop-blur-md text-indigo-100 border border-white/10">
                   Tenant ID: {user?.tenantId?._id ? user.tenantId._id.substring(0, 8).toUpperCase() : 'PORTAL'}
                 </span>
               </div>
@@ -208,7 +212,7 @@ const MySpace = () => {
             <button
               onClick={handleSubmit}
               disabled={saving}
-              className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold shadow-sm transition-all active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-indigo-900 hover:bg-gray-50 text-sm font-bold shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
             >
               <Save size={16} />
               <span>{saving ? 'Saving...' : 'Save Settings'}</span>
@@ -667,217 +671,84 @@ const MySpace = () => {
                     </div>
                   </div>
 
-                  {/* Live Dual-Color Interactive Preview Card (Authentic Light Theme) */}
-                  <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all">
-                    {/* Preview Card Bar */}
-                    <div className="px-5 py-3 bg-gray-50/90 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span className="text-xs font-bold text-gray-800">
-                          Live Theme Preview
-                        </span>
-                        <span className="text-[11px] text-gray-500 font-medium hidden sm:inline">
-                          (Updates instantly in real-time as you pick colors below)
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs font-mono">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 font-bold shadow-xs">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: settings.brandColor || '#4f46e5' }} />
-                          <span>Primary: {(settings.brandColor || '#4f46e5').toUpperCase()}</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-700 font-bold shadow-xs">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }} />
-                          <span>Secondary: {(settings.secondaryColor || '#f43f5e').toUpperCase()}</span>
-                        </span>
-                      </div>
+                  {/* Live Dual-Color Interactive Preview Card */}
+                  <div className="rounded-2xl border border-gray-200 overflow-hidden bg-slate-900 text-white shadow-md">
+                    <div className="px-4 py-2.5 bg-slate-800/80 border-b border-white/10 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-200 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Live Preview of Active Palette
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {settings.brandColor?.toUpperCase()} &times; {(settings.secondaryColor || '#f43f5e').toUpperCase()}
+                      </span>
                     </div>
 
-                    {/* Inner Mini Application Simulation (Light Theme) */}
-                    <div className="p-4 sm:p-5 bg-slate-50/50 space-y-4">
-                      {/* 1. Mini Top App Bar Simulation */}
-                      <div className="bg-white rounded-xl border border-gray-200/90 shadow-xs p-3 relative overflow-hidden flex items-center justify-between">
-                        {/* Dual Line Accent at top of nav bar */}
-                        <div 
-                          className="absolute top-0 left-0 right-0 h-1" 
-                          style={{
-                            background: `linear-gradient(90deg, ${settings.brandColor || '#4f46e5'}, ${settings.secondaryColor || '#f43f5e'})`
-                          }}
-                        />
-                        <div className="flex items-center gap-2.5">
-                          <div 
-                            className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs text-white shadow-xs"
+                    <div className="p-4 space-y-3">
+                      {/* Top Bar simulation */}
+                      <div 
+                        className="h-1.5 rounded-full"
+                        style={{
+                          background: `linear-gradient(90deg, ${settings.brandColor || '#4f46e5'}, ${settings.secondaryColor || '#f43f5e'})`
+                        }}
+                      />
+
+                      {/* Mock Elements */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                        {/* Mock Primary CTA */}
+                        <div className="p-3 rounded-xl bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold">Primary Element</span>
+                          <button
+                            type="button"
+                            tabIndex={-1}
                             style={{ backgroundColor: settings.brandColor || '#4f46e5' }}
+                            className="mt-2 text-xs font-bold text-white px-3 py-1.5 rounded-lg shadow-sm w-full text-center"
                           >
-                            {settings.appName ? settings.appName.charAt(0).toUpperCase() : 'W'}
-                          </div>
-                          <div>
-                            <div className="text-xs font-bold text-gray-900 leading-tight">
-                              {settings.appName || settings.businessName || 'Workspace App Bar'}
-                            </div>
-                            <div className="text-[10px] text-gray-400 font-medium leading-tight">
-                              Top Navigation Bar Preview
-                            </div>
-                          </div>
+                            Primary CTA
+                          </button>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span 
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-md"
-                            style={{
-                              backgroundColor: `${settings.secondaryColor || '#f43f5e'}18`,
-                              color: settings.secondaryColor || '#f43f5e',
-                              borderColor: `${settings.secondaryColor || '#f43f5e'}30`,
-                              borderWidth: '1px'
+
+                        {/* Mock Secondary Accent */}
+                        <div className="p-3 rounded-xl bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold">Secondary Accent</span>
+                          <div 
+                            style={{ 
+                              backgroundColor: `${settings.secondaryColor || '#f43f5e'}25`,
+                              borderColor: `${settings.secondaryColor || '#f43f5e'}50`,
+                              color: settings.secondaryColor || '#f43f5e'
                             }}
+                            className="mt-2 text-xs font-bold px-3 py-1.5 rounded-lg border text-center"
                           >
-                            Live Accent
-                          </span>
-                          <div 
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shadow-xs"
-                            style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }}
-                          >
-                            {(user?.name || 'A').charAt(0).toUpperCase()}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 2. Mini Dashboard Widgets Row */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {/* Widget 1: Primary KPI Card */}
-                        <div className="bg-white p-3.5 rounded-xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                              Total Revenue
-                            </span>
-                            <span 
-                              className="w-2.5 h-2.5 rounded-full"
-                              style={{ backgroundColor: settings.brandColor || '#4f46e5' }}
-                            />
-                          </div>
-                          <div 
-                            className="text-lg font-extrabold mt-1.5"
-                            style={{ color: settings.brandColor || '#4f46e5' }}
-                          >
-                            ₹1,42,850
-                          </div>
-                          <div className="text-[10px] text-gray-500 mt-0.5 flex items-center gap-1">
-                            <span className="text-emerald-600 font-semibold">+18.4%</span>
-                            <span>vs last week</span>
+                            +34.8% Batch Surge
                           </div>
                         </div>
 
-                        {/* Widget 2: Secondary Accent Card */}
-                        <div 
-                          className="p-3.5 rounded-xl border shadow-xs flex flex-col justify-between"
-                          style={{
-                            backgroundColor: `${settings.secondaryColor || '#f43f5e'}0a`,
-                            borderColor: `${settings.secondaryColor || '#f43f5e'}30`
-                          }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">
-                              Batch Revenue
-                            </span>
-                            <span 
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-                              style={{
-                                backgroundColor: `${settings.secondaryColor || '#f43f5e'}20`,
-                                color: settings.secondaryColor || '#f43f5e'
-                              }}
-                            >
-                              Secondary Accent
-                            </span>
-                          </div>
-                          <div 
-                            className="text-lg font-extrabold mt-1.5"
-                            style={{ color: settings.secondaryColor || '#f43f5e' }}
-                          >
-                            ₹54,200
-                          </div>
-                          <div className="text-[10px] font-medium" style={{ color: settings.secondaryColor || '#f43f5e' }}>
-                            Active Batches Stream
-                          </div>
-                        </div>
-
-                        {/* Widget 3: Button & Badge Preview */}
-                        <div className="bg-white p-3.5 rounded-xl border border-gray-200/90 shadow-xs flex flex-col justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                            Interactive Elements
-                          </span>
-                          <div className="mt-2 space-y-1.5">
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              style={{ backgroundColor: settings.brandColor || '#4f46e5' }}
-                              className="w-full py-1.5 px-3 rounded-lg text-xs font-bold text-white shadow-xs hover:opacity-90 transition text-center"
-                            >
-                              Primary CTA Button
-                            </button>
-                            <div 
-                              style={{
-                                backgroundColor: `${settings.secondaryColor || '#f43f5e'}14`,
-                                borderColor: `${settings.secondaryColor || '#f43f5e'}40`,
-                                color: settings.secondaryColor || '#f43f5e'
-                              }}
-                              className="w-full py-1 px-2 rounded-lg text-[11px] font-bold border text-center truncate"
-                            >
-                              +34.8% Batch Surge
+                        {/* Mock Dual Curve Chart */}
+                        <div className="p-3 rounded-xl bg-slate-800/60 border border-white/5 flex flex-col justify-between">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-slate-400 font-semibold">Dual Metric Trend</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.brandColor || '#4f46e5' }} />
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }} />
                             </div>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* 3. Mini Trend Chart Simulation (Light theme canvas) */}
-                      <div className="bg-white p-4 rounded-xl border border-gray-200/90 shadow-xs">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="text-xs font-bold text-gray-800">
-                            7-Day Revenue & Orders Trend
+                          {/* Mini SVG Curve */}
+                          <div className="h-7 w-full mt-1 flex items-end">
+                            <svg className="w-full h-full" viewBox="0 0 100 28" fill="none">
+                              <path 
+                                d="M 0 20 Q 25 5, 50 15 T 100 8" 
+                                stroke={settings.brandColor || '#4f46e5'} 
+                                strokeWidth="2.5" 
+                                strokeLinecap="round" 
+                              />
+                              <path 
+                                d="M 0 24 Q 25 18, 50 20 T 100 12" 
+                                stroke={settings.secondaryColor || '#f43f5e'} 
+                                strokeWidth="2" 
+                                strokeDasharray="3 3"
+                                strokeLinecap="round" 
+                              />
+                            </svg>
                           </div>
-                          <div className="flex items-center gap-3 text-[11px]">
-                            <span className="flex items-center gap-1 font-semibold" style={{ color: settings.brandColor || '#4f46e5' }}>
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.brandColor || '#4f46e5' }} />
-                              Revenue (Primary)
-                            </span>
-                            <span className="flex items-center gap-1 font-semibold" style={{ color: settings.secondaryColor || '#f43f5e' }}>
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: settings.secondaryColor || '#f43f5e' }} />
-                              Orders (Secondary)
-                            </span>
-                          </div>
-                        </div>
-                        {/* SVG Chart on light background */}
-                        <div className="h-16 w-full relative">
-                          <svg className="w-full h-full" viewBox="0 0 400 60" fill="none" preserveAspectRatio="none">
-                            <defs>
-                              <linearGradient id="previewPrimaryFill" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor={settings.brandColor || '#4f46e5'} stopOpacity="0.25" />
-                                <stop offset="100%" stopColor={settings.brandColor || '#4f46e5'} stopOpacity="0.0" />
-                              </linearGradient>
-                            </defs>
-                            {/* Grid lines */}
-                            <line x1="0" y1="15" x2="400" y2="15" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-                            <line x1="0" y1="35" x2="400" y2="35" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
-                            <line x1="0" y1="55" x2="400" y2="55" stroke="#e2e8f0" strokeWidth="1" />
-                            
-                            {/* Primary Area Fill & Line */}
-                            <path
-                              d="M 0 48 Q 70 12, 140 32 T 280 18 T 400 10 L 400 60 L 0 60 Z"
-                              fill="url(#previewPrimaryFill)"
-                            />
-                            <path
-                              d="M 0 48 Q 70 12, 140 32 T 280 18 T 400 10"
-                              stroke={settings.brandColor || '#4f46e5'}
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                            />
-
-                            {/* Secondary Line */}
-                            <path
-                              d="M 0 54 Q 70 38, 140 42 T 280 32 T 400 22"
-                              stroke={settings.secondaryColor || '#f43f5e'}
-                              strokeWidth="2"
-                              strokeDasharray="4 4"
-                              strokeLinecap="round"
-                            />
-                          </svg>
                         </div>
                       </div>
                     </div>
