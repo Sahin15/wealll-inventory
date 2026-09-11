@@ -30,7 +30,7 @@ const TopAppBar = ({ onOpenDrawer }) => {
   return (
     <div className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-200 px-4 h-14 flex items-center justify-between shadow-sm relative">
       {/* Top Brand Accent Line */}
-      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'var(--brand-gradient)' }} />
+      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'var(--brand-dual-line)' }} />
 
       <div className="flex items-center gap-3">
         {canGoBack ? (
@@ -74,9 +74,9 @@ const TopAppBar = ({ onOpenDrawer }) => {
           onClick={() => navigate('/my-space')}
           className="h-8 w-8 rounded-full border flex items-center justify-center shadow-sm flex-shrink-0 transition-all"
           style={{ 
-            backgroundColor: 'var(--brand-tint)', 
-            borderColor: 'var(--brand-border)',
-            color: 'var(--brand-primary)' 
+            backgroundColor: 'var(--brand-secondary-tint)', 
+            borderColor: 'var(--brand-secondary-border)',
+            color: 'var(--brand-secondary)' 
           }}
           aria-label="My Profile"
         >

@@ -189,12 +189,12 @@ const Dashboard = () => {
       >
         {/* Subtle Ambient Glow Orbs */}
         <div 
-          className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-25" 
+          className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-25" 
           style={{ backgroundColor: 'var(--brand-primary)' }}
         />
         <div 
-          className="absolute left-1/3 top-0 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-20" 
-          style={{ backgroundColor: 'var(--brand-light)' }}
+          className="absolute -right-12 top-0 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-20" 
+          style={{ backgroundColor: 'var(--brand-secondary)' }}
         />
 
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -337,22 +337,38 @@ const Dashboard = () => {
         <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Batch Revenue</span>
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 shadow-sm group-hover:scale-110 transition-transform">
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform"
+              style={{
+                backgroundColor: 'var(--brand-secondary-tint)',
+                color: 'var(--brand-secondary)',
+                borderColor: 'var(--brand-secondary-border)'
+              }}
+            >
               <GraduationCap size={20} />
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-purple-900 tracking-tight">
+            <div 
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+              style={{ color: 'var(--brand-secondary)' }}
+            >
               {formatCurrency(data.batchRevenue || 0)}
             </div>
             <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-              <span className="inline-flex items-center font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">
+              <span 
+                className="inline-flex items-center font-bold px-1.5 py-0.5 rounded"
+                style={{
+                  backgroundColor: 'var(--brand-secondary-tint)',
+                  color: 'var(--brand-secondary)'
+                }}
+              >
                 {data.totalStudents || 0} students
               </span>
               <span>across {data.totalClasses || 0} batches</span>
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, var(--brand-secondary), var(--brand-primary))' }}></div>
         </div>
 
         {/* Card 4: Inventory Assets & Stock Health */}
@@ -429,7 +445,7 @@ const Dashboard = () => {
                       ? 'bg-white shadow-sm' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
-                  style={chartMetric === 'orders' ? { color: 'var(--brand-primary)' } : {}}
+                  style={chartMetric === 'orders' ? { color: 'var(--brand-secondary)' } : {}}
                 >
                   Orders Volume
                 </button>
@@ -459,8 +475,8 @@ const Dashboard = () => {
                     <stop offset="95%" stopColor={user?.tenantId?.brandColor || '#6366f1'} stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="dashboardOrdersGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor={user?.tenantId?.secondaryColor || '#06b6d4'} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={user?.tenantId?.secondaryColor || '#06b6d4'} stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -480,7 +496,7 @@ const Dashboard = () => {
                 <Area 
                   type="monotone" 
                   dataKey={chartMetric} 
-                  stroke={chartMetric === 'revenue' ? (user?.tenantId?.brandColor || '#6366f1') : '#10b981'} 
+                  stroke={chartMetric === 'revenue' ? (user?.tenantId?.brandColor || '#6366f1') : (user?.tenantId?.secondaryColor || '#06b6d4')} 
                   strokeWidth={2.5} 
                   fillOpacity={1} 
                   fill={chartMetric === 'revenue' ? 'url(#dashboardRevenueGrad)' : 'url(#dashboardOrdersGrad)'} 

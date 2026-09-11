@@ -102,7 +102,7 @@ const DashboardLayout = () => {
     { name: 'My Space', href: '/my-space', icon: UserCircle, roles: ['admin'] },
   ].filter(item => item.roles.includes(user.role));
 
-  const brandTheme = generateBrandTheme(user?.tenantId?.brandColor);
+  const brandTheme = generateBrandTheme(user?.tenantId?.brandColor, user?.tenantId?.secondaryColor);
 
   return (
     <div className="fixed inset-0 w-full bg-gray-50 flex overflow-hidden" style={brandTheme}>
@@ -132,7 +132,7 @@ const DashboardLayout = () => {
       >
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex items-center justify-center h-20 w-full py-3 px-4 flex-shrink-0 border-b border-gray-100/90 bg-white/80 backdrop-blur-sm relative">
-            <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'var(--brand-gradient)' }} />
+            <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'var(--brand-dual-line)' }} />
             {user?.tenantId?.logoUrl ? (
               <img 
                 src={user.tenantId.logoUrl} 
@@ -162,7 +162,7 @@ const DashboardLayout = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                     style={isActive ? { 
-                      background: 'var(--brand-gradient)', 
+                      backgroundColor: 'var(--brand-primary)', 
                       color: 'var(--brand-text-color)',
                       boxShadow: 'var(--brand-glow)'
                     } : {}}
@@ -204,9 +204,9 @@ const DashboardLayout = () => {
                 to="/my-space?tab=payments" 
                 className="flex items-center justify-center w-full border py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all"
                 style={{
-                  backgroundColor: 'var(--brand-tint)',
-                  borderColor: 'var(--brand-border)',
-                  color: 'var(--brand-primary)'
+                  backgroundColor: 'var(--brand-secondary-tint)',
+                  borderColor: 'var(--brand-secondary-border)',
+                  color: 'var(--brand-secondary)'
                 }}
               >
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -227,10 +227,9 @@ const DashboardLayout = () => {
           >
             <div className="flex items-center w-full">
               <div 
-                className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0"
+                className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 text-white"
                 style={{
-                  background: 'var(--brand-gradient)',
-                  color: 'var(--brand-text-color)'
+                  background: 'var(--brand-dual-line)'
                 }}
               >
                 {(user.name || user.tenantId?.businessName || 'U').charAt(0).toUpperCase()}

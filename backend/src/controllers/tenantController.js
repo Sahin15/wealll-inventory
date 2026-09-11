@@ -27,6 +27,7 @@ exports.getSettings = async (req, res) => {
         appName: tenant.appName,
         logoUrl: tenant.logoUrl,
         brandColor: tenant.brandColor,
+        secondaryColor: tenant.secondaryColor || '#f43f5e',
         status: tenant.status
       }
     });
@@ -41,11 +42,16 @@ exports.getSettings = async (req, res) => {
 // @access  Private/Admin
 exports.updateSettings = async (req, res) => {
   try {
-    const { businessName, ownerName, email, phone, businessPhone, businessAddress, taxRate, invoiceHeaderText, invoiceFooterText, appName, logoUrl, brandColor } = req.body;
+    const { businessName, ownerName, email, phone, businessPhone, businessAddress, taxRate, invoiceHeaderText, invoiceFooterText, appName, logoUrl, brandColor, secondaryColor } = req.body;
 
     // Validate brandColor if provided
     if (brandColor && !/^#([0-9A-F]{3}){1,2}$/i.test(brandColor)) {
-      return res.status(400).json({ success: false, error: 'Invalid brand color hex code' });
+      return res.status(400).json({ success: false, error: 'Invalid primary brand color hex code' });
+    }
+
+    // Validate secondaryColor if provided
+    if (secondaryColor && !/^#([0-9A-F]{3}){1,2}$/i.test(secondaryColor)) {
+      return res.status(400).json({ success: false, error: 'Invalid secondary color hex code' });
     }
 
     // Only update allowed fields. Ensure we use req.user.tenantId
@@ -63,7 +69,8 @@ exports.updateSettings = async (req, res) => {
         invoiceFooterText,
         appName,
         logoUrl,
-        brandColor
+        brandColor,
+        secondaryColor
       },
       { new: true, runValidators: true }
     );
@@ -89,6 +96,7 @@ exports.updateSettings = async (req, res) => {
         appName: tenant.appName,
         logoUrl: tenant.logoUrl,
         brandColor: tenant.brandColor,
+        secondaryColor: tenant.secondaryColor || '#f43f5e',
         status: tenant.status
       }
     });

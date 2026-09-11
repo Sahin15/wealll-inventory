@@ -70,7 +70,7 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ email })
       .select('+passwordHash')
-      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor status');
+      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor secondaryColor status');
     
     if (!user) {
       // Check for pending or rejected application
@@ -129,7 +129,7 @@ exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
       .select('-passwordHash')
-      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor status');
+      .populate('tenantId', 'appName logoUrl businessName ownerName businessPhone businessAddress brandColor secondaryColor status');
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }

@@ -14,6 +14,7 @@ const tenantSchema = new mongoose.Schema({
   appName: { type: String, default: "WeAlll Inventory" },
   logoUrl: { type: String },
   brandColor: { type: String, default: '#000000' },
+  secondaryColor: { type: String, default: '#f43f5e' },
   businessType: { type: String },
   city: { type: String },
   state: { type: String },
