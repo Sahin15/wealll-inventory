@@ -32,6 +32,74 @@ import {
   SECONDARY_QUICK_SWATCHES 
 } from '../../utils/colorUtils';
 
+const PLAN_ORDER = ['free', 'starter', 'professional', 'business'];
+
+const DEFAULT_SUBSCRIPTION_PLANS = [
+  {
+    _id: 'plan_free_tier',
+    name: 'Free',
+    slug: 'free',
+    description: 'Essential starter tools for solo artists and new studios exploring the platform.',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    features: [
+      'Up to 25 Products',
+      'Basic Inventory Tracking',
+      '1 Admin User',
+      'Community Support'
+    ],
+    isActive: true
+  },
+  {
+    _id: 'plan_starter_tier',
+    name: 'Starter',
+    slug: 'starter',
+    description: 'Perfect for new makeup artists or small studios just getting started.',
+    monthlyPrice: 199,
+    yearlyPrice: 1999,
+    features: [
+      'Up to 100 Products',
+      'Basic Analytics',
+      '1 Admin User',
+      'Standard Support'
+    ],
+    isActive: true
+  },
+  {
+    _id: 'plan_professional_tier',
+    name: 'Professional',
+    slug: 'professional',
+    description: 'Ideal for growing businesses needing more capacity and features.',
+    monthlyPrice: 299,
+    yearlyPrice: 3199,
+    features: [
+      'Unlimited Products',
+      'Advanced Analytics',
+      'Up to 5 Team Members',
+      'Priority Email Support',
+      'Custom Branding'
+    ],
+    isActive: true
+  },
+  {
+    _id: 'plan_business_tier',
+    name: 'Business',
+    slug: 'business',
+    description: 'For established salons and retail businesses with large teams.',
+    monthlyPrice: 599,
+    yearlyPrice: 6500,
+    features: [
+      'Unlimited Products & Categories',
+      'Full Reporting Suite',
+      'Unlimited Team Members',
+      'White-label Experience',
+      '24/7 Phone Support',
+      'Dedicated Account Manager'
+    ],
+    isActive: true
+  }
+];
+
 const MySpace = () => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
@@ -74,9 +142,31 @@ const MySpace = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState('monthly');
 
+  const displayPlans = React.useMemo(() => {
+    const backendMap = new Map();
+    (plans || []).forEach(p => {
+      const slug = (p.slug || p.name || '').toLowerCase();
+      backendMap.set(slug, p);
+    });
+
+    return PLAN_ORDER.map(slug => {
+      const dbPlan = backendMap.get(slug);
+      const defaultPlan = DEFAULT_SUBSCRIPTION_PLANS.find(p => p.slug === slug);
+      if (dbPlan) {
+        return {
+          ...defaultPlan,
+          ...dbPlan,
+          description: dbPlan.description || defaultPlan?.description,
+          features: dbPlan.features?.length ? dbPlan.features : defaultPlan?.features
+        };
+      }
+      return defaultPlan;
+    }).filter(Boolean);
+  }, [plans]);
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [activeTab]);
 
   const fetchData = async () => {
     try {
@@ -862,17 +952,24 @@ const MySpace = () => {
 
               {/* Available Plans Grid */}
               <div className="space-y-4 pt-4">
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Available Subscription Tiers</h3>
-                {plans.length === 0 ? (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Available Subscription Tiers</h3>
+                  <span className="text-xs text-gray-400 font-medium">From Free starter to full Business enterprise</span>
+                </div>
+
+                {displayPlans.length === 0 ? (
                   <div className="text-xs text-gray-400 italic">No alternative public plans found.</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {plans.map((p) => {
-                      const isCurrent = subscription?.planId?._id === p._id;
+                    {displayPlans.map((p) => {
+                      const isCurrent = 
+                        subscription?.planId?._id === p._id ||
+                        (subscription?.planId?.slug && subscription.planId.slug.toLowerCase() === p.slug?.toLowerCase()) ||
+                        (subscription?.planId?.name && subscription.planId.name.toLowerCase() === p.name?.toLowerCase());
                       const price = billingCycle === 'yearly' ? p.yearlyPrice : p.monthlyPrice;
                       return (
                         <div
-                          key={p._id}
+                          key={p.slug || p._id}
                           className={`rounded-2xl p-6 flex flex-col justify-between border transition-all ${
                             isCurrent
                               ? 'border-2 border-indigo-600 bg-indigo-50/20 shadow-md ring-2 ring-indigo-100'
