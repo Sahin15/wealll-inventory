@@ -105,29 +105,21 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [chartMetric, setChartMetric] = useState('revenue'); // 'revenue' | 'orders'
 
-  // Multi-language Pan-Indian greetings
-  const greetingsList = useMemo(() => [
-    'Namaste',
-    'Nomoshkar',
-    'Vanakkam',
-    'Aadaab',
-    'Namaskar',
-    'Sat Shri Akaal',
-    'Khurumjari',
-    'Namaskara',
-    'Welcome'
-  ], []);
-
-  const [greetingIndex, setGreetingIndex] = useState(() => Math.floor(Math.random() * 8));
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setGreetingIndex(prev => (prev + 1) % greetingsList.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [greetingsList]);
-
-  const currentGreeting = greetingsList[greetingIndex];
+  // Multi-language Pan-Indian greetings: picks a fresh greeting on every visit or page refresh
+  const greeting = useMemo(() => {
+    const greetingsList = [
+      'Namaste',
+      'Nomoshkar',
+      'Vanakkam',
+      'Aadaab',
+      'Namaskar',
+      'Sat Shri Akaal',
+      'Khurumjari',
+      'Namaskara',
+      'Welcome'
+    ];
+    return greetingsList[Math.floor(Math.random() * greetingsList.length)];
+  }, []);
 
   const fetchDashboard = async (isManualRefresh = false) => {
     try {
@@ -215,15 +207,7 @@ const Dashboard = () => {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2 flex-wrap">
-              <span 
-                key={currentGreeting}
-                onClick={() => setGreetingIndex(prev => (prev + 1) % greetingsList.length)}
-                className="inline-block transition-all duration-500 transform animate-in fade-in cursor-pointer hover:opacity-90 active:scale-95"
-                title="Click to change greeting (Namaste, Adaab, Vanakkam, Nomoshkar...)"
-              >
-                {currentGreeting}
-              </span>
-              <span>,</span>
+              <span>{greeting},</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-gray-200">
                 {user?.name || user?.tenantId?.ownerName || 'Admin'}
               </span>
