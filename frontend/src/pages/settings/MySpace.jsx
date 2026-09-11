@@ -25,6 +25,7 @@ import {
 import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
+import wealllFullLogo from '../../assets/wealll-full-logo-cropped.png';
 import { 
   DESIGNER_PRESETS, 
   PRESET_CATEGORIES, 
@@ -1065,6 +1066,21 @@ const MySpace = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* WeAlll Inventory Platform Branding Footer */}
+        <div className="border-t border-gray-100 bg-gray-50/60 py-6 px-4 flex flex-col items-center justify-center gap-1.5 text-center">
+          <span className="text-[10px] font-bold text-gray-400 tracking-wider uppercase">
+            Powered by
+          </span>
+          <img 
+            src={wealllFullLogo} 
+            alt="WeAlll Inventory Management System" 
+            className="h-8 sm:h-9 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" 
+          />
+          <p className="text-[11px] text-gray-400 font-medium">
+            Smart Inventory. Stronger Business.
+          </p>
         </div>
       </div>
 

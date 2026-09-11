@@ -21,7 +21,6 @@ import BottomNav from '../components/navigation/BottomNav';
 import SubscriptionBlocker from '../components/SubscriptionBlocker';
 import OfflineBanner from '../components/mobile/OfflineBanner';
 import PwaUpdater from '../components/PwaUpdater';
-import wealllFullLogo from '../assets/wealll-full-logo-cropped.png';
 import BrandSplash from '../components/common/BrandSplash';
 
 const DashboardLayout = () => {
@@ -235,13 +234,8 @@ const DashboardLayout = () => {
               </Link>
             </div>
           )}
-          <div className={`px-4 pb-2 ${user.role !== 'admin' ? 'mt-auto' : ''}`}>
-            <div className="flex items-center justify-center w-full h-12 opacity-90 hover:opacity-100 transition-opacity">
-              <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-9 w-auto object-contain" />
-            </div>
-          </div>
           <div 
-            className="flex-shrink-0 flex border-t border-gray-100 p-3.5 transition-all"
+            className="flex-shrink-0 flex border-t border-gray-100 p-3.5 transition-all mt-auto"
             style={{ backgroundColor: 'var(--brand-tint)' }}
           >
             <div className="flex items-center w-full">

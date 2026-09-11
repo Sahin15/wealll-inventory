@@ -10,7 +10,7 @@ import wealllFullLogo from '../../assets/wealll-full-logo-cropped.png';
 const BrandSplash = ({ 
   message = 'Signing you in to your workspace...', 
   tagline = 'Smart Inventory. Stronger Business.',
-  duration = 2200
+  duration = 2500
 }) => {
   const [progress, setProgress] = useState(20);
   const [currentStatus, setCurrentStatus] = useState('Verifying credentials...');

@@ -48,8 +48,10 @@ export const AuthProvider = ({ children }) => {
     checkUser();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, minDelay = 0) => {
+    const minDelayPromise = minDelay > 0 ? new Promise((resolve) => setTimeout(resolve, minDelay)) : Promise.resolve();
     const { data } = await api.post('/auth/login', { email, password });
+    await minDelayPromise;
     localStorage.setItem('token', data.data.token);
     localStorage.setItem('cached_user', JSON.stringify(data.data));
     setUser(data.data);

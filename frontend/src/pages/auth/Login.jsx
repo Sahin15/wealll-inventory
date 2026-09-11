@@ -19,13 +19,10 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const minDisplayTime = new Promise((resolve) => setTimeout(resolve, 2200));
 
     try {
-      const [user] = await Promise.all([
-        login(email, password),
-        minDisplayTime
-      ]);
+      // Guaranteed 2.5 seconds (2500ms) visible branding splash loader
+      const user = await login(email, password, 2500);
       if (user.role === 'superadmin') {
         navigate('/wealll-admin');
       } else {
@@ -40,9 +37,10 @@ const Login = () => {
   return (
     <div className="w-full max-w-md mx-auto relative">
       {loading && (
-        <BrandSplash 
-          message="Signing you in to your workspace..." 
-          tagline="Smart Inventory. Stronger Business." 
+        <BrandSplash
+          message="Signing you in to your workspace..."
+          tagline="Smart Inventory. Stronger Business."
+          duration={2500}
         />
       )}
       <div className="mb-8">
@@ -54,13 +52,13 @@ const Login = () => {
         {/* Hidden inputs to absorb browser autofill */}
         <input type="email" style={{ display: 'none' }} />
         <input type="password" style={{ display: 'none' }} />
-        
+
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-100">
             {error}
           </div>
         )}
-        
+
         <div className="space-y-4 sm:space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
@@ -117,9 +115,9 @@ const Login = () => {
 
         <div className="text-center text-sm pt-5 mt-5 border-t border-slate-100">
           <span className="text-slate-500">Don't have an account? </span>
-          <button 
-            type="button" 
-            onClick={() => setShowRegister(true)} 
+          <button
+            type="button"
+            onClick={() => setShowRegister(true)}
             className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600 hover:opacity-80 transition-opacity inline-flex items-center gap-1 focus:outline-none"
           >
             Apply for Registration <span className="text-lg leading-none text-violet-600">→</span>
