@@ -4,6 +4,20 @@ const SubscriptionPlan = require('../src/models/SubscriptionPlan');
 
 const plans = [
   {
+    name: 'Free',
+    slug: 'free',
+    description: 'Essential starter tools for solo artists and new studios exploring the platform.',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    features: [
+      'Up to 25 Products',
+      'Basic Inventory Tracking',
+      '1 Admin User',
+      'Community Support'
+    ],
+    isActive: true
+  },
+  {
     name: 'Starter',
     slug: 'starter',
     description: 'Perfect for new makeup artists or small studios just getting started.',

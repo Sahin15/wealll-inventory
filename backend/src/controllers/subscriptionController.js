@@ -5,7 +5,7 @@ exports.getCurrentSubscription = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
     
-    const plans = await SubscriptionPlan.find({ isActive: true });
+    const plans = await SubscriptionPlan.find({ isActive: true }).sort({ monthlyPrice: 1 });
     
     const subscription = await Subscription.findOne({ tenantId }).populate('planId');
     

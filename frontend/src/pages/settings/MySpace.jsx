@@ -866,7 +866,7 @@ const MySpace = () => {
                 {plans.length === 0 ? (
                   <div className="text-xs text-gray-400 italic">No alternative public plans found.</div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {plans.map((p) => {
                       const isCurrent = subscription?.planId?._id === p._id;
                       const price = billingCycle === 'yearly' ? p.yearlyPrice : p.monthlyPrice;
@@ -888,11 +888,23 @@ const MySpace = () => {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 mb-4">{p.description}</p>
+                            <p className="text-xs text-gray-500 mb-4 min-h-[32px]">{p.description}</p>
 
-                            <div className="text-2xl font-extrabold text-gray-900 mb-4">
-                              ₹{price}
-                              <span className="text-xs font-normal text-gray-400 ml-1">/{billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                            <div className="text-2xl font-extrabold text-gray-900 mb-4 flex items-baseline">
+                              {price === 0 ? (
+                                <>
+                                  <span>Free</span>
+                                  <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 ml-2">
+                                    ₹0
+                                  </span>
+                                  <span className="text-xs font-normal text-gray-400 ml-1">/{billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>₹{price}</span>
+                                  <span className="text-xs font-normal text-gray-400 ml-1">/{billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                                </>
+                              )}
                             </div>
 
                             <div className="space-y-2 mb-6 border-t border-gray-100 pt-4">
