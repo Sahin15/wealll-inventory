@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, LogOut, Download } from 'lucide-react';
+import { X, LogOut, Download, Sparkles, ChevronRight, Shield } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import wealllFullLogo from '../../assets/wealll-full-logo.png';
 
-const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes }) => {
+const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes = [] }) => {
   const { logout } = useContext(AuthContext);
   const location = useLocation();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -14,9 +14,10 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes }) => {
     if (isOpen) {
       onClose();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  // Capture PWA install prompt
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
@@ -35,72 +36,247 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes }) => {
     }
   };
 
+  if (!isOpen) return null;
+
+  // Group overflow routes into categorized sections
+  const operationalRoutes = overflowRoutes.filter((r) =>
+    ['/purchases', '/categories', '/classes'].includes(r.href)
+  );
+  const businessRoutes = overflowRoutes.filter((r) =>
+    ['/analytics'].includes(r.href)
+  );
+  const adminRoutes = overflowRoutes.filter((r) =>
+    ['/team', '/my-space'].includes(r.href)
+  );
+  const otherRoutes = overflowRoutes.filter(
+    (r) =>
+      !operationalRoutes.includes(r) &&
+      !businessRoutes.includes(r) &&
+      !adminRoutes.includes(r)
+  );
+
   return (
-    <>
+    <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end">
       {/* Backdrop */}
-      <div 
-        className={`fixed inset-0 bg-black bg-opacity-50 z-[100] md:hidden transition-opacity duration-300 ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`} 
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-fade-in"
         onClick={onClose}
+        aria-hidden="true"
       />
-      {/* Drawer */}
-      <div 
-        className={`fixed inset-y-0 right-0 w-64 bg-white shadow-xl z-[101] md:hidden flex flex-col transform transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 relative" style={{ backgroundColor: 'var(--brand-tint)' }}>
-          <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'var(--brand-gradient)' }} />
-          <div>
-            <h2 className="font-semibold text-gray-900">{user?.tenantId?.businessName || 'Menu'}</h2>
-            <p className="text-xs text-gray-500">{user?.name}</p>
+
+      {/* Slide-Up Bottom Sheet Hub */}
+      <div className="relative z-50 w-full bg-white rounded-t-3xl shadow-2xl max-h-[88vh] flex flex-col overflow-hidden pb-safe animate-slide-up">
+        {/* Drag pill */}
+        <div className="flex items-center justify-center pt-3 pb-1 cursor-pointer" onClick={onClose}>
+          <div className="w-10 h-1 bg-slate-300 rounded-full" />
+        </div>
+
+        {/* Header with User & Workspace Card */}
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shadow-sm shrink-0"
+              style={{ background: 'var(--brand-dual-line, #4f46e5)' }}
+            >
+              {(user?.tenantId?.businessName || user?.name || 'W').charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-slate-900 truncate">
+                {user?.tenantId?.businessName || 'WeAlll Inventory'}
+              </h2>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-xs text-slate-500 truncate">{user?.name}</span>
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                  <Shield className="w-2.5 h-2.5 text-indigo-500" />
+                  {user?.role}
+                </span>
+              </div>
+            </div>
           </div>
-          <button 
-            onClick={onClose} 
-            className="p-2 -mr-2 text-gray-500 hover:text-gray-900 min-h-[44px] min-w-[44px] flex items-center justify-center"
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="p-2 -mr-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full min-w-[40px] min-h-[40px] flex items-center justify-center"
           >
-            <X className="h-5 w-5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
-        
-        <div className="flex-1 overflow-y-auto py-2">
-          {overflowRoutes.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 min-h-[44px]"
-            >
-              <item.icon className="h-5 w-5 mr-3 text-gray-400" />
-              {item.name}
-            </Link>
-          ))}
-        </div>
-        
-        <div className="border-t border-gray-100 p-2 pb-safe">
-          {deferredPrompt && (
-            <button 
-              onClick={handleInstallClick}
-              className="w-full flex items-center px-4 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-md min-h-[44px]"
-            >
-              <Download className="h-5 w-5 mr-3" />
-              Install App
-            </button>
+
+        {/* Scrollable Categories List */}
+        <div className="flex-1 overflow-y-auto momentum-scroll px-5 py-3 space-y-4">
+          {/* Operational Module */}
+          {operationalRoutes.length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 px-1">
+                Operations & Catalog
+              </p>
+              <div className="space-y-1">
+                {operationalRoutes.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center text-slate-600 group-hover:text-indigo-600 transition-colors">
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                        {item.name}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </Link>
+                ))}
+              </div>
+            </div>
           )}
-          <button 
+
+          {/* Business Intelligence */}
+          {businessRoutes.length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 px-1">
+                Analytics & Reports
+              </p>
+              <div className="space-y-1">
+                {businessRoutes.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center text-slate-600 group-hover:text-indigo-600 transition-colors">
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                        {item.name}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Administration & Space */}
+          {adminRoutes.length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 px-1">
+                Administration
+              </p>
+              <div className="space-y-1">
+                {adminRoutes.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center text-slate-600 group-hover:text-indigo-600 transition-colors">
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                        {item.name}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Any other routes */}
+          {otherRoutes.length > 0 && (
+            <div>
+              <div className="space-y-1">
+                {otherRoutes.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700">
+                        {item.name}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-300" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* PWA Install Banner */}
+          {deferredPrompt && (
+            <div className="p-3 bg-indigo-50/80 border border-indigo-100 rounded-2xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Download className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-indigo-950 truncate">Install App</p>
+                  <p className="text-[11px] text-indigo-700 truncate">Add to home screen</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="px-3 py-1.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-sm hover:bg-indigo-700 active:scale-95 transition-all shrink-0"
+              >
+                Install
+              </button>
+            </div>
+          )}
+
+          {/* Upgrade Plan link for admin */}
+          {user?.role === 'admin' && (
+            <Link
+              to="/my-space?tab=payments"
+              className="flex items-center justify-between p-3 rounded-2xl border transition-all"
+              style={{
+                backgroundColor: 'var(--brand-secondary-tint, #f0fdf4)',
+                borderColor: 'var(--brand-secondary-border, #bbf7d0)',
+                color: 'var(--brand-secondary, #16a34a)',
+              }}
+            >
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-xs font-bold">Manage Subscription & Plans</span>
+              </div>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          )}
+        </div>
+
+        {/* Footer with Sign Out and WeAlll Branding */}
+        <div className="border-t border-slate-100 px-5 py-3 bg-slate-50/50 flex flex-col gap-2.5">
+          <button
+            type="button"
             onClick={logout}
-            className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 active:bg-red-100 rounded-md min-h-[44px]"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-rose-600 bg-rose-50/80 hover:bg-rose-100 active:bg-rose-200 border border-rose-200/70 rounded-xl transition-colors min-h-[44px]"
           >
-            <LogOut className="h-5 w-5 mr-3" />
-            Logout
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </button>
-          
-          <div className="mt-8 mb-4 flex justify-center w-full h-12 overflow-hidden opacity-90">
-            <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[3.5] origin-center" />
+
+          <div className="flex items-center justify-center pt-1 opacity-70">
+            <img
+              src={wealllFullLogo}
+              alt="WeAlll"
+              className="h-5 object-contain"
+            />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

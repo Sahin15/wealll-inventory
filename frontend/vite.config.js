@@ -11,21 +11,30 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icons.svg'], // we'll use actual files
       manifest: {
         name: 'WeAlll Inventory',
-        short_name: 'Inventory',
-        description: 'Multi-tenant inventory management system',
-        theme_color: '#ffffff',
-        background_color: '#f9fafb',
+        short_name: 'WeAlll',
+        description: 'Smart multi-tenant business inventory, sales and operations system',
+        theme_color: '#4f46e5',
+        background_color: '#f8fafc',
         display: 'standalone',
+        orientation: 'portrait-primary',
         icons: [
           {
             src: 'icons/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'icons/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-maskable-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       },

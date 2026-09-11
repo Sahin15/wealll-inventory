@@ -18,6 +18,8 @@ import { getContrastYIQ, generateBrandTheme } from '../utils/colorUtils';
 import TopAppBar from '../components/navigation/TopAppBar';
 import BottomNav from '../components/navigation/BottomNav';
 import SubscriptionBlocker from '../components/SubscriptionBlocker';
+import OfflineBanner from '../components/mobile/OfflineBanner';
+import PwaUpdater from '../components/PwaUpdater';
 import wealllFullLogo from '../assets/wealll-full-logo.png';
 
 const DashboardLayout = () => {
@@ -256,9 +258,10 @@ const DashboardLayout = () => {
 
       {/* Main Content */}
       <div className={`md:pl-64 flex flex-col flex-1 print:pl-0 min-w-0 h-full ${globalSettings?.announcementText ? 'pt-12' : ''}`}>
+        <OfflineBanner />
         <TopAppBar onOpenDrawer={() => setDrawerOpen(true)} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="py-4 md:py-6 px-4 sm:px-6 md:px-8 pb-10 md:pb-6 w-full max-w-full">
+          <div className="py-4 md:py-6 px-3.5 sm:px-6 md:px-8 pb-safe-nav md:pb-6 w-full max-w-full">
             <Outlet />
           </div>
         </main>
@@ -269,6 +272,7 @@ const DashboardLayout = () => {
           onOpenDrawer={() => setDrawerOpen(true)} 
           onCloseDrawer={() => setDrawerOpen(false)} 
         />
+        <PwaUpdater />
       </div>
     </div>
   );

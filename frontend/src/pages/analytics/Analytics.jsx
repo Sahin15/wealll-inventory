@@ -20,6 +20,7 @@ import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateFormatter';
+import SegmentedTabs from '../../components/mobile/SegmentedTabs';
 
 const DATE_RANGE_OPTIONS = [
   { label: 'Today', value: 'today' },
@@ -134,14 +135,14 @@ const Analytics = () => {
         </div>
 
         {/* Date Filter & Refresh Toolbar */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="bg-white border border-gray-200 rounded-xl p-1 shadow-2xs flex items-center gap-1 overflow-x-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="bg-white border border-gray-200 rounded-xl p-1 shadow-2xs flex items-center gap-1 overflow-x-auto no-scrollbar momentum-scroll w-full sm:w-auto">
             {DATE_RANGE_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => setDateRange(opt.value)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 ${
+                className={`px-3 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 min-h-[36px] ${
                   dateRange === opt.value
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -156,7 +157,7 @@ const Analytics = () => {
             type="button"
             onClick={() => fetchAnalytics(dateRange)}
             disabled={loading}
-            className="p-2.5 bg-white border border-gray-200 text-gray-600 hover:text-indigo-600 hover:border-indigo-200 rounded-xl shadow-2xs transition-all cursor-pointer"
+            className="p-2.5 bg-white border border-gray-200 text-gray-600 hover:text-indigo-600 hover:border-indigo-200 rounded-xl shadow-2xs transition-all cursor-pointer shrink-0 min-h-[40px] min-w-[40px] flex items-center justify-center"
             title="Refresh analytics data"
           >
             <RotateCw size={16} className={loading ? 'animate-spin text-indigo-600' : ''} />
@@ -164,78 +165,76 @@ const Analytics = () => {
         </div>
       </div>
 
-      {/* Primary KPI Ribbon (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Primary KPI Ribbon (2x2 on Mobile, 4-col on Desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Consolidated Gross Revenue */}
-        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between border-l-4 border-indigo-600 bg-gradient-to-br from-white to-indigo-50/20">
+        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between border-l-4 border-indigo-600 bg-gradient-to-br from-white to-indigo-50/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Revenue</span>
-            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-              <TrendingUp size={18} />
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Revenue</span>
+            <div className="p-1.5 sm:p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+              <TrendingUp size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </div>
-          <div className="mt-3">
-            <p className="text-2xl font-black text-gray-900 tracking-tight">
+          <div className="mt-2 sm:mt-3">
+            <p className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight truncate">
               {formatCurrency(metrics.combinedRevenue)}
             </p>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500 mt-1 truncate">
               <span className="font-semibold text-emerald-700">Sales: {formatCurrency(metrics.productRevenue)}</span>
-              <span>•</span>
-              <span className="font-semibold text-indigo-600">Batches: {formatCurrency(metrics.batchRevenue)}</span>
             </div>
           </div>
         </div>
 
         {/* Card 2: Orders & Product Velocity */}
-        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between border-l-4 border-emerald-600 bg-gradient-to-br from-white to-emerald-50/20">
+        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between border-l-4 border-emerald-600 bg-gradient-to-br from-white to-emerald-50/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Product Sales</span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-              <ShoppingBag size={18} />
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Orders</span>
+            <div className="p-1.5 sm:p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+              <ShoppingBag size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </div>
-          <div className="mt-3">
-            <p className="text-2xl font-black text-gray-900 tracking-tight">
+          <div className="mt-2 sm:mt-3">
+            <p className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight">
               {metrics.totalSales} <span className="text-xs font-semibold text-gray-400">Orders</span>
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Avg Order Value: <strong className="text-gray-800">{formatCurrency(metrics.avgOrderValue)}</strong>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-1 truncate">
+              Avg: <strong className="text-gray-800">{formatCurrency(metrics.avgOrderValue)}</strong>
             </p>
           </div>
         </div>
 
         {/* Card 3: Est. Gross Profit & Margin */}
-        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between border-l-4 border-purple-600 bg-gradient-to-br from-white to-purple-50/20">
+        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between border-l-4 border-purple-600 bg-gradient-to-br from-white to-purple-50/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Est. Profit Margin</span>
-            <span className="text-xs font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-              {profit.profitMargin}% Margin
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Profit</span>
+            <span className="text-[10px] sm:text-xs font-extrabold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700">
+              {profit.profitMargin}%
             </span>
           </div>
-          <div className="mt-3">
-            <p className="text-2xl font-black text-purple-700 tracking-tight">
+          <div className="mt-2 sm:mt-3">
+            <p className="text-lg sm:text-2xl font-black text-purple-700 tracking-tight truncate">
               {formatCurrency(profit.totalProfit)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Revenue: {formatCurrency(profit.totalRevenue)} • Cost: {formatCurrency(profit.totalCost)}
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-1 truncate">
+              Cost: {formatCurrency(profit.totalCost)}
             </p>
           </div>
         </div>
 
         {/* Card 4: Outstanding Receivables / Dues */}
-        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-5 flex flex-col justify-between border-l-4 border-amber-500 bg-gradient-to-br from-white to-amber-50/20">
+        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between border-l-4 border-amber-500 bg-gradient-to-br from-white to-amber-50/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Outstanding Dues</span>
-            <div className="p-2 bg-amber-100 text-amber-700 rounded-xl">
-              <IndianRupee size={18} />
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Dues</span>
+            <div className="p-1.5 sm:p-2 bg-amber-100 text-amber-700 rounded-xl">
+              <IndianRupee size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </div>
-          <div className="mt-3">
-            <p className="text-2xl font-black text-rose-600 tracking-tight">
+          <div className="mt-2 sm:mt-3">
+            <p className="text-lg sm:text-2xl font-black text-rose-600 tracking-tight truncate">
               {formatCurrency(metrics.totalDue)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Sales: {formatCurrency(metrics.productDues)} • Tuition: {formatCurrency(metrics.batchDues)}
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-1 truncate">
+              Receivables due
             </p>
           </div>
         </div>
@@ -243,8 +242,21 @@ const Analytics = () => {
 
       {/* Main Analytics Container with View Tabs */}
       <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-        {/* Navigation Tabs */}
-        <div className="border-b border-gray-200 px-6 pt-4 flex items-center justify-between bg-gray-50/50">
+        {/* Mobile Segmented Control */}
+        <div className="p-3 border-b border-gray-100 md:hidden">
+          <SegmentedTabs
+            tabs={[
+              { id: 'OVERVIEW', label: 'Trends', icon: TrendingUp },
+              { id: 'PRODUCTS', label: 'Products', badge: topProducts.length, icon: Package },
+              { id: 'BATCHES', label: 'Batches', badge: batchPerformance.length, icon: GraduationCap }
+            ]}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+          />
+        </div>
+
+        {/* Desktop Navigation Tabs */}
+        <div className="hidden md:flex border-b border-gray-200 px-6 pt-4 items-center justify-between bg-gray-50/50">
           <div className="flex items-center gap-6 overflow-x-auto">
             <button
               type="button"
@@ -286,16 +298,16 @@ const Analytics = () => {
             </button>
           </div>
 
-          <span className="hidden sm:inline-block text-xs font-semibold text-gray-400 pb-3.5">
+          <span className="text-xs font-semibold text-gray-400 pb-3.5">
             Active Filter: <strong className="text-gray-700">{DATE_RANGE_OPTIONS.find(o => o.value === dateRange)?.label}</strong>
           </span>
         </div>
 
         {/* Tab 1: Overview & Revenue Trends */}
         {activeTab === 'OVERVIEW' && (
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-6">
             {/* Chart Area */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
@@ -309,7 +321,7 @@ const Analytics = () => {
                   <button
                     type="button"
                     onClick={() => setChartView('REVENUE')}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer min-h-[36px] ${
                       chartView === 'REVENUE' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'
                     }`}
                   >
@@ -318,7 +330,7 @@ const Analytics = () => {
                   <button
                     type="button"
                     onClick={() => setChartView('ORDERS')}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer min-h-[36px] ${
                       chartView === 'ORDERS' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-gray-500 hover:text-gray-800'
                     }`}
                   >
@@ -328,7 +340,7 @@ const Analytics = () => {
               </div>
 
               {/* Chart Canvas or Demonstration State */}
-              <div className="h-72 sm:h-80 md:h-96 w-full">
+              <div className="h-56 sm:h-80 md:h-96 w-full">
                 {salesTrend.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center bg-gray-50/50">
                     <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">

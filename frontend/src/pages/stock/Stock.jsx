@@ -21,6 +21,7 @@ import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateFormatter';
 import CategoryBadge from '../../components/CategoryBadge';
+import SegmentedTabs from '../../components/mobile/SegmentedTabs';
 
 const Stock = () => {
   const [activeTab, setActiveTab] = useState('available'); // 'available' | 'ledger'
@@ -270,41 +271,16 @@ const Stock = () => {
         </div>
       </div>
 
-      {/* Modern Segmented Tab Switcher */}
-      <div className="flex items-center p-1.5 bg-gray-100 rounded-xl max-w-md">
-        <button
-          onClick={() => setActiveTab('available')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'available'
-              ? 'bg-white text-indigo-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <Package size={16} />
-          <span>Available Stock</span>
-          <span className={`px-2 py-0.5 text-xs rounded-full ${
-            activeTab === 'available' ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-200 text-gray-700'
-          }`}>
-            {products.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('ledger')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
-            activeTab === 'ledger'
-              ? 'bg-white text-indigo-700 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <History size={16} />
-          <span>Stock Ledger</span>
-          <span className={`px-2 py-0.5 text-xs rounded-full ${
-            activeTab === 'ledger' ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-200 text-gray-700'
-          }`}>
-            {movements.length}
-          </span>
-        </button>
+      {/* Native App-Style Segmented Tab Switcher */}
+      <div className="max-w-md">
+        <SegmentedTabs
+          tabs={[
+            { id: 'available', label: 'Available Stock', icon: Package, badge: products.length },
+            { id: 'ledger', label: 'Stock Ledger', icon: History, badge: movements.length }
+          ]}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+        />
       </div>
 
       {/* Content for Available Stock */}
@@ -652,60 +628,89 @@ const Stock = () => {
                     const isOut = current === 0;
                     const estValue = current * (p.purchasePrice || 0);
 
+                    // Calculate visual health bar percentage (max out at 200% of min stock)
+                    const safeTarget = Math.max(min * 2, 5);
+                    const progressPercent = Math.min(Math.round((current / safeTarget) * 100), 100);
+
                     return (
                       <div 
                         key={p._id} 
-                        className={`p-4 flex flex-col gap-3 ${
-                          isOut ? 'bg-rose-50/25' : isLow ? 'bg-amber-50/25' : 'bg-white'
+                        onClick={() => handleViewProductHistory(p.name)}
+                        className={`p-4 flex flex-col gap-3 transition cursor-pointer select-none tap-highlight-transparent ${
+                          isOut ? 'bg-rose-50/30 hover:bg-rose-50/50' : isLow ? 'bg-amber-50/30 hover:bg-amber-50/50' : 'bg-white hover:bg-slate-50'
                         }`}
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <div>
-                            <h4 className="font-semibold text-gray-900 text-sm">{p.name}</h4>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              <span className="font-mono text-[11px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-slate-900 text-sm truncate">{p.name}</h4>
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                              <span className="font-mono text-[11px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
                                 SKU: {p.sku}
                               </span>
                               {p.categoryId && <CategoryBadge category={p.categoryId} />}
                             </div>
                           </div>
-                          <div>{getStockStatusBadge(current, min)}</div>
+                          <div className="shrink-0">{getStockStatusBadge(current, min)}</div>
+                        </div>
+
+                        {/* Visual Linear Stock Health Progress Bar */}
+                        <div className="space-y-1">
+                          <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                isOut
+                                  ? 'bg-rose-500'
+                                  : isLow
+                                  ? 'bg-amber-500'
+                                  : 'bg-emerald-500'
+                              }`}
+                              style={{ width: `${isOut ? 100 : Math.max(progressPercent, 6)}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                            <span>Min alert: {min} {p.unit || 'pcs'}</span>
+                            <span>Target: {safeTarget} {p.unit || 'pcs'}</span>
+                          </div>
                         </div>
 
                         {/* Numbers Grid */}
-                        <div className="grid grid-cols-3 gap-2 bg-gray-50/80 p-3 rounded-lg text-center border border-gray-100">
+                        <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-center border border-slate-100">
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-gray-400 block">Available</span>
-                            <span className={`text-base font-extrabold ${
-                              isOut ? 'text-rose-600' : isLow ? 'text-amber-600' : 'text-gray-900'
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Available</span>
+                            <span className={`text-base font-black ${
+                              isOut ? 'text-rose-600' : isLow ? 'text-amber-600' : 'text-slate-900'
                             }`}>
-                              {current} {p.unit || 'pcs'}
+                              {current} <span className="text-[10px] font-normal text-slate-500">{p.unit || 'pcs'}</span>
                             </span>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-gray-400 block">Selling MRP</span>
-                            <span className="text-sm font-bold text-gray-900">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Selling MRP</span>
+                            <span className="text-sm font-bold text-slate-900">
                               {formatCurrency(p.mrp || 0)}
                             </span>
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-gray-400 block">Total Value</span>
-                            <span className="text-sm font-semibold text-gray-900">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Total Value</span>
+                            <span className="text-sm font-semibold text-slate-900">
                               {formatCurrency(estValue)}
                             </span>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between pt-1">
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-slate-400">
                             Cost: {formatCurrency(p.purchasePrice || 0)} / {p.unit || 'pcs'}
                           </span>
                           <button
-                            onClick={() => handleViewProductHistory(p.name)}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2.5 py-1 rounded-md transition"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewProductHistory(p.name);
+                            }}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 active:bg-indigo-100 px-3 py-1.5 rounded-lg transition min-h-[36px]"
                           >
-                            <History size={12} />
-                            <span>View History</span>
+                            <History size={13} />
+                            <span>Ledger</span>
                           </button>
                         </div>
                       </div>
@@ -965,38 +970,66 @@ const Stock = () => {
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-gray-100">
-                  {paginatedLedgerMovements.map((m) => (
-                    <div key={m._id} className="p-4 flex flex-col gap-2.5">
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900 text-sm">{m.productId?.name || 'Unknown Product'}</h4>
-                          <span className="text-[11px] text-gray-400">{formatDate(m.createdAt, true)}</span>
-                        </div>
-                        <div>{getLedgerTypeBadge(m.type)}</div>
-                      </div>
+                  {paginatedLedgerMovements.map((m) => {
+                    const isIncoming = m.type === 'IN';
+                    const isOutgoing = m.type === 'OUT';
 
-                      <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg text-xs">
-                        <div>
-                          <span className="text-gray-400">Ref: </span>
-                          <span className="font-mono text-gray-700 font-medium">{m.referenceType || '-'}</span>
+                    return (
+                      <div key={m._id} className="p-4 flex items-center justify-between gap-3 hover:bg-slate-50 transition">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
+                              isIncoming
+                                ? 'bg-indigo-50 text-indigo-600'
+                                : isOutgoing
+                                ? 'bg-emerald-50 text-emerald-600'
+                                : 'bg-amber-50 text-amber-600'
+                            }`}
+                          >
+                            {isIncoming ? (
+                              <ArrowDownLeft className="w-5 h-5" />
+                            ) : isOutgoing ? (
+                              <ArrowUpRight className="w-5 h-5" />
+                            ) : (
+                              <SlidersHorizontal className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-slate-900 text-sm truncate">
+                              {m.productId?.name || 'Unknown Product'}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                              <span>{formatDate(m.createdAt, true)}</span>
+                              {m.referenceType && (
+                                <span className="font-mono bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded">
+                                  {m.referenceType}
+                                </span>
+                              )}
+                            </div>
+                            {m.note && (
+                              <p className="text-[11px] text-slate-500 italic mt-0.5 truncate">
+                                {m.note}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-gray-400">Qty: </span>
-                          <span className={`font-extrabold ${
-                            m.type === 'IN' ? 'text-indigo-600' : m.type === 'OUT' ? 'text-emerald-600' : 'text-amber-600'
-                          }`}>
-                            {m.type === 'IN' ? `+${m.quantity}` : (m.type === 'OUT' ? `-${m.quantity}` : m.quantity)}
+
+                        <div className="text-right shrink-0">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black ${
+                              isIncoming
+                                ? 'bg-indigo-50 text-indigo-700'
+                                : isOutgoing
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-amber-50 text-amber-700'
+                            }`}
+                          >
+                            {isIncoming ? `+${m.quantity}` : isOutgoing ? `-${m.quantity}` : m.quantity}
                           </span>
                         </div>
                       </div>
-
-                      {m.note && (
-                        <div className="text-xs text-gray-500 italic bg-amber-50/50 px-2 py-1 rounded border border-amber-100">
-                          {m.note}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Mobile View More Movements */}
                   {ledgerEndIndex < totalLedgerFiltered && (

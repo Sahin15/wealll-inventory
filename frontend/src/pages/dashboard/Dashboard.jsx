@@ -176,11 +176,35 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-8">
+      {/* Low Stock Urgent Mobile Banner */}
+      {lowStockCount > 0 && (
+        <Link
+          to="/stock"
+          className="flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl shadow-md active:scale-[0.99] transition-transform"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-white/20 rounded-xl backdrop-blur-xs">
+              <AlertTriangle size={18} className="text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-bold leading-tight">
+                {lowStockCount} Product{lowStockCount === 1 ? '' : 's'} Running Low
+              </p>
+              <p className="text-[11px] text-amber-100">Tap to inspect and reorder inventory</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-bold bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-lg backdrop-blur-xs">
+            <span>Restock</span>
+            <ChevronRight size={14} />
+          </div>
+        </Link>
+      )}
+
       {/* ========================================================================= */}
       {/* 1. EXECUTIVE HERO HEADER & QUICK ACTION BAR                                */}
       {/* ========================================================================= */}
       <div 
-        className="relative overflow-hidden rounded-2xl text-white p-6 sm:p-8 shadow-xl border transition-all"
+        className="relative overflow-hidden rounded-2xl text-white p-5 sm:p-8 shadow-xl border transition-all"
         style={{
           background: 'var(--brand-gradient)',
           borderColor: 'var(--brand-border)',
@@ -197,16 +221,18 @@ const Dashboard = () => {
           style={{ backgroundColor: 'var(--brand-secondary)' }}
         />
 
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white/90 shadow-inner">
-              <Sparkles size={13} className="text-amber-300" />
-              <span>{user?.tenantId?.businessName || user?.tenantId?.appName || 'Business Workspace'}</span>
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] sm:text-xs font-semibold text-white/90 shadow-inner">
+              <Sparkles size={12} className="text-amber-300" />
+              <span className="truncate max-w-[180px] sm:max-w-none">
+                {user?.tenantId?.businessName || user?.tenantId?.appName || 'Business Workspace'}
+              </span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-emerald-300 font-normal">Live System</span>
+              <span className="text-emerald-300 font-normal hidden sm:inline">Live System</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-1.5 flex-wrap">
               <span>{greeting},</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-gray-200">
                 {user?.name || user?.tenantId?.ownerName || 'Admin'}
@@ -214,44 +240,43 @@ const Dashboard = () => {
               <span>👋</span>
             </h1>
 
-            <p className="text-sm text-white/80 flex items-center gap-2 flex-wrap font-medium">
-              <span>Here's what's happening at <strong className="text-white font-semibold">{user?.tenantId?.businessName || user?.tenantId?.appName || 'your business'}</strong> today.</span>
+            <p className="text-xs sm:text-sm text-white/80 flex items-center gap-2 flex-wrap font-medium">
+              <span className="hidden sm:inline">Here's what's happening at <strong className="text-white font-semibold">{user?.tenantId?.businessName || user?.tenantId?.appName || 'your business'}</strong> today.</span>
+              <Calendar size={13} className="text-white/70" />
+              <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
               <span className="text-white/40">•</span>
-              <Calendar size={14} className="text-white/70" />
-              <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
-              <span className="text-white/40">•</span>
-              <span>{data.totalProducts} catalog products</span>
+              <span>{data.totalProducts} items</span>
               <span className="text-white/40">•</span>
               <span>{data.totalClasses || 0} batches</span>
             </p>
           </div>
 
           {/* Quick Actions Bar */}
-          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          <div className="flex items-center gap-2 w-full lg:w-auto overflow-x-auto no-scrollbar pt-1">
             {!isStaff && (
               <>
                 <Link 
                   to="/sales" 
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-900/30 transition-all active:scale-[0.98] shrink-0 min-h-[42px]"
                 >
-                  <ShoppingCart size={16} />
+                  <ShoppingCart size={15} />
                   <span>New Sale</span>
                 </Link>
 
                 <Link 
-                  to="/classes" 
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold backdrop-blur-sm border border-white/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  to="/purchases" 
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-semibold backdrop-blur-sm border border-white/20 transition-all active:scale-[0.98] shrink-0 min-h-[42px]"
                 >
-                  <BookOpen size={16} className="text-white/80" />
-                  <span>Schedule Batch</span>
+                  <PlusCircle size={15} className="text-amber-200" />
+                  <span>Restock</span>
                 </Link>
 
                 <Link 
-                  to="/purchases" 
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold backdrop-blur-sm border border-white/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  to="/classes" 
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold backdrop-blur-sm border border-white/20 transition-all active:scale-[0.98] shrink-0 min-h-[42px]"
                 >
-                  <PlusCircle size={16} className="text-amber-200" />
-                  <span>Restock / Purchase</span>
+                  <BookOpen size={15} className="text-white/80" />
+                  <span>Batch</span>
                 </Link>
               </>
             )}
@@ -260,144 +285,144 @@ const Dashboard = () => {
             <button
               onClick={() => fetchDashboard(true)}
               disabled={refreshing}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border border-white/15 transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border border-white/15 transition-all shadow-sm shrink-0 min-h-[42px] min-w-[42px] flex items-center justify-center cursor-pointer"
               title="Refresh Dashboard Data"
             >
-              <RefreshCw size={17} className={refreshing ? 'animate-spin text-white' : ''} />
+              <RefreshCw size={16} className={refreshing ? 'animate-spin text-white' : ''} />
             </button>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. EXECUTIVE KPI CARDS GRID                                               */}
+      {/* 2. EXECUTIVE KPI CARDS GRID (2x2 on mobile, 4-col on desktop)            */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Today's Sales */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Today's Sales</span>
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-sm group-hover:scale-110 transition-transform">
-              <TrendingUp size={20} />
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Today</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-xs">
+              <TrendingUp size={16} className="sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+          <div className="mt-2 sm:mt-3">
+            <div className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight truncate">
               {formatCurrency(data.todaySales || 0)}
             </div>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-              <span className="inline-flex items-center font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                {data.todayOrders || 0} order{(data.todayOrders || 0) === 1 ? '' : 's'}
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-500">
+              <span className="inline-flex items-center font-bold text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded text-[10px] sm:text-xs">
+                {data.todayOrders || 0} ord
               </span>
-              <span>today</span>
+              <span className="hidden sm:inline">today</span>
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
         </div>
 
         {/* Card 2: Month to Date Sales */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">This Month</span>
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Month</span>
             <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border shadow-xs"
               style={{
                 backgroundColor: 'var(--brand-tint)',
                 color: 'var(--brand-primary)',
                 borderColor: 'var(--brand-border)'
               }}
             >
-              <IndianRupee size={20} />
+              <IndianRupee size={16} className="sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
+          <div className="mt-2 sm:mt-3">
             <div 
-              className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+              className="text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-tight truncate"
               style={{ color: 'var(--brand-primary)' }}
             >
               {formatCurrency(data.monthlySales || 0)}
             </div>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-500">
               <span 
-                className="inline-flex items-center font-bold px-1.5 py-0.5 rounded"
+                className="inline-flex items-center font-bold px-1 py-0.5 rounded text-[10px] sm:text-xs"
                 style={{
                   backgroundColor: 'var(--brand-tint)',
                   color: 'var(--brand-primary)'
                 }}
               >
-                {data.monthlyOrders || 0} orders
+                {data.monthlyOrders || 0} ord
               </span>
-              <span>in current month</span>
+              <span className="hidden sm:inline">this month</span>
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: 'var(--brand-gradient)' }}></div>
         </div>
 
         {/* Card 3: Batch & Academy Collections */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Batch Revenue</span>
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Batches</span>
             <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border shadow-xs"
               style={{
                 backgroundColor: 'var(--brand-secondary-tint)',
                 color: 'var(--brand-secondary)',
                 borderColor: 'var(--brand-secondary-border)'
               }}
             >
-              <GraduationCap size={20} />
+              <GraduationCap size={16} className="sm:w-5 sm:h-5" />
             </div>
           </div>
-          <div className="mt-3">
+          <div className="mt-2 sm:mt-3">
             <div 
-              className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+              className="text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-tight truncate"
               style={{ color: 'var(--brand-secondary)' }}
             >
               {formatCurrency(data.batchRevenue || 0)}
             </div>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-500">
               <span 
-                className="inline-flex items-center font-bold px-1.5 py-0.5 rounded"
+                className="inline-flex items-center font-bold px-1 py-0.5 rounded text-[10px] sm:text-xs"
                 style={{
                   backgroundColor: 'var(--brand-secondary-tint)',
                   color: 'var(--brand-secondary)'
                 }}
               >
-                {data.totalStudents || 0} students
+                {data.totalStudents || 0} stu
               </span>
-              <span>across {data.totalClasses || 0} batches</span>
+              <span className="hidden sm:inline">enrolled</span>
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, var(--brand-secondary), var(--brand-primary))' }}></div>
         </div>
 
         {/* Card 4: Inventory Assets & Stock Health */}
-        <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-gray-200/80 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Stock Assets</span>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform ${
+            <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Stock Assets</span>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border shadow-xs ${
               lowStockCount > 0 
                 ? 'bg-amber-50 border-amber-200 text-amber-600' 
                 : 'bg-emerald-50 border-emerald-100 text-emerald-600'
             }`}>
-              {lowStockCount > 0 ? <AlertTriangle size={20} /> : <Boxes size={20} />}
+              {lowStockCount > 0 ? <AlertTriangle size={16} className="sm:w-5 sm:h-5" /> : <Boxes size={16} className="sm:w-5 sm:h-5" />}
             </div>
           </div>
-          <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+          <div className="mt-2 sm:mt-3">
+            <div className="text-lg sm:text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight truncate">
               {formatCurrency(data.totalStockValue || 0)}
             </div>
-            <div className="mt-1 flex items-center justify-between text-xs">
-              <span className="text-gray-500">
-                {(data.totalStockQuantity || 0).toLocaleString()} units total
+            <div className="mt-1 flex items-center justify-between text-[11px] sm:text-xs">
+              <span className="text-gray-500 truncate">
+                {(data.totalStockQuantity || 0).toLocaleString()} pcs
               </span>
               {lowStockCount > 0 ? (
-                <span className="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">
-                  {lowStockCount} low stock
+                <span className="font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 text-[10px]">
+                  {lowStockCount} low
                 </span>
               ) : (
-                <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                  Stock healthy
+                <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px]">
+                  Healthy
                 </span>
               )}
             </div>
@@ -466,9 +491,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="h-64 sm:h-72 w-full pt-4">
+          <div className="h-52 sm:h-72 w-full pt-2 sm:pt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.dailyTrends} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <AreaChart data={data.dailyTrends} margin={{ top: 10, right: 10, left: -15, sm: { left: 0 }, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dashboardRevenueGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={user?.tenantId?.brandColor || '#6366f1'} stopOpacity={0.4} />
@@ -482,12 +507,13 @@ const Dashboard = () => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis 
                   dataKey="label" 
-                  tick={{ fontSize: 11, fill: '#64748b' }} 
+                  tick={{ fontSize: 10, fill: '#64748b' }} 
                   axisLine={false} 
                   tickLine={false} 
+                  interval="preserveStartEnd"
                 />
                 <YAxis 
-                  tick={{ fontSize: 11, fill: '#64748b' }} 
+                  tick={{ fontSize: 10, fill: '#64748b' }} 
                   axisLine={false} 
                   tickLine={false} 
                   tickFormatter={val => chartMetric === 'revenue' ? (val >= 1000 ? `₹${(val / 1000).toFixed(0)}k` : `₹${val}`) : val}
@@ -537,7 +563,11 @@ const Dashboard = () => {
             {data.upcomingBatches?.length > 0 ? (
               <div className="divide-y divide-gray-100">
                 {data.upcomingBatches.map(batch => (
-                  <div key={batch._id} className="p-4 hover:bg-gray-50/70 transition-colors flex items-center justify-between gap-4">
+                  <Link 
+                    key={batch._id} 
+                    to={`/classes/${batch._id}`} 
+                    className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-4"
+                  >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
@@ -563,7 +593,7 @@ const Dashboard = () => {
                         <span>{batch.students?.length || 0} Enrolled</span>
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -601,7 +631,11 @@ const Dashboard = () => {
                 {data.recentSales.map(sale => {
                   const isVoided = sale.status === 'VOIDED';
                   return (
-                    <div key={sale._id} className="p-4 hover:bg-gray-50/70 transition-colors flex items-center justify-between gap-4">
+                    <Link 
+                      key={sale._id} 
+                      to="/sales" 
+                      className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-4"
+                    >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
@@ -628,7 +662,7 @@ const Dashboard = () => {
                           {sale.status || 'COMPLETED'}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -679,7 +713,11 @@ const Dashboard = () => {
                   const ratioPercent = Math.min(100, Math.round((current / min) * 100));
 
                   return (
-                    <div key={p._id} className="p-4 hover:bg-gray-50/70 transition-colors space-y-2">
+                    <Link 
+                      key={p._id} 
+                      to="/stock" 
+                      className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors space-y-2 block"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="font-bold text-gray-900 text-sm">{p.name}</div>
@@ -712,7 +750,7 @@ const Dashboard = () => {
                           style={{ width: `${Math.max(ratioPercent, 4)}%` }}
                         />
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -750,7 +788,11 @@ const Dashboard = () => {
                   const isIn = m.type === 'IN';
                   const isOut = m.type === 'OUT';
                   return (
-                    <div key={m._id} className="p-4 hover:bg-gray-50/70 transition-colors flex items-center justify-between gap-3">
+                    <Link 
+                      key={m._id} 
+                      to="/stock" 
+                      className="p-3.5 sm:p-4 hover:bg-gray-50/70 active:bg-gray-100 transition-colors flex items-center justify-between gap-3"
+                    >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           isIn ? 'bg-indigo-50 text-indigo-600' : isOut ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
@@ -778,7 +820,7 @@ const Dashboard = () => {
                           {m.type}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

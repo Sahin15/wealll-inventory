@@ -17,6 +17,7 @@ import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateFormatter';
+import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -453,15 +454,19 @@ const Purchases = () => {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-slate-100">
               {filteredPurchases.map((purchase) => (
-                <div key={purchase._id} className="p-4 flex flex-col gap-3 hover:bg-gray-50">
+                <div 
+                  key={purchase._id} 
+                  onClick={() => setViewModalPurchase(purchase)}
+                  className="p-4 flex flex-col gap-3 hover:bg-slate-50 active:bg-slate-100/70 transition cursor-pointer select-none tap-highlight-transparent"
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-bold text-indigo-600 text-sm">{purchase.invoiceNumber}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{formatDate(purchase.purchaseDate)}</div>
+                      <div className="text-xs text-slate-400 mt-0.5">{formatDate(purchase.purchaseDate)}</div>
                     </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                       purchase.status === 'VOIDED' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                     }`}>
                       {purchase.status || 'COMPLETED'}
@@ -469,16 +474,16 @@ const Purchases = () => {
                   </div>
 
                   <div>
-                    <div className="text-xs text-gray-500 font-semibold mb-1">
-                      Supplier: <span className="text-gray-900 font-bold">{purchase.supplierName}</span>
+                    <div className="text-xs text-slate-500 font-semibold mb-1">
+                      Supplier: <span className="text-slate-900 font-bold">{purchase.supplierName}</span>
                     </div>
-                    <div className="mt-2 text-xs text-gray-700 space-y-1.5 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                    <div className="mt-2 text-xs text-slate-700 space-y-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                       {purchase.items.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between">
-                          <span className="font-medium text-gray-800 truncate">
+                          <span className="font-medium text-slate-800 truncate">
                             {item.productId?.name || item.product?.name || 'Unknown Product'}
                           </span>
-                          <span className="font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-gray-200">
+                          <span className="font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-slate-200">
                             {item.quantity} {item.productId?.unit || 'pcs'}
                           </span>
                         </div>
@@ -486,19 +491,27 @@ const Purchases = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center border-t border-gray-100 pt-3 mt-1">
-                    <div className="font-extrabold text-gray-900 text-base">{formatCurrency(purchase.total)}</div>
+                  <div className="flex justify-between items-center border-t border-slate-100 pt-3 mt-1">
+                    <div className="font-extrabold text-slate-900 text-base">{formatCurrency(purchase.total)}</div>
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => setViewModalPurchase(purchase)}
-                        className="px-2.5 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg flex items-center gap-1"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewModalPurchase(purchase);
+                        }}
+                        className="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 active:bg-indigo-100 rounded-lg flex items-center gap-1 transition min-h-[36px]"
                       >
                         <Eye size={14} /> Details
                       </button>
                       {purchase.status !== 'VOIDED' && (
                         <button 
-                          onClick={() => setVoidModalPurchase(purchase)}
-                          className="px-2.5 py-1 text-xs font-medium text-rose-600 bg-rose-50 rounded-lg"
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setVoidModalPurchase(purchase);
+                          }}
+                          className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 active:bg-rose-100 rounded-lg transition min-h-[36px]"
                         >
                           Void
                         </button>
@@ -519,381 +532,438 @@ const Purchases = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* RECORD NEW PURCHASE MODAL DIALOG                                         */}
+      {/* RECORD NEW PURCHASE MODAL DIALOG (AdaptiveSheet)                         */}
       {/* ========================================================================= */}
-      {showPurchaseModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-gray-100">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm">
-                  <PackagePlus size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Record New Purchase</h3>
-                  <p className="text-xs text-gray-500">Log incoming stock and supplier invoice details</p>
-                </div>
+      <AdaptiveSheet
+        isOpen={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
+        title="Record New Purchase"
+        subtitle="Log incoming stock and supplier invoice details"
+        maxWidth="max-w-3xl"
+        footer={
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-3">
+            <div className="w-full sm:w-auto flex items-baseline justify-between sm:justify-start gap-2 text-xs">
+              <span className="font-bold text-gray-500 uppercase tracking-wider">Grand Total:</span>
+              <span className="text-xl font-extrabold text-indigo-600">{formatCurrency(formGrandTotal)}</span>
+              <span className="text-gray-400">({formTotalUnits} units)</span>
+            </div>
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPurchaseModal(false)}
+                className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition min-h-[44px] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="purchase-create-form"
+                disabled={submitting}
+                className="btn-primary inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold shadow-sm rounded-xl min-h-[44px] cursor-pointer disabled:opacity-50"
+              >
+                {submitting ? (
+                  <span>Recording...</span>
+                ) : (
+                  <>
+                    <span>Record Purchase</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <form id="purchase-create-form" onSubmit={handleCreatePurchase} className="space-y-6 p-4 sm:p-6">
+          {/* Invoice Primary Details */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Invoice Number *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.invoiceNumber}
+                onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
+                className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[42px]"
+                placeholder="e.g. INV-9021"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Supplier Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.supplierName}
+                onChange={e => setFormData({ ...formData, supplierName: e.target.value })}
+                className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[42px]"
+                placeholder="Vendor or Distributor"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Purchase Date
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.purchaseDate}
+                onChange={e => setFormData({ ...formData, purchaseDate: e.target.value })}
+                className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[42px]"
+              />
+            </div>
+          </div>
+
+          {/* Items Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-gray-900">Purchased Products & Stock</h4>
+                <p className="text-xs text-gray-500">Add all products included in this invoice</p>
               </div>
               <button
-                onClick={() => setShowPurchaseModal(false)}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition"
+                type="button"
+                onClick={handleAddItemRow}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-lg transition min-h-[40px] cursor-pointer"
               >
-                <X size={18} />
+                <Plus size={14} />
+                <span>Add Product</span>
               </button>
             </div>
 
-            {/* Modal Form Body */}
-            <form onSubmit={handleCreatePurchase} className="flex flex-col flex-1 overflow-hidden">
-              <div className="p-6 space-y-6 overflow-y-auto flex-1">
-                {/* Invoice Primary Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Invoice Number *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.invoiceNumber}
-                      onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                    />
-                  </div>
+            {/* Desktop Table View */}
+            <div className="hidden sm:block border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="grid grid-cols-12 bg-gray-50 px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                <div className="col-span-5">Product</div>
+                <div className="col-span-2 text-center">Qty</div>
+                <div className="col-span-2 text-right">Unit Cost (₹)</div>
+                <div className="col-span-2 text-right pr-3">Subtotal</div>
+                <div className="col-span-1 text-center">Action</div>
+              </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Supplier Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.supplierName}
-                      onChange={e => setFormData({ ...formData, supplierName: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                    />
-                  </div>
+              <div className="divide-y divide-gray-100 bg-white">
+                {formData.items.map((item, idx) => {
+                  const lineTotal = (Number(item.quantity) || 0) * (Number(item.unitCost) || 0);
+                  return (
+                    <div key={idx} className="px-4 py-3 grid grid-cols-12 gap-2.5 items-center">
+                      <div className="col-span-5">
+                        <select
+                          required
+                          value={item.productId}
+                          onChange={e => handleItemChange(idx, 'productId', e.target.value)}
+                          className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
+                        >
+                          <option value="">-- Select a product --</option>
+                          {products.map(p => (
+                            <option key={p._id} value={p._id}>
+                              {p.name} {p.sku ? `(SKU: ${p.sku})` : ''} - Stock: {p.currentStock} {p.unit || 'pcs'}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Purchase Date
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.purchaseDate}
-                      onChange={e => setFormData({ ...formData, purchaseDate: e.target.value })}
-                      className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                    />
-                  </div>
-                </div>
+                      <div className="col-span-2">
+                        <input
+                          type="number"
+                          required
+                          min="1"
+                          value={item.quantity}
+                          onChange={e => handleItemChange(idx, 'quantity', e.target.value)}
+                          className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg text-center font-bold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
+                        />
+                      </div>
 
-                {/* Items Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                      <div className="col-span-2">
+                        <input
+                          type="number"
+                          required
+                          step="0.01"
+                          min="0"
+                          value={item.unitCost}
+                          onChange={e => handleItemChange(idx, 'unitCost', e.target.value)}
+                          className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg text-right font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="col-span-2 text-right pr-3">
+                        <span className="text-sm font-bold text-gray-900">{formatCurrency(lineTotal)}</span>
+                      </div>
+
+                      <div className="col-span-1 text-center flex justify-center">
+                        <button
+                          type="button"
+                          disabled={formData.items.length <= 1}
+                          onClick={() => handleRemoveItemRow(idx)}
+                          className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+                          title="Remove item"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="sm:hidden space-y-3">
+              {formData.items.map((item, idx) => {
+                const lineTotal = (Number(item.quantity) || 0) * (Number(item.unitCost) || 0);
+                return (
+                  <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-slate-700">Item #{idx + 1}</span>
+                      {formData.items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItemRow(idx)}
+                          className="text-rose-600 text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                        >
+                          <Trash2 size={13} />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
                     <div>
-                      <h4 className="text-sm font-bold text-gray-900">Purchased Products & Stock</h4>
-                      <p className="text-xs text-gray-500">Add all products included in this invoice</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleAddItemRow}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition"
-                    >
-                      <Plus size={14} />
-                      <span>Add Another Product</span>
-                    </button>
-                  </div>
-
-                  {/* Dynamic Items Table */}
-                  <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <div className="hidden sm:grid sm:grid-cols-12 bg-gray-50 px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                      <div className="col-span-5">Product</div>
-                      <div className="col-span-2 text-center">Qty</div>
-                      <div className="col-span-2 text-right">Unit Cost (₹)</div>
-                      <div className="col-span-2 text-right pr-3">Subtotal</div>
-                      <div className="col-span-1 text-center">Action</div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                        Product *
+                      </label>
+                      <select
+                        required
+                        value={item.productId}
+                        onChange={e => handleItemChange(idx, 'productId', e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none min-h-[44px]"
+                      >
+                        <option value="">-- Select a product --</option>
+                        {products.map(p => (
+                          <option key={p._id} value={p._id}>
+                            {p.name} {p.sku ? `(${p.sku})` : ''} - Stock: {p.currentStock} {p.unit || 'pcs'}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    <div className="divide-y divide-gray-100 bg-white">
-                      {formData.items.map((item, idx) => {
-                        const lineTotal = (Number(item.quantity) || 0) * (Number(item.unitCost) || 0);
-                        return (
-                          <div key={idx} className="p-3 sm:px-4 sm:py-3 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
-                            {/* Product Selector */}
-                            <div className="sm:col-span-5">
-                              <label className="sm:hidden text-xs font-semibold text-gray-500 block mb-1">Product</label>
-                              <select
-                                required
-                                value={item.productId}
-                                onChange={e => handleItemChange(idx, 'productId', e.target.value)}
-                                className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
-                              >
-                                <option value="">-- Select a product --</option>
-                                {products.map(p => (
-                                  <option key={p._id} value={p._id}>
-                                    {p.name} {p.sku ? `(SKU: ${p.sku})` : ''} - Current: {p.currentStock} {p.unit || 'pcs'}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            {/* Quantity */}
-                            <div className="sm:col-span-2">
-                              <label className="sm:hidden text-xs font-semibold text-gray-500 block mb-1">Quantity</label>
-                              <input
-                                type="number"
-                                required
-                                min="1"
-                                value={item.quantity}
-                                onChange={e => handleItemChange(idx, 'quantity', e.target.value)}
-                                className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg text-center font-bold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
-                              />
-                            </div>
-
-                            {/* Unit Cost */}
-                            <div className="sm:col-span-2">
-                              <label className="sm:hidden text-xs font-semibold text-gray-500 block mb-1">Unit Cost (₹)</label>
-                              <input
-                                type="number"
-                                required
-                                step="0.01"
-                                min="0"
-                                value={item.unitCost}
-                                onChange={e => handleItemChange(idx, 'unitCost', e.target.value)}
-                                className="w-full px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg text-right font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
-                              />
-                            </div>
-
-                            {/* Line Total */}
-                            <div className="sm:col-span-2 text-right pr-3">
-                              <span className="sm:hidden text-xs font-semibold text-gray-500 mr-2">Line Total:</span>
-                              <span className="text-sm font-bold text-gray-900">{formatCurrency(lineTotal)}</span>
-                            </div>
-
-                            {/* Remove Row */}
-                            <div className="sm:col-span-1 text-center flex justify-end sm:justify-center">
-                              <button
-                                type="button"
-                                disabled={formData.items.length <= 1}
-                                onClick={() => handleRemoveItemRow(idx)}
-                                className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-30 disabled:hover:bg-transparent"
-                                title="Remove item"
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Notes & Summary Box */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                      Notes / Remarks (Optional)
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.notes}
-                      onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                      className="w-full p-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="bg-indigo-50/50 rounded-xl p-4 border border-indigo-100 flex flex-col justify-between">
-                    <div className="space-y-1.5 text-xs text-gray-600">
-                      <div className="flex justify-between">
-                        <span>Total Product Lines:</span>
-                        <span className="font-semibold text-gray-900">{formData.items.length}</span>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                          Quantity *
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min="1"
+                          value={item.quantity}
+                          onChange={e => handleItemChange(idx, 'quantity', e.target.value)}
+                          className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-center font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none min-h-[44px]"
+                        />
                       </div>
-                      <div className="flex justify-between">
-                        <span>Total Units Received:</span>
-                        <span className="font-semibold text-gray-900">{formTotalUnits} units</span>
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                          Unit Cost (₹) *
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          step="0.01"
+                          min="0"
+                          value={item.unitCost}
+                          onChange={e => handleItemChange(idx, 'unitCost', e.target.value)}
+                          className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-right font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none min-h-[44px]"
+                        />
                       </div>
                     </div>
-                    <div className="border-t border-indigo-100 pt-3 mt-2 flex justify-between items-baseline">
-                      <span className="text-xs font-bold uppercase text-indigo-900">Grand Total:</span>
-                      <span className="text-2xl font-extrabold text-indigo-700">{formatCurrency(formGrandTotal)}</span>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200 text-xs">
+                      <span className="font-semibold text-slate-500">Line Subtotal:</span>
+                      <span className="font-bold text-slate-900 text-sm">{formatCurrency(lineTotal)}</span>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowPurchaseModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold shadow-sm"
-                >
-                  {submitting ? (
-                    <>
-                      <span className="animate-spin mr-1">⏳</span>
-                      <span>Recording...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Record Purchase & Update Stock</span>
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Notes & Summary Box */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                Notes / Remarks (Optional)
+              </label>
+              <textarea
+                rows={3}
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full p-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"
+                placeholder="Payment terms, delivery notes, etc."
+              />
+            </div>
+
+            <div className="bg-indigo-50/50 rounded-xl p-4 border border-indigo-100 flex flex-col justify-between">
+              <div className="space-y-1.5 text-xs text-gray-600">
+                <div className="flex justify-between">
+                  <span>Total Product Lines:</span>
+                  <span className="font-semibold text-gray-900">{formData.items.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Total Units Received:</span>
+                  <span className="font-semibold text-gray-900">{formTotalUnits} units</span>
+                </div>
+              </div>
+              <div className="border-t border-indigo-100 pt-3 mt-2 flex justify-between items-baseline">
+                <span className="text-xs font-bold uppercase text-indigo-900">Grand Total:</span>
+                <span className="text-2xl font-extrabold text-indigo-700">{formatCurrency(formGrandTotal)}</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </AdaptiveSheet>
 
       {/* ========================================================================= */}
-      {/* VOID PURCHASE MODAL                                                       */}
+      {/* VOID PURCHASE MODAL (AdaptiveSheet)                                       */}
       {/* ========================================================================= */}
-      {voidModalPurchase && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 rounded-full bg-rose-100 text-rose-600">
-                <AlertCircle size={22} />
+      <AdaptiveSheet
+        isOpen={Boolean(voidModalPurchase)}
+        onClose={() => setVoidModalPurchase(null)}
+        title="Void Purchase Invoice?"
+        subtitle={voidModalPurchase ? `Invoice #${voidModalPurchase.invoiceNumber}` : ''}
+        maxWidth="max-w-md"
+        footer={
+          <div className="flex items-center justify-end gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={() => setVoidModalPurchase(null)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition min-h-[44px] cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="void-purchase-form"
+              className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition min-h-[44px] cursor-pointer"
+            >
+              Confirm Void
+            </button>
+          </div>
+        }
+      >
+        <div className="p-4 sm:p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-full bg-rose-100 text-rose-600 shrink-0">
+              <AlertCircle size={22} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-gray-900">Irreversible Action</h4>
+              <p className="text-xs text-gray-500">Deducts stock added by this purchase</p>
+            </div>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 bg-rose-50/70 p-3 rounded-xl border border-rose-100 leading-relaxed">
+            ⚠️ Warning: Voiding this invoice will deduct the received quantities from the current product stock levels in your inventory.
+          </p>
+          <form id="void-purchase-form" onSubmit={handleVoid}>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Reason for Voiding *
+              </label>
+              <input
+                type="text"
+                required
+                value={voidReason}
+                onChange={e => setVoidReason(e.target.value)}
+                placeholder="e.g. Order cancelled by supplier"
+                className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none min-h-[44px]"
+              />
+            </div>
+          </form>
+        </div>
+      </AdaptiveSheet>
+
+      {/* ========================================================================= */}
+      {/* VIEW DETAILS MODAL (AdaptiveSheet)                                        */}
+      {/* ========================================================================= */}
+      <AdaptiveSheet
+        isOpen={Boolean(viewModalPurchase)}
+        onClose={() => setViewModalPurchase(null)}
+        title="Purchase Invoice Details"
+        subtitle={viewModalPurchase ? `Invoice #${viewModalPurchase.invoiceNumber}` : ''}
+        maxWidth="max-w-lg"
+        footer={
+          <div className="flex justify-end w-full">
+            <button
+              onClick={() => setViewModalPurchase(null)}
+              className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition min-h-[44px] cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        }
+      >
+        {viewModalPurchase && (
+          <div className="p-4 sm:p-6 space-y-4 text-sm text-gray-700">
+            <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-xs">
+              <div>
+                <span className="text-gray-400 block font-medium">Invoice Number</span>
+                <span className="font-bold text-indigo-700 text-sm">{viewModalPurchase.invoiceNumber}</span>
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-900">Void Purchase Invoice?</h3>
-                <p className="text-xs text-gray-500">Invoice #{voidModalPurchase.invoiceNumber}</p>
+                <span className="text-gray-400 block font-medium">Purchase Date</span>
+                <span className="font-semibold text-gray-800">{formatDate(viewModalPurchase.purchaseDate, true)}</span>
+              </div>
+              <div className="mt-1">
+                <span className="text-gray-400 block font-medium">Supplier</span>
+                <span className="font-semibold text-gray-800">{viewModalPurchase.supplierName}</span>
+              </div>
+              <div className="mt-1">
+                <span className="text-gray-400 block font-medium">Status</span>
+                <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                  viewModalPurchase.status === 'VOIDED' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+                }`}>
+                  {viewModalPurchase.status || 'COMPLETED'}
+                </span>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mb-4 bg-rose-50/50 p-3 rounded-lg border border-rose-100">
-              ⚠️ Warning: Voiding this invoice will deduct the received quantities from the current product stock levels.
-            </p>
-            <form onSubmit={handleVoid}>
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                  Reason for Voiding *
-                </label>
-                <input 
-                  type="text" 
-                  required 
-                  value={voidReason} 
-                  onChange={e => setVoidReason(e.target.value)} 
-                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none" 
-                />
-              </div>
-              <div className="flex justify-end gap-2.5">
-                <button 
-                  type="button" 
-                  onClick={() => setVoidModalPurchase(null)} 
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition"
-                >
-                  Confirm Void
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* ========================================================================= */}
-      {/* VIEW DETAILS MODAL                                                        */}
-      {/* ========================================================================= */}
-      {viewModalPurchase && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-gray-100">
-            <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <Receipt className="text-indigo-600" size={20} />
-                <h3 className="text-base font-bold text-gray-900">Purchase Invoice Details</h3>
+            {viewModalPurchase.voidReason && (
+              <div className="bg-rose-50 p-3 rounded-xl text-xs text-rose-800 border border-rose-200">
+                <strong>Void Reason:</strong> {viewModalPurchase.voidReason}
               </div>
-              <button 
-                onClick={() => setViewModalPurchase(null)} 
-                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-100 text-xs">
-                <div>
-                  <span className="text-gray-400 block font-medium">Invoice Number</span>
-                  <span className="font-bold text-indigo-700 text-sm">{viewModalPurchase.invoiceNumber}</span>
-                </div>
-                <div>
-                  <span className="text-gray-400 block font-medium">Purchase Date</span>
-                  <span className="font-semibold text-gray-800">{formatDate(viewModalPurchase.purchaseDate, true)}</span>
-                </div>
-                <div className="mt-2">
-                  <span className="text-gray-400 block font-medium">Supplier</span>
-                  <span className="font-semibold text-gray-800">{viewModalPurchase.supplierName}</span>
-                </div>
-                <div className="mt-2">
-                  <span className="text-gray-400 block font-medium">Status</span>
-                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                    viewModalPurchase.status === 'VOIDED' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
-                  }`}>
-                    {viewModalPurchase.status || 'COMPLETED'}
-                  </span>
-                </div>
-              </div>
+            )}
 
-              {viewModalPurchase.voidReason && (
-                <div className="bg-rose-50 p-2.5 rounded-lg text-xs text-rose-800 border border-rose-200">
-                  <strong>Void Reason:</strong> {viewModalPurchase.voidReason}
-                </div>
-              )}
-
-              <div className="mt-4">
-                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Purchased Items</h4>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {viewModalPurchase.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
-                          {item.quantity} {item.productId?.unit || 'pcs'}
-                        </span>
-                        <span className="font-medium text-gray-900">
-                          {item.productId?.name || item.product?.name || 'Unknown Product'}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-gray-400 font-normal">{formatCurrency(item.unitCost)} / ea</div>
-                        <div className="font-bold text-gray-900">{formatCurrency(item.total)}</div>
-                      </div>
+            <div>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Purchased Items</h4>
+              <div className="space-y-2 max-h-56 overflow-y-auto">
+                {viewModalPurchase.items?.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
+                        {item.quantity} {item.productId?.unit || 'pcs'}
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {item.productId?.name || item.product?.name || 'Unknown Product'}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-baseline">
-                <span className="text-sm font-bold text-gray-700">Total Invoice Amount:</span>
-                <span className="text-xl font-extrabold text-gray-900">{formatCurrency(viewModalPurchase.total)}</span>
+                    <div className="text-right">
+                      <div className="text-gray-400 font-normal">{formatCurrency(item.unitCost)} / ea</div>
+                      <div className="font-bold text-gray-900">{formatCurrency(item.total)}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end">
-              <button 
-                onClick={() => setViewModalPurchase(null)} 
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-              >
-                Close
-              </button>
+            <div className="pt-3 border-t border-gray-100 flex justify-between items-baseline">
+              <span className="text-sm font-bold text-gray-700">Total Invoice Amount:</span>
+              <span className="text-xl font-extrabold text-gray-900">{formatCurrency(viewModalPurchase.total)}</span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </AdaptiveSheet>
     </div>
   );
 };

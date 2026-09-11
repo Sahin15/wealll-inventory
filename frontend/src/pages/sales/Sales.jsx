@@ -2,10 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus, 
   Eye, 
-  X, 
   Search, 
   FileText, 
-  AlertCircle, 
   TrendingUp, 
   Printer, 
   Trash2, 
@@ -22,6 +20,7 @@ import { formatCurrency } from '../../utils/currency';
 import InvoicePrint from '../../components/InvoicePrint';
 import { formatDate } from '../../utils/dateFormatter';
 import CategoryBadge from '../../components/CategoryBadge';
+import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
 import { AuthContext } from '../../context/AuthContext';
 import { hasPermission } from '../../utils/permissions';
 import { toast } from 'react-hot-toast';
@@ -898,32 +897,50 @@ const Sales = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* RECORD NEW SALE MODAL                                                     */}
+        {/* RECORD NEW SALE ADAPTIVE SHEET                                            */}
         {/* ========================================================================= */}
-        {showSaleModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full flex flex-col max-h-[90vh] overflow-hidden border border-gray-100">
-              {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-emerald-50/50">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 bg-emerald-600 text-white rounded-lg">
-                    <ShoppingBag size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">Record New Sale</h3>
-                    <p className="text-xs text-gray-500">Create customer order, apply discounts, and deduct stock</p>
-                  </div>
-                </div>
-                <button 
+        <AdaptiveSheet
+          isOpen={showSaleModal}
+          onClose={() => setShowSaleModal(false)}
+          title="Record New Sale"
+          subtitle="Create customer order, apply discounts, and deduct stock"
+          maxWidth="max-w-4xl"
+          footer={
+            <div className="flex items-center justify-between gap-3 w-full">
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Total Payable</span>
+                <span className="text-lg md:text-xl font-black text-emerald-700 leading-tight">
+                  {formatCurrency(formGrandTotal)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
                   onClick={() => setShowSaleModal(false)}
-                  className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition"
+                  className="px-3.5 py-2 text-xs md:text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition min-h-[44px]"
                 >
-                  <X size={20} />
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="sale-create-form"
+                  disabled={submitting}
+                  className="btn-primary inline-flex items-center justify-center gap-1.5 px-4 md:px-6 py-2 text-xs md:text-sm font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700 rounded-xl min-h-[44px] disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <span>Recording...</span>
+                  ) : (
+                    <>
+                      <span>Complete Sale</span>
+                      <ArrowRight size={16} />
+                    </>
+                  )}
                 </button>
               </div>
-
-              {/* Modal Form */}
-              <form onSubmit={handleSubmitSale} className="flex-1 overflow-y-auto flex flex-col justify-between">
+            </div>
+          }
+        >
+          <form id="sale-create-form" onSubmit={handleSubmitSale} className="space-y-5">
                 <div className="p-6 space-y-5">
                   {/* Student Switcher Banner */}
                   <div className="bg-emerald-50/40 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
@@ -1361,391 +1378,234 @@ const Sales = () => {
                   </div>
                 </div>
 
-                {/* Modal Footer */}
-                <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowSaleModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold shadow-sm bg-emerald-600 hover:bg-emerald-700 cursor-pointer disabled:opacity-50"
-                  >
-                    {submitting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
-                        <span>Recording...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Complete Sale & Deduct Stock</span>
-                        <ArrowRight size={16} />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+          </form>
+        </AdaptiveSheet>
 
         {/* ========================================================================= */}
         {/* COLLECT PAYMENT MODAL                                                     */}
         {/* ========================================================================= */}
-        {collectPaymentSale && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
-              {/* Header */}
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-amber-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-xs">
-                    <IndianRupee size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900">Record Installment Payment</h3>
-                    <p className="text-xs text-gray-500">
-                      Invoice #{collectPaymentSale.invoiceNumber} • {collectPaymentSale.customerName || 'Walk-in'}
-                    </p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setCollectPaymentSale(null)}
-                  className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* Form */}
-              <form onSubmit={handleRecordPayment} className="p-6 overflow-y-auto space-y-4 flex-1">
-                {/* Balance Summary Card */}
-                {(() => {
-                  const currentPaid = typeof collectPaymentSale.paidAmount === 'number' ? collectPaymentSale.paidAmount : (collectPaymentSale.paymentStatus === 'PAID' ? collectPaymentSale.total : 0);
-                  const currentDue = typeof collectPaymentSale.dueAmount === 'number' ? collectPaymentSale.dueAmount : Math.max(0, collectPaymentSale.total - currentPaid);
-
-                  return (
-                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 space-y-2">
-                      <div className="flex justify-between text-xs text-gray-600">
-                        <span>Invoice Grand Total:</span>
-                        <span className="font-bold text-gray-900">{formatCurrency(collectPaymentSale.total)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-600">
-                        <span>Total Paid Till Date:</span>
-                        <span className="font-bold text-emerald-700">{formatCurrency(currentPaid)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm pt-2 border-t border-amber-200/80">
-                        <span className="font-bold text-gray-800">Remaining Balance Due:</span>
-                        <span className="font-black text-rose-600 text-base">{formatCurrency(currentDue)}</span>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Amount to Collect */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Amount Received Now (₹) *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={paymentForm.amount}
-                    onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-base font-black text-emerald-800 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                  />
-                </div>
-
-                {/* Method & Date Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Payment Method *
-                    </label>
-                    <select
-                      value={paymentForm.paymentMethod}
-                      onChange={e => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none font-medium"
-                    >
-                      <option value="CASH">Cash</option>
-                      <option value="UPI">UPI / GPay / PhonePe</option>
-                      <option value="CARD">Debit / Credit Card</option>
-                      <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
-                      <option value="OTHER">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                      Payment Date
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={paymentForm.paymentDate}
-                      onChange={e => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none font-medium"
-                    />
-                  </div>
-                </div>
-
-                {/* Notes */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Payment Notes / Reference (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={paymentForm.notes}
-                    onChange={e => setPaymentForm({ ...paymentForm, notes: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none"
-                  />
-                </div>
-
-                {/* Past Payments History */}
-                {collectPaymentSale.payments && collectPaymentSale.payments.length > 0 && (
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Previous Payments Log</h4>
-                    <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                      {collectPaymentSale.payments.map((p, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-xs bg-gray-50 p-2 rounded-lg border border-gray-100">
-                          <div>
-                            <span className="font-bold text-gray-800">{formatCurrency(p.amount)}</span>
-                            <span className="text-gray-400 ml-1.5">via {p.paymentMethod}</span>
-                            {p.notes && <span className="text-gray-500 italic ml-1">({p.notes})</span>}
-                          </div>
-                          <span className="text-gray-400">{formatDate(p.paymentDate)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        {/* ========================================================================= */}
+        {/* COLLECT PAYMENT ADAPTIVE SHEET                                            */}
+        {/* ========================================================================= */}
+        <AdaptiveSheet
+          isOpen={Boolean(collectPaymentSale)}
+          onClose={() => setCollectPaymentSale(null)}
+          title="Record Installment Payment"
+          subtitle={
+            collectPaymentSale
+              ? `Invoice #${collectPaymentSale.invoiceNumber} • ${collectPaymentSale.customerName || 'Walk-in'}`
+              : ''
+          }
+          maxWidth="max-w-lg"
+          footer={
+            <div className="flex items-center justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setCollectPaymentSale(null)}
+                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition min-h-[44px]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="collect-payment-form"
+                disabled={submittingPayment}
+                className="inline-flex items-center justify-center gap-1.5 px-5 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition min-h-[44px] disabled:opacity-50"
+              >
+                {submittingPayment ? (
+                  <span>Saving...</span>
+                ) : (
+                  <>
+                    <Check size={16} />
+                    <span>Record Payment ({formatCurrency(Number(paymentForm.amount) || 0)})</span>
+                  </>
                 )}
-
-                {/* Actions */}
-                <div className="pt-4 border-t border-gray-100 flex justify-end gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setCollectPaymentSale(null)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submittingPayment}
-                    className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
-                  >
-                    {submittingPayment ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Saving...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check size={16} />
-                        <span>Record Payment ({formatCurrency(Number(paymentForm.amount) || 0)})</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+              </button>
             </div>
-          </div>
-        )}
+          }
+        >
+          {collectPaymentSale && (
+            <form id="collect-payment-form" onSubmit={handleRecordPayment} className="space-y-4">
+              {/* Balance Summary Card */}
+              {(() => {
+                const currentPaid =
+                  typeof collectPaymentSale.paidAmount === 'number'
+                    ? collectPaymentSale.paidAmount
+                    : collectPaymentSale.paymentStatus === 'PAID'
+                    ? collectPaymentSale.total
+                    : 0;
+                const currentDue =
+                  typeof collectPaymentSale.dueAmount === 'number'
+                    ? collectPaymentSale.dueAmount
+                    : Math.max(0, collectPaymentSale.total - currentPaid);
 
-        {/* ========================================================================= */}
-        {/* VOID SALE MODAL                                                           */}
-        {/* ========================================================================= */}
-        {voidModalSale && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 border border-gray-100">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 rounded-full bg-rose-100 text-rose-600">
-                  <AlertCircle size={22} />
-                </div>
+                return (
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 space-y-2">
+                    <div className="flex justify-between text-xs text-slate-600">
+                      <span>Invoice Grand Total:</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(collectPaymentSale.total)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-slate-600">
+                      <span>Total Paid Till Date:</span>
+                      <span className="font-bold text-emerald-700">{formatCurrency(currentPaid)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t border-amber-200/80">
+                      <span className="font-bold text-slate-800">Remaining Balance Due:</span>
+                      <span className="font-black text-rose-600 text-base">{formatCurrency(currentDue)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Amount to Collect */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Amount Received Now (₹) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  inputMode="decimal"
+                  value={paymentForm.amount}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-base font-black text-emerald-800 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none min-h-[44px]"
+                />
+              </div>
+
+              {/* Method & Date Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">Void Sale Transaction?</h3>
-                  <p className="text-xs text-gray-500">Invoice #{voidModalSale.invoiceNumber}</p>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Payment Method *
+                  </label>
+                  <select
+                    value={paymentForm.paymentMethod}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
+                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none font-medium min-h-[44px]"
+                  >
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI / GPay / PhonePe</option>
+                    <option value="CARD">Debit / Credit Card</option>
+                    <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Payment Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={paymentForm.paymentDate}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
+                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none font-medium min-h-[44px]"
+                  />
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mb-4 bg-rose-50/50 p-3 rounded-lg border border-rose-100">
+
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Payment Notes / Reference (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={paymentForm.notes}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none min-h-[44px]"
+                />
+              </div>
+
+              {/* Past Payments History */}
+              {collectPaymentSale.payments && collectPaymentSale.payments.length > 0 && (
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Previous Payments Log</h4>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                    {collectPaymentSale.payments.map((p, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                        <div>
+                          <span className="font-bold text-slate-800">{formatCurrency(p.amount)}</span>
+                          <span className="text-slate-400 ml-1.5">via {p.paymentMethod}</span>
+                          {p.notes && <span className="text-slate-500 italic ml-1">({p.notes})</span>}
+                        </div>
+                        <span className="text-slate-400">{formatDate(p.paymentDate)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </form>
+          )}
+        </AdaptiveSheet>
+
+        {/* ========================================================================= */}
+        {/* VOID SALE ADAPTIVE SHEET                                                  */}
+        {/* ========================================================================= */}
+        <AdaptiveSheet
+          isOpen={Boolean(voidModalSale)}
+          onClose={() => setVoidModalSale(null)}
+          title="Void Sale Transaction?"
+          subtitle={voidModalSale ? `Invoice #${voidModalSale.invoiceNumber}` : ''}
+          maxWidth="max-w-md"
+          footer={
+            <div className="flex items-center justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setVoidModalSale(null)}
+                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition min-h-[44px]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="void-sale-form"
+                className="px-5 py-2 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition min-h-[44px]"
+              >
+                Confirm Void
+              </button>
+            </div>
+          }
+        >
+          {voidModalSale && (
+            <form id="void-sale-form" onSubmit={handleVoid} className="space-y-4">
+              <p className="text-xs text-rose-700 bg-rose-50/70 p-3 rounded-xl border border-rose-200">
                 ⚠️ Warning: Voiding this sale will return the sold quantities back into your product inventory.
               </p>
-              <form onSubmit={handleVoid}>
-                <div className="mb-4">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Reason for Voiding *
-                  </label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={voidReason} 
-                    onChange={e => setVoidReason(e.target.value)} 
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none" 
-                  />
-                </div>
-                <div className="flex justify-end gap-2.5">
-                  <button 
-                    type="button" 
-                    onClick={() => setVoidModalSale(null)} 
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit" 
-                    className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition cursor-pointer"
-                  >
-                    Confirm Void
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Reason for Voiding *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={voidReason}
+                  onChange={(e) => setVoidReason(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none min-h-[44px]"
+                  placeholder="e.g. Returned by customer"
+                />
+              </div>
+            </form>
+          )}
+        </AdaptiveSheet>
 
         {/* ========================================================================= */}
-        {/* VIEW DETAILS MODAL                                                        */}
+        {/* VIEW DETAILS ADAPTIVE SHEET                                               */}
         {/* ========================================================================= */}
-        {viewModalSale && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-gray-100 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="text-emerald-600" size={20} />
-                  <h3 className="text-base font-bold text-gray-900">Sale Invoice Details</h3>
-                </div>
-                <button 
-                  onClick={() => setViewModalSale(null)} 
-                  className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4 text-sm text-gray-700">
-                <div className="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs">
-                  <div>
-                    <span className="text-gray-400 block font-medium">Invoice Number</span>
-                    <span className="font-bold text-emerald-700 text-sm">{viewModalSale.invoiceNumber}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400 block font-medium">Sale Date</span>
-                    <span className="font-semibold text-gray-800">{formatDate(viewModalSale.saleDate, true)}</span>
-                  </div>
-                  <div className="mt-2">
-                    <span className="text-gray-400 block font-medium">Customer</span>
-                    <span className="font-semibold text-gray-800">{viewModalSale.customerName || 'Walk-in'}</span>
-                  </div>
-                  <div className="mt-2">
-                    <span className="text-gray-400 block font-medium">Order Status</span>
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                      viewModalSale.status === 'VOIDED' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
-                    }`}>
-                      {viewModalSale.status || 'COMPLETED'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Financial / Payment Breakdown Box */}
-                {(() => {
-                  const currentPaid = typeof viewModalSale.paidAmount === 'number' ? viewModalSale.paidAmount : (viewModalSale.paymentStatus === 'PAID' ? viewModalSale.total : 0);
-                  const currentDue = typeof viewModalSale.dueAmount === 'number' ? viewModalSale.dueAmount : Math.max(0, viewModalSale.total - currentPaid);
-
-                  return (
-                    <div className="bg-emerald-50/40 border border-emerald-100 rounded-xl p-3.5 space-y-2">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-gray-600">Payment Status:</span>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          currentDue === 0 
-                            ? 'bg-emerald-100 text-emerald-800' 
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {currentDue === 0 ? 'Fully Settled' : viewModalSale.paymentStatus}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-600">
-                        <span>Invoice Total:</span>
-                        <span className="font-bold text-gray-900">{formatCurrency(viewModalSale.total)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-600">
-                        <span>Amount Paid:</span>
-                        <span className="font-bold text-emerald-700">{formatCurrency(currentPaid)}</span>
-                      </div>
-                      {currentDue > 0 && (
-                        <div className="flex justify-between text-xs text-rose-600 font-bold pt-1 border-t border-emerald-200/60">
-                          <span>Balance Due:</span>
-                          <span>{formatCurrency(currentDue)}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-
-                {/* Payments Timeline / History */}
-                {viewModalSale.payments && viewModalSale.payments.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Payment Installments</h4>
-                    <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                      {viewModalSale.payments.map((p, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-xs bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                          <div>
-                            <span className="font-bold text-emerald-700">{formatCurrency(p.amount)}</span>
-                            <span className="text-gray-500 ml-1.5">via {p.paymentMethod}</span>
-                            {p.notes && <span className="text-gray-400 italic ml-1">({p.notes})</span>}
-                          </div>
-                          <span className="text-gray-400">{formatDate(p.paymentDate)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {viewModalSale.voidReason && (
-                  <div className="bg-rose-50 p-2.5 rounded-lg text-xs text-rose-800 border border-rose-200">
-                    <strong>Void Reason:</strong> {viewModalSale.voidReason}
-                  </div>
-                )}
-
-                {/* Purchased Items */}
-                <div className="mt-4">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Purchased Items</h4>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {viewModalSale.items.map((item, idx) => {
-                      const prod = item.productId || item.product;
-                      return (
-                        <div key={idx} className="flex justify-between items-center bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-xs">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
-                              {item.quantity} {prod?.unit || 'pcs'}
-                            </span>
-                            <span className="font-medium text-gray-900">
-                              {prod?.name || 'Unknown Product'}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-gray-400 font-normal">{formatCurrency(item.sellingPrice)} / ea</div>
-                            <div className="font-bold text-gray-900">{formatCurrency(item.total)}</div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-baseline">
-                  <span className="text-sm font-bold text-gray-700">Total Invoice Amount:</span>
-                  <span className="text-xl font-extrabold text-gray-900">{formatCurrency(viewModalSale.total)}</span>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="mt-5 flex justify-between items-center gap-2.5 border-t border-gray-100 pt-3">
-                {viewModalSale.status !== 'VOIDED' && (viewModalSale.dueAmount > 0 || (viewModalSale.dueAmount === undefined && viewModalSale.paymentStatus !== 'PAID')) && (
+        <AdaptiveSheet
+          isOpen={Boolean(viewModalSale)}
+          onClose={() => setViewModalSale(null)}
+          title="Sale Invoice Details"
+          subtitle={viewModalSale ? `Invoice #${viewModalSale.invoiceNumber}` : ''}
+          maxWidth="max-w-lg"
+          footer={
+            <div className="flex items-center justify-between gap-2.5 w-full">
+              {viewModalSale &&
+                viewModalSale.status !== 'VOIDED' &&
+                (viewModalSale.dueAmount > 0 ||
+                  (viewModalSale.dueAmount === undefined && viewModalSale.paymentStatus !== 'PAID')) && (
                   <button
                     type="button"
                     onClick={() => {
@@ -1753,34 +1613,172 @@ const Sales = () => {
                       setViewModalSale(null);
                       handleOpenCollectPayment(target);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition min-h-[44px]"
                   >
-                    <IndianRupee size={14} /> Collect Payment
+                    <IndianRupee size={14} /> Collect Due
                   </button>
                 )}
-
-                <div className="flex items-center gap-2 ml-auto">
-                  <button 
-                    onClick={() => {
-                      setPrintSale(viewModalSale);
-                      setTimeout(() => window.print(), 100);
-                    }} 
-                    className="btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
-                  >
-                    <Printer size={15} />
-                    <span>Print Invoice</span>
-                  </button>
-                  <button 
-                    onClick={() => setViewModalSale(null)} 
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition cursor-pointer"
-                  >
-                    Close
-                  </button>
-                </div>
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrintSale(viewModalSale);
+                    setTimeout(() => window.print(), 100);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition min-h-[44px]"
+                >
+                  <Printer size={15} />
+                  <span>Print</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewModalSale(null)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition min-h-[44px]"
+                >
+                  Close
+                </button>
               </div>
             </div>
-          </div>
-        )}
+          }
+        >
+          {viewModalSale && (
+            <div className="space-y-4 text-sm text-slate-700">
+              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs">
+                <div>
+                  <span className="text-slate-400 block font-medium">Invoice Number</span>
+                  <span className="font-bold text-emerald-700 text-sm">{viewModalSale.invoiceNumber}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Sale Date</span>
+                  <span className="font-semibold text-slate-800">{formatDate(viewModalSale.saleDate, true)}</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-slate-400 block font-medium">Customer</span>
+                  <span className="font-semibold text-slate-800">{viewModalSale.customerName || 'Walk-in'}</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-slate-400 block font-medium">Order Status</span>
+                  <span
+                    className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                      viewModalSale.status === 'VOIDED'
+                        ? 'bg-rose-100 text-rose-700'
+                        : 'bg-emerald-100 text-emerald-700'
+                    }`}
+                  >
+                    {viewModalSale.status || 'COMPLETED'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Financial Breakdown */}
+              {(() => {
+                const currentPaid =
+                  typeof viewModalSale.paidAmount === 'number'
+                    ? viewModalSale.paidAmount
+                    : viewModalSale.paymentStatus === 'PAID'
+                    ? viewModalSale.total
+                    : 0;
+                const currentDue =
+                  typeof viewModalSale.dueAmount === 'number'
+                    ? viewModalSale.dueAmount
+                    : Math.max(0, viewModalSale.total - currentPaid);
+
+                return (
+                  <div className="bg-emerald-50/40 border border-emerald-100 rounded-2xl p-3.5 space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-slate-600">Payment Status:</span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          currentDue === 0
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-amber-100 text-amber-800'
+                        }`}
+                      >
+                        {currentDue === 0 ? 'Fully Settled' : viewModalSale.paymentStatus}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-slate-600">
+                      <span>Invoice Total:</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(viewModalSale.total)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-slate-600">
+                      <span>Amount Paid:</span>
+                      <span className="font-bold text-emerald-700">{formatCurrency(currentPaid)}</span>
+                    </div>
+                    {currentDue > 0 && (
+                      <div className="flex justify-between text-xs text-rose-600 font-bold pt-1 border-t border-emerald-200/60">
+                        <span>Balance Due:</span>
+                        <span>{formatCurrency(currentDue)}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Payments History */}
+              {viewModalSale.payments && viewModalSale.payments.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Payment Installments</h4>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                    {viewModalSale.payments.map((p, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100"
+                      >
+                        <div>
+                          <span className="font-bold text-emerald-700">{formatCurrency(p.amount)}</span>
+                          <span className="text-slate-500 ml-1.5">via {p.paymentMethod}</span>
+                          {p.notes && <span className="text-slate-400 italic ml-1">({p.notes})</span>}
+                        </div>
+                        <span className="text-slate-400">{formatDate(p.paymentDate)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {viewModalSale.voidReason && (
+                <div className="bg-rose-50 p-2.5 rounded-xl text-xs text-rose-800 border border-rose-200">
+                  <strong>Void Reason:</strong> {viewModalSale.voidReason}
+                </div>
+              )}
+
+              {/* Purchased Items */}
+              <div>
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Purchased Items</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {viewModalSale.items.map((item, idx) => {
+                    const prod = item.productId || item.product;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                            {item.quantity} {prod?.unit || 'pcs'}
+                          </span>
+                          <span className="font-medium text-slate-900 truncate">
+                            {prod?.name || 'Unknown Product'}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-slate-400 font-normal">{formatCurrency(item.sellingPrice)} / ea</div>
+                          <div className="font-bold text-slate-900">{formatCurrency(item.total)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex justify-between items-baseline">
+                <span className="text-sm font-bold text-slate-700">Total Invoice Amount:</span>
+                <span className="text-xl font-extrabold text-slate-900">{formatCurrency(viewModalSale.total)}</span>
+              </div>
+            </div>
+          )}
+        </AdaptiveSheet>
       </div>
 
       {/* Printable Invoice Component for Browser Print */}

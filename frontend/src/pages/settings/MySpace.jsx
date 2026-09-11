@@ -22,6 +22,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
@@ -353,7 +354,7 @@ const MySpace = () => {
       {/* ========================================================================= */}
       <div className="bg-white shadow-sm rounded-2xl border border-gray-200 overflow-hidden">
         {/* Horizontal Navigation Tabs */}
-        <div className="flex border-b border-gray-200 bg-gray-50/70 p-2 gap-2 overflow-x-auto">
+        <div className="flex border-b border-gray-200 bg-gray-50/70 p-2 gap-2 overflow-x-auto no-scrollbar momentum-scroll">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -361,18 +362,18 @@ const MySpace = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 min-w-[170px] flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
+                className={`flex-1 min-w-[150px] sm:min-w-[170px] flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl transition-all text-left flex-shrink-0 ${
                   isActive 
                     ? 'bg-white text-indigo-700 shadow-sm border border-gray-200/80 font-bold' 
                     : 'text-gray-600 hover:bg-gray-100/80 font-medium'
                 }`}
               >
-                <div className={`p-2 rounded-lg ${isActive ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-400'}`}>
+                <div className={`p-2 rounded-lg flex-shrink-0 ${isActive ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-400'}`}>
                   <Icon size={18} />
                 </div>
-                <div>
-                  <div className="text-sm leading-tight">{tab.name}</div>
-                  <div className="text-[11px] text-gray-400 font-normal leading-tight mt-0.5">{tab.desc}</div>
+                <div className="min-w-0">
+                  <div className="text-xs sm:text-sm leading-tight truncate">{tab.name}</div>
+                  <div className="text-[10px] sm:text-[11px] text-gray-400 font-normal leading-tight mt-0.5 truncate">{tab.desc}</div>
                 </div>
               </button>
             );
@@ -982,7 +983,7 @@ const MySpace = () => {
                 {displayPlans.length === 0 ? (
                   <div className="text-xs text-gray-400 italic">No alternative public plans found.</div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <div className="flex overflow-x-auto snap-x snap-mandatory sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 pb-4 sm:pb-0 no-scrollbar momentum-scroll -mx-2 px-2 sm:mx-0 sm:px-0">
                     {displayPlans.map((p) => {
                       const isCurrent = 
                         subscription?.planId?._id === p._id ||
@@ -993,7 +994,7 @@ const MySpace = () => {
                       return (
                         <div
                           key={p.slug || p._id}
-                          className={`rounded-2xl p-6 flex flex-col justify-between border transition-all relative ${
+                          className={`w-[82vw] max-w-[310px] flex-shrink-0 snap-center sm:w-auto sm:max-w-none rounded-2xl p-5 sm:p-6 flex flex-col justify-between border transition-all relative ${
                             isCurrent
                               ? 'border-2 border-indigo-600 bg-indigo-50/20 shadow-md ring-2 ring-indigo-100'
                               : isRecommended
@@ -1046,7 +1047,7 @@ const MySpace = () => {
 
                           <button
                             onClick={() => !isCurrent && setShowPaymentModal(true)}
-                            className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                            className={`w-full py-2.5 min-h-[44px] px-4 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                               isCurrent
                                 ? 'bg-indigo-100 text-indigo-700 cursor-default shadow-xs'
                                 : isRecommended
@@ -1067,28 +1068,30 @@ const MySpace = () => {
         </div>
       </div>
 
-      {/* Payment Notice Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100 p-6 space-y-4 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto shadow-inner">
-              <CreditCard size={28} />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Online Payments Gateway</h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              We are currently integrating a direct automated payment gateway. To upgrade your tier or adjust plan limits immediately, please connect with our support desk.
-            </p>
-            <div className="pt-2">
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="btn-primary w-full py-2.5 text-xs font-bold rounded-xl"
-              >
-                Understood
-              </button>
-            </div>
+      {/* Payment Notice Modal (AdaptiveSheet) */}
+      <AdaptiveSheet
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        title="Online Payments Gateway"
+        icon={CreditCard}
+        footer={
+          <button
+            onClick={() => setShowPaymentModal(false)}
+            className="btn-primary w-full py-2.5 min-h-[44px] text-xs font-bold rounded-xl"
+          >
+            Understood
+          </button>
+        }
+      >
+        <div className="space-y-4 text-center py-2">
+          <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto shadow-inner">
+            <CreditCard size={28} />
           </div>
+          <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
+            We are currently integrating automated card, UPI, and net-banking gateways. To upgrade your tier or adjust plan limits immediately, please connect with our support desk.
+          </p>
         </div>
-      )}
+      </AdaptiveSheet>
     </div>
   );
 };

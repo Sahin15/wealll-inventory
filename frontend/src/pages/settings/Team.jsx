@@ -22,6 +22,8 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { useDialog } from '../../context/DialogContext';
 import { formatDate } from '../../utils/dateFormatter';
+import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
+import SegmentedTabs from '../../components/mobile/SegmentedTabs';
 
 const Team = () => {
   const { user } = useAuth();
@@ -347,39 +349,17 @@ const Team = () => {
         </div>
 
         {/* Role Filter Tabs */}
-        <div className="flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl text-xs font-semibold w-full md:w-auto overflow-x-auto">
-          <button
-            onClick={() => setRoleFilter('ALL')}
-            className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-              roleFilter === 'ALL' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            All Roles ({metrics.total})
-          </button>
-          <button
-            onClick={() => setRoleFilter('admin')}
-            className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-              roleFilter === 'admin' ? 'bg-purple-100 text-purple-900 shadow-sm font-bold' : 'text-gray-600 hover:text-purple-800'
-            }`}
-          >
-            Admins ({metrics.admins})
-          </button>
-          <button
-            onClick={() => setRoleFilter('manager')}
-            className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-              roleFilter === 'manager' ? 'bg-blue-100 text-blue-900 shadow-sm font-bold' : 'text-gray-600 hover:text-blue-800'
-            }`}
-          >
-            Managers ({metrics.managers})
-          </button>
-          <button
-            onClick={() => setRoleFilter('staff')}
-            className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
-              roleFilter === 'staff' ? 'bg-emerald-100 text-emerald-900 shadow-sm font-bold' : 'text-gray-600 hover:text-emerald-800'
-            }`}
-          >
-            Staff ({metrics.staff})
-          </button>
+        <div className="w-full md:w-auto">
+          <SegmentedTabs
+            tabs={[
+              { id: 'ALL', label: 'All Roles', count: metrics.total },
+              { id: 'admin', label: 'Admins', count: metrics.admins },
+              { id: 'manager', label: 'Managers', count: metrics.managers },
+              { id: 'staff', label: 'Staff', count: metrics.staff }
+            ]}
+            activeTab={roleFilter}
+            onChange={setRoleFilter}
+          />
         </div>
       </div>
 
@@ -514,26 +494,26 @@ const Team = () => {
                   <div key={u._id} className="p-4 space-y-3 hover:bg-gray-50/60 transition-colors">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center shadow-sm">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center shadow-sm flex-shrink-0">
                           {getInitials(u.name)}
                         </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-gray-900 text-sm">{u.name}</span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-bold text-gray-900 text-sm truncate">{u.name}</span>
                             {isCurrentUser && (
-                              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded border border-indigo-100">
+                              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded-full border border-indigo-100">
                                 You
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                            <Mail size={11} className="text-gray-400" />
-                            <span>{u.email}</span>
+                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5 truncate">
+                            <Mail size={11} className="text-gray-400 flex-shrink-0" />
+                            <span className="truncate">{u.email}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div>{getRoleBadge(u.role)}</div>
+                      <div className="flex-shrink-0">{getRoleBadge(u.role)}</div>
                     </div>
 
                     <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-xs text-gray-600 leading-relaxed">
@@ -545,7 +525,7 @@ const Team = () => {
                       {!isCurrentUser && (
                         <button
                           onClick={() => handleDelete(u)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition"
+                          className="inline-flex items-center gap-1 px-3 py-2 min-h-[38px] text-xs font-semibold text-rose-600 bg-rose-50 rounded-xl hover:bg-rose-100 active:scale-95 transition"
                         >
                           <Trash2 size={13} />
                           <span>Remove</span>
@@ -567,184 +547,168 @@ const Team = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* ADD NEW MEMBER MODAL                                                      */}
+      {/* ADD NEW MEMBER MODAL (AdaptiveSheet)                                      */}
       {/* ========================================================================= */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-gray-100">
-            {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm">
-                  <UserPlus size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Add Team Member</h3>
-                  <p className="text-xs text-gray-500">Create a secure login account and grant system permissions</p>
-                </div>
-              </div>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition"
-              >
-                <X size={18} />
-              </button>
+      <AdaptiveSheet
+        isOpen={showModal}
+        onClose={closeModal}
+        title="Add Team Member"
+        description="Create a secure login account and grant system permissions"
+        icon={UserPlus}
+        size="lg"
+        footer={
+          <div className="flex items-center justify-end gap-3 w-full">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="px-4 py-2.5 min-h-[44px] text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="add-team-member-form"
+              disabled={submitting}
+              className="btn-primary inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] text-sm font-semibold shadow-sm"
+            >
+              {submitting ? (
+                <span>Creating account...</span>
+              ) : (
+                <>
+                  <span>Save Member</span>
+                  <ArrowRight size={15} />
+                </>
+              )}
+            </button>
+          </div>
+        }
+      >
+        <form id="add-team-member-form" onSubmit={handleSubmit} className="space-y-4">
+          {/* Name & Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                aria-label="Full Name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3.5 py-2.5 min-h-[44px] text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+              />
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Name & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    aria-label="Full Name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    aria-label="Email Address"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-              </div>
-
-              {/* Password & Confirm */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Temporary Password *
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    aria-label="Temporary Password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Confirm Password *
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    aria-label="Confirm Password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-              </div>
-
-              {/* Role Selection Cards */}
-              <div className="pt-2">
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                  Select System Role & Permissions *
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Staff Card */}
-                  <div
-                    onClick={() => setFormData({ ...formData, role: 'staff' })}
-                    className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
-                      formData.role === 'staff'
-                        ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-200'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-bold text-sm text-gray-900">Staff</span>
-                      <UserIcon size={16} className="text-emerald-600" />
-                    </div>
-                    <p className="text-[11px] text-gray-500 leading-tight">
-                      POS counter sales terminal only. No inventory modifications.
-                    </p>
-                  </div>
-
-                  {/* Manager Card */}
-                  <div
-                    onClick={() => setFormData({ ...formData, role: 'manager' })}
-                    className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
-                      formData.role === 'manager'
-                        ? 'border-blue-500 bg-blue-50/50 ring-2 ring-blue-200'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-bold text-sm text-gray-900">Manager</span>
-                      <Key size={16} className="text-blue-600" />
-                    </div>
-                    <p className="text-[11px] text-gray-500 leading-tight">
-                      Products, stock, purchases, and sales operations access.
-                    </p>
-                  </div>
-
-                  {/* Admin Card */}
-                  <div
-                    onClick={() => setFormData({ ...formData, role: 'admin' })}
-                    className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
-                      formData.role === 'admin'
-                        ? 'border-purple-500 bg-purple-50/50 ring-2 ring-purple-200'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-bold text-sm text-gray-900">Admin</span>
-                      <ShieldCheck size={16} className="text-purple-600" />
-                    </div>
-                    <p className="text-[11px] text-gray-500 leading-tight">
-                      Full workspace authority, billing, settings, and team access.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="pt-5 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold shadow-sm"
-                >
-                  {submitting ? (
-                    <span>Creating account...</span>
-                  ) : (
-                    <>
-                      <span>Save Member</span>
-                      <ArrowRight size={15} />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                required
+                aria-label="Email Address"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-3.5 py-2.5 min-h-[44px] text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Password & Confirm */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Temporary Password *
+              </label>
+              <input
+                type="password"
+                required
+                aria-label="Temporary Password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full px-3.5 py-2.5 min-h-[44px] text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                required
+                aria-label="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="w-full px-3.5 py-2.5 min-h-[44px] text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+              />
+            </div>
+          </div>
+
+          {/* Role Selection Cards */}
+          <div className="pt-2">
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+              Select System Role & Permissions *
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Staff Card */}
+              <div
+                onClick={() => setFormData({ ...formData, role: 'staff' })}
+                className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
+                  formData.role === 'staff'
+                    ? 'border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-200'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-bold text-sm text-gray-900">Staff</span>
+                  <UserIcon size={16} className="text-emerald-600" />
+                </div>
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  POS counter sales terminal only. No inventory modifications.
+                </p>
+              </div>
+
+              {/* Manager Card */}
+              <div
+                onClick={() => setFormData({ ...formData, role: 'manager' })}
+                className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
+                  formData.role === 'manager'
+                    ? 'border-blue-500 bg-blue-50/50 ring-2 ring-blue-200'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-bold text-sm text-gray-900">Manager</span>
+                  <Key size={16} className="text-blue-600" />
+                </div>
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  Products, stock, purchases, and sales operations access.
+                </p>
+              </div>
+
+              {/* Admin Card */}
+              <div
+                onClick={() => setFormData({ ...formData, role: 'admin' })}
+                className={`cursor-pointer p-3.5 rounded-xl border transition-all ${
+                  formData.role === 'admin'
+                    ? 'border-purple-500 bg-purple-50/50 ring-2 ring-purple-200'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-bold text-sm text-gray-900">Admin</span>
+                  <ShieldCheck size={16} className="text-purple-600" />
+                </div>
+                <p className="text-[11px] text-gray-500 leading-tight">
+                  Full workspace authority, billing, settings, and team access.
+                </p>
+              </div>
+            </div>
+          </div>
+        </form>
+      </AdaptiveSheet>
     </div>
   );
 };

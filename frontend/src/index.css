@@ -49,3 +49,28 @@
     @apply bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden;
   }
 }
+
+@layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pb-safe-nav {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .tap-highlight-transparent {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+}

@@ -13,6 +13,7 @@ import api from '../../services/api';
 import CategoryBadge from '../../components/CategoryBadge';
 import { AuthContext } from '../../context/AuthContext';
 import { hasPermission } from '../../utils/permissions';
+import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
 
 const CATEGORY_COLORS = [
   { name: 'Gray', hex: '#e5e7eb' },
@@ -325,121 +326,99 @@ const Categories = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* ADD / EDIT CATEGORY MODAL                                                 */}
+      {/* ADD / EDIT CATEGORY MODAL (AdaptiveSheet)                                 */}
       {/* ========================================================================= */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm">
-                  <Tag size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    {editingId ? 'Edit Category' : 'Add New Category'}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {editingId ? 'Update category name, badge color, and description' : 'Create a category to classify your inventory'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Category Name */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                  Category Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                  Description (Optional)
-                </label>
-                <textarea
-                  rows={2}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                />
-              </div>
-
-              {/* Color Swatches */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Palette size={14} className="text-indigo-600" />
-                  Badge Color
-                </label>
-                <div className="flex flex-wrap gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200">
-                  {CATEGORY_COLORS.map(c => (
-                    <button
-                      key={c.hex}
-                      type="button"
-                      onClick={() => setColor(c.hex)}
-                      title={c.name}
-                      className={`w-7 h-7 rounded-full border-2 focus:outline-none transition-transform hover:scale-110 ${
-                        color === c.hex ? 'border-gray-900 shadow-md scale-115 ring-2 ring-indigo-300' : 'border-white shadow-sm'
-                      }`}
-                      style={{ backgroundColor: c.hex }}
-                    />
-                  ))}
-                </div>
-                {/* Live Preview */}
-                <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
-                  <span>Badge Preview:</span>
-                  <CategoryBadge category={{ name: name || 'Preview', color }} />
-                </div>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold shadow-sm"
-                >
-                  {submitting ? (
-                    <>
-                      <span className="animate-spin mr-1">⏳</span>
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{editingId ? 'Update Category' : 'Create Category'}</span>
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+      <AdaptiveSheet
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={editingId ? 'Edit Category' : 'Add New Category'}
+        subtitle={editingId ? 'Update category name, badge color, and description' : 'Create a category to classify your inventory'}
+        maxWidth="max-w-md"
+        footer={
+          <div className="flex items-center justify-end gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition min-h-[44px] cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="category-form"
+              disabled={submitting}
+              className="btn-primary inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold shadow-sm rounded-xl min-h-[44px] cursor-pointer disabled:opacity-50"
+            >
+              {submitting ? (
+                <span>Saving...</span>
+              ) : (
+                <>
+                  <span>{editingId ? 'Update Category' : 'Create Category'}</span>
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <form id="category-form" onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+          {/* Category Name */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+              Category Name *
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Beverages, Electronics"
+              className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[44px]"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+              Description (Optional)
+            </label>
+            <textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief details about this category"
+              className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
+            />
+          </div>
+
+          {/* Color Swatches */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Palette size={14} className="text-indigo-600" />
+              <span>Badge Color</span>
+            </label>
+            <div className="grid grid-cols-7 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
+              {CATEGORY_COLORS.map(c => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  onClick={() => setColor(c.hex)}
+                  title={c.name}
+                  className={`w-9 h-9 sm:w-8 sm:h-8 rounded-full border-2 focus:outline-none transition-transform hover:scale-110 flex items-center justify-center cursor-pointer ${
+                    color === c.hex ? 'border-gray-900 shadow-md scale-110 ring-2 ring-indigo-400' : 'border-white shadow-xs'
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                />
+              ))}
+            </div>
+            {/* Live Preview */}
+            <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 bg-white p-2.5 rounded-xl border border-gray-100">
+              <span className="font-semibold">Live Preview:</span>
+              <CategoryBadge category={{ name: name || 'Preview', color }} />
+            </div>
+          </div>
+        </form>
+      </AdaptiveSheet>
     </div>
   );
 };

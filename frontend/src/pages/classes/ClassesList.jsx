@@ -25,6 +25,8 @@ import { toast } from 'react-hot-toast';
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateFormatter';
+import AdaptiveSheet from '../../components/mobile/AdaptiveSheet';
+import SegmentedTabs from '../../components/mobile/SegmentedTabs';
 
 const ClassesList = () => {
   const [batches, setBatches] = useState([]);
@@ -430,60 +432,60 @@ const ClassesList = () => {
         <Plus size={24} />
       </button>
 
-      {/* Comprehensive KPI Analytics Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Comprehensive KPI Analytics Cards Row (2x2 on Mobile, 4-col on Desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Batches & Attendance */}
-        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-5 flex items-center border-l-4 border-indigo-600">
-          <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 mr-4 shrink-0">
-            <BookOpen size={24} />
+        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-3.5 sm:p-5 flex items-center border-l-4 border-indigo-600">
+          <div className="p-2 sm:p-3 rounded-xl bg-indigo-50 text-indigo-600 mr-2.5 sm:mr-4 shrink-0">
+            <BookOpen size={18} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Batches & Attendance</p>
-            <p className="text-2xl font-black text-gray-900 mt-0.5">{analytics.totalBatches} <span className="text-xs font-normal text-gray-400">Batches</span></p>
-            <p className="text-xs text-gray-500 mt-0.5 truncate">
-              <span className="font-semibold text-indigo-600">{analytics.totalStudents} Enrolled</span> • {analytics.totalAttended} Present
+            <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Batches</p>
+            <p className="text-lg sm:text-2xl font-black text-gray-900 mt-0.5 truncate">{analytics.totalBatches} <span className="text-[10px] sm:text-xs font-normal text-gray-400">Batches</span></p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate">
+              <span className="font-semibold text-indigo-600">{analytics.totalStudents} Enrolled</span>
             </p>
           </div>
         </div>
 
         {/* Card 2: Gross Potential Revenue */}
-        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-5 flex items-center border-l-4 border-blue-600">
-          <div className="p-3 rounded-xl bg-blue-50 text-blue-600 mr-4 shrink-0">
-            <TrendingUp size={24} />
+        <div className="bg-white shadow-xs border border-gray-200/80 rounded-2xl p-3.5 sm:p-5 flex items-center border-l-4 border-blue-600">
+          <div className="p-2 sm:p-3 rounded-xl bg-blue-50 text-blue-600 mr-2.5 sm:mr-4 shrink-0">
+            <TrendingUp size={18} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Gross Expected</p>
-            <p className="text-2xl font-black text-gray-900 mt-0.5">{formatCurrency(analytics.totalExpectedRevenue)}</p>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Avg: <span className="font-semibold text-gray-700">{formatCurrency(analytics.avgRevenuePerBatch)}</span> / batch
+            <p className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Expected</p>
+            <p className="text-lg sm:text-2xl font-black text-gray-900 mt-0.5 truncate">{formatCurrency(analytics.totalExpectedRevenue)}</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate">
+              Avg: <span className="font-semibold text-gray-700">{formatCurrency(analytics.avgRevenuePerBatch)}</span>
             </p>
           </div>
         </div>
 
         {/* Card 3: Tuition Revenue Collected */}
-        <div className="bg-white shadow-xs border border-emerald-200/80 rounded-2xl p-5 flex items-center border-l-4 border-emerald-600 bg-gradient-to-br from-white to-emerald-50/30">
-          <div className="p-3 rounded-xl bg-emerald-100 text-emerald-700 mr-4 shrink-0">
-            <Check className="w-5 h-5" />
+        <div className="bg-white shadow-xs border border-emerald-200/80 rounded-2xl p-3.5 sm:p-5 flex items-center border-l-4 border-emerald-600 bg-gradient-to-br from-white to-emerald-50/30">
+          <div className="p-2 sm:p-3 rounded-xl bg-emerald-100 text-emerald-700 mr-2.5 sm:mr-4 shrink-0">
+            <Check size={18} className="sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Tuition Collected</p>
-            <p className="text-2xl font-black text-emerald-700 mt-0.5">{formatCurrency(analytics.totalCollectedRevenue)}</p>
-            <p className="text-xs text-emerald-800/80 mt-0.5">
-              <span className="font-bold">{analytics.overallCollectionRate}%</span> collected ({analytics.totalPaidStudents} Paid)
+            <p className="text-[10px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">Collected</p>
+            <p className="text-lg sm:text-2xl font-black text-emerald-700 mt-0.5 truncate">{formatCurrency(analytics.totalCollectedRevenue)}</p>
+            <p className="text-[10px] sm:text-xs text-emerald-800/80 mt-0.5 truncate">
+              <span className="font-bold">{analytics.overallCollectionRate}%</span> rate
             </p>
           </div>
         </div>
 
         {/* Card 4: Outstanding Tuition Dues */}
-        <div className="bg-white shadow-xs border border-rose-200/80 rounded-2xl p-5 flex items-center border-l-4 border-rose-500 bg-gradient-to-br from-white to-rose-50/20">
-          <div className="p-3 rounded-xl bg-rose-100 text-rose-700 mr-4 shrink-0">
-            <IndianRupee size={24} />
+        <div className="bg-white shadow-xs border border-rose-200/80 rounded-2xl p-3.5 sm:p-5 flex items-center border-l-4 border-rose-500 bg-gradient-to-br from-white to-rose-50/20">
+          <div className="p-2 sm:p-3 rounded-xl bg-rose-100 text-rose-700 mr-2.5 sm:mr-4 shrink-0">
+            <IndianRupee size={18} className="sm:w-6 sm:h-6" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-rose-800 uppercase tracking-wider">Outstanding Dues</p>
-            <p className="text-2xl font-black text-rose-600 mt-0.5">{formatCurrency(analytics.totalDueRevenue)}</p>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {analytics.totalPartialStudents} Partial • {analytics.totalPendingStudents} Unpaid
+            <p className="text-[10px] sm:text-xs font-bold text-rose-800 uppercase tracking-wider">Dues</p>
+            <p className="text-lg sm:text-2xl font-black text-rose-600 mt-0.5 truncate">{formatCurrency(analytics.totalDueRevenue)}</p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 truncate">
+              {analytics.totalPendingStudents} Unpaid
             </p>
           </div>
         </div>
@@ -491,8 +493,21 @@ const ClassesList = () => {
 
       {/* Main Container with Tabs */}
       <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-        {/* Navigation Tabs */}
-        <div className="border-b border-gray-200 px-6 pt-4 flex items-center gap-6 bg-gray-50/50 overflow-x-auto">
+        {/* Mobile Segmented Control */}
+        <div className="p-3 border-b border-gray-100 md:hidden">
+          <SegmentedTabs
+            tabs={[
+              { id: 'BATCHES', label: 'Batches', badge: filteredBatches.length, icon: BookOpen },
+              { id: 'ANALYTICS', label: 'Revenue', icon: BarChart3 },
+              { id: 'STUDENTS', label: 'Students', badge: allStudents.length, icon: Users }
+            ]}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+          />
+        </div>
+
+        {/* Desktop Navigation Tabs */}
+        <div className="hidden md:flex border-b border-gray-200 px-6 pt-4 items-center gap-6 bg-gray-50/50 overflow-x-auto">
           {/* Tab 1: Batches */}
           <button
             type="button"
@@ -1481,435 +1496,382 @@ const ClassesList = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* CREATE NEW BATCH MODAL                                                    */}
+      {/* CREATE NEW BATCH MODAL (AdaptiveSheet)                                    */}
       {/* ========================================================================= */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-sm">
-                  <GraduationCap size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Create New Class Batch</h3>
-                  <p className="text-xs text-gray-500">Schedule a training batch and set course details</p>
-                </div>
-              </div>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Batch Number & Topic */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Batch Code / Number *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.batchNumber}
-                    onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Course Topic / Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.topic}
-                    onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-              </div>
-
-              {/* Date & Location */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Class Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Location / Salon Studio
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                  />
-                </div>
-              </div>
-
-              {/* Seat Price */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                  Seat Price (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.seatPrice}
-                  onChange={(e) => setFormData({ ...formData, seatPrice: e.target.value })}
-                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"
-                />
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex justify-end gap-2.5 pt-3 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold shadow-sm cursor-pointer disabled:opacity-50"
-                >
-                  {submitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Creating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={16} />
-                      <span>Create Batch</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* COLLECT TUITION PAYMENT / INSTALLMENT MODAL                               */}
-      {/* ========================================================================= */}
-      {collectPaymentStudent && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
-            {/* Header */}
-            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-amber-50/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-200">
-                  <IndianRupee className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900">Record Tuition Installment</h3>
-                  <p className="text-xs text-gray-500">
-                    {collectPaymentStudent.name} • Batch {collectPaymentStudent.batchNumber}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCollectPaymentStudent(null)}
-                className="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-700 flex items-center justify-center transition-all cursor-pointer shadow-xs"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleRecordTuitionPayment} className="p-6 overflow-y-auto space-y-4 flex-1">
-              {/* Financial Summary Card */}
-              {(() => {
-                const seatFee = collectPaymentStudent.seatPrice || 0;
-                const currentPaid = typeof collectPaymentStudent.paidAmount === 'number' ? collectPaymentStudent.paidAmount : (collectPaymentStudent.paymentStatus === 'Paid' ? seatFee : 0);
-                const currentDue = typeof collectPaymentStudent.dueAmount === 'number' ? collectPaymentStudent.dueAmount : Math.max(0, seatFee - currentPaid);
-
-                return (
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 space-y-2">
-                    <div className="flex justify-between text-xs text-gray-600">
-                      <span>Total Batch Tuition Fee:</span>
-                      <span className="font-bold text-gray-900">{formatCurrency(seatFee)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-600">
-                      <span>Paid Till Date:</span>
-                      <span className="font-bold text-emerald-700">{formatCurrency(currentPaid)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm pt-2 border-t border-amber-200/80">
-                      <span className="font-bold text-gray-800">Remaining Balance Due:</span>
-                      <span className="font-black text-rose-600 text-base">{formatCurrency(currentDue)}</span>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Amount to Collect */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                  Amount Received Now (₹) *
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={tuitionPaymentForm.amount}
-                  onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, amount: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-base font-black text-emerald-800 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Payment Method & Date */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Payment Method *
-                  </label>
-                  <select
-                    value={tuitionPaymentForm.paymentMethod}
-                    onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, paymentMethod: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none font-medium"
-                  >
-                    <option value="CASH">Cash</option>
-                    <option value="UPI">UPI / GPay / PhonePe</option>
-                    <option value="CARD">Debit / Credit Card</option>
-                    <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
-                    <option value="OTHER">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Payment Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={tuitionPaymentForm.paymentDate}
-                    onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, paymentDate: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Notes / Reference */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                  Payment Reference / Notes (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={tuitionPaymentForm.notes}
-                  onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, notes: e.target.value })}
-                  className="w-full px-3.5 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none"
-                />
-              </div>
-
-              {/* Previous Installments Log */}
-              {collectPaymentStudent.payments && collectPaymentStudent.payments.length > 0 && (
-                <div className="pt-2">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Previous Payments Log</h4>
-                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                    {collectPaymentStudent.payments.map((p, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                        <div>
-                          <span className="font-bold text-gray-900">{formatCurrency(p.amount)}</span>
-                          <span className="text-gray-400 ml-1.5">via {p.paymentMethod}</span>
-                          {p.notes && <span className="text-gray-500 italic ml-1">({p.notes})</span>}
-                        </div>
-                        <span className="text-gray-400">{formatDate(p.paymentDate)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="pt-4 border-t border-gray-100 flex justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setCollectPaymentStudent(null)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingTuitionPayment}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
-                >
-                  {submittingTuitionPayment ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Record Payment ({formatCurrency(Number(tuitionPaymentForm.amount) || 0)})</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* STUDENT PURCHASES MODAL                                                   */}
-      {/* ========================================================================= */}
-      {selectedStudent && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
-            {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-indigo-50/40">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200">
-                  <ShoppingBag className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{selectedStudent.name}</h3>
-                  <p className="text-xs text-gray-500">
-                    Batch {selectedStudent.batchNumber} • Phone: {selectedStudent.phone}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedStudent(null)}
-                className="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-700 flex items-center justify-center transition-all cursor-pointer shadow-xs"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-4 flex-1">
-              {loadingSales ? (
-                <div className="py-12 text-center text-gray-500">
-                  <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm font-medium">Loading purchases...</p>
-                </div>
-              ) : studentSales.length === 0 ? (
-                <div className="py-12 text-center">
-                  <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-base font-bold text-gray-900 mb-1">No Purchases Found</p>
-                  <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">
-                    This student hasn't purchased any inventory or products yet.
-                  </p>
-                </div>
+      <AdaptiveSheet
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title="Create New Class Batch"
+        subtitle="Schedule a training batch and set course details"
+        maxWidth="max-w-lg"
+        footer={
+          <div className="flex items-center justify-end gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition min-h-[44px] cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="create-batch-form"
+              disabled={submitting}
+              className="btn-primary inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold shadow-sm rounded-xl min-h-[44px] cursor-pointer disabled:opacity-50"
+            >
+              {submitting ? (
+                <span>Creating...</span>
               ) : (
-                <div className="space-y-4">
-                  {/* Lifetime Spend Banner */}
-                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl p-5 shadow-sm flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-indigo-100 uppercase tracking-wider">Lifetime Spend</p>
-                      <p className="text-2xl font-black mt-0.5">
-                        {formatCurrency(
-                          studentSales.reduce((sum, s) => sum + (s.status !== 'VOIDED' ? (s.total || 0) : 0), 0)
-                        )}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold">
-                        {studentSales.filter(s => s.status !== 'VOIDED').length} Completed Invoices
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Orders List */}
-                  <div className="space-y-3">
-                    {studentSales.map((sale) => (
-                      <div 
-                        key={sale._id} 
-                        className={`p-4 rounded-2xl border transition-all ${
-                          sale.status === 'VOIDED' 
-                            ? 'bg-gray-50/70 border-gray-200 opacity-60' 
-                            : 'bg-white border-gray-200 hover:border-gray-300 shadow-xs'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900 text-sm">
-                              {sale.invoiceNumber}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              {formatDate(sale.saleDate)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {sale.status === 'VOIDED' && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
-                                VOIDED
-                              </span>
-                            )}
-                            <span className="text-sm font-black text-emerald-600">
-                              {formatCurrency(sale.total)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Items Sub-list */}
-                        <div className="bg-gray-50/80 rounded-xl p-3 space-y-1.5 border border-gray-100">
-                          {sale.items?.map((item, idx) => (
-                            <div key={idx} className="flex justify-between text-xs text-gray-600">
-                              <span>
-                                <span className="font-bold text-gray-900">{item.quantity}x</span>{' '}
-                                {item.productId?.name || item.product?.name || 'Product'}
-                              </span>
-                              <span className="font-semibold text-gray-800">
-                                {formatCurrency(item.total)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <>
+                  <Plus size={16} />
+                  <span>Create Batch</span>
+                </>
               )}
+            </button>
+          </div>
+        }
+      >
+        <form id="create-batch-form" onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+          {/* Batch Number & Topic */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Batch Code / Number *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.batchNumber}
+                onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
+                placeholder="e.g. BATCH-2026-01"
+                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[44px]"
+              />
             </div>
 
-            {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Course Topic / Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.topic}
+                onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
+                placeholder="e.g. Master Bridal Styling"
+                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[44px]"
+              />
+            </div>
+          </div>
+
+          {/* Date & Location */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Class Date *
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[44px]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Location / Salon Studio
+              </label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="e.g. Main Studio Floor"
+                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[44px]"
+              />
+            </div>
+          </div>
+
+          {/* Seat Price */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+              Seat Price (₹)
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={formData.seatPrice}
+              onChange={(e) => setFormData({ ...formData, seatPrice: e.target.value })}
+              placeholder="e.g. 5000"
+              className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition min-h-[44px]"
+            />
+          </div>
+        </form>
+      </AdaptiveSheet>
+
+      {/* ========================================================================= */}
+      {/* COLLECT TUITION PAYMENT / INSTALLMENT MODAL (AdaptiveSheet)               */}
+      {/* ========================================================================= */}
+      <AdaptiveSheet
+        isOpen={Boolean(collectPaymentStudent)}
+        onClose={() => setCollectPaymentStudent(null)}
+        title="Record Tuition Installment"
+        subtitle={collectPaymentStudent ? `${collectPaymentStudent.name} • Batch ${collectPaymentStudent.batchNumber}` : ''}
+        maxWidth="max-w-lg"
+        footer={
+          <div className="flex items-center justify-end gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={() => setCollectPaymentStudent(null)}
+              className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition min-h-[44px] cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="tuition-payment-form"
+              disabled={submittingTuitionPayment}
+              className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50 min-h-[44px]"
+            >
+              {submittingTuitionPayment ? (
+                <span>Saving...</span>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>Record Payment ({formatCurrency(Number(tuitionPaymentForm.amount) || 0)})</span>
+                </>
+              )}
+            </button>
+          </div>
+        }
+      >
+        {collectPaymentStudent && (
+          <form id="tuition-payment-form" onSubmit={handleRecordTuitionPayment} className="p-4 sm:p-6 space-y-4">
+            {/* Financial Summary Card */}
+            {(() => {
+              const seatFee = collectPaymentStudent.seatPrice || 0;
+              const currentPaid = typeof collectPaymentStudent.paidAmount === 'number' ? collectPaymentStudent.paidAmount : (collectPaymentStudent.paymentStatus === 'Paid' ? seatFee : 0);
+              const currentDue = typeof collectPaymentStudent.dueAmount === 'number' ? collectPaymentStudent.dueAmount : Math.max(0, seatFee - currentPaid);
+
+              return (
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 space-y-2">
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>Total Batch Tuition Fee:</span>
+                    <span className="font-bold text-gray-900">{formatCurrency(seatFee)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>Paid Till Date:</span>
+                    <span className="font-bold text-emerald-700">{formatCurrency(currentPaid)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm pt-2 border-t border-amber-200/80">
+                    <span className="font-bold text-gray-800">Remaining Balance Due:</span>
+                    <span className="font-black text-rose-600 text-base">{formatCurrency(currentDue)}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Amount to Collect */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Amount Received Now (₹) *
+              </label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={tuitionPaymentForm.amount}
+                onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, amount: e.target.value })}
+                className="w-full px-3.5 py-2.5 text-base font-black text-emerald-800 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none min-h-[44px]"
+              />
+            </div>
+
+            {/* Payment Method & Date */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Payment Method *
+                </label>
+                <select
+                  value={tuitionPaymentForm.paymentMethod}
+                  onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, paymentMethod: e.target.value })}
+                  className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none font-medium min-h-[44px]"
+                >
+                  <option value="CASH">Cash</option>
+                  <option value="UPI">UPI / GPay / PhonePe</option>
+                  <option value="CARD">Debit / Credit Card</option>
+                  <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Payment Date
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={tuitionPaymentForm.paymentDate}
+                  onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, paymentDate: e.target.value })}
+                  className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none font-medium min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            {/* Notes / Reference */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Payment Reference / Notes (Optional)
+              </label>
+              <input
+                type="text"
+                value={tuitionPaymentForm.notes}
+                onChange={(e) => setTuitionPaymentForm({ ...tuitionPaymentForm, notes: e.target.value })}
+                placeholder="Transaction ID, remarks, etc."
+                className="w-full px-3.5 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none min-h-[44px]"
+              />
+            </div>
+
+            {/* Previous Installments Log */}
+            {collectPaymentStudent.payments && collectPaymentStudent.payments.length > 0 && (
+              <div className="pt-2">
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Previous Payments Log</h4>
+                <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                  {collectPaymentStudent.payments.map((p, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-xs bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                      <div>
+                        <span className="font-bold text-gray-900">{formatCurrency(p.amount)}</span>
+                        <span className="text-gray-400 ml-1.5">via {p.paymentMethod}</span>
+                        {p.notes && <span className="text-gray-500 italic ml-1">({p.notes})</span>}
+                      </div>
+                      <span className="text-gray-400">{formatDate(p.paymentDate)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </form>
+        )}
+      </AdaptiveSheet>
+
+      {/* ========================================================================= */}
+      {/* STUDENT PURCHASES MODAL (AdaptiveSheet)                                   */}
+      {/* ========================================================================= */}
+      <AdaptiveSheet
+        isOpen={Boolean(selectedStudent)}
+        onClose={() => setSelectedStudent(null)}
+        title={selectedStudent?.name || 'Student Purchases'}
+        subtitle={selectedStudent ? `Batch ${selectedStudent.batchNumber} • Phone: ${selectedStudent.phone || 'N/A'}` : ''}
+        maxWidth="max-w-2xl"
+        footer={
+          selectedStudent ? (
+            <div className="flex items-center justify-between w-full gap-2">
               <Link 
                 to={`/sales?studentId=${selectedStudent._id}`} 
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all"
+                className="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all min-h-[44px]"
               >
                 <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Record New Sale
               </Link>
               <button
                 type="button"
                 onClick={() => setSelectedStudent(null)}
-                className="px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-all cursor-pointer"
+                className="px-4 py-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-all cursor-pointer min-h-[44px]"
               >
                 Close
               </button>
             </div>
+          ) : null
+        }
+      >
+        {selectedStudent && (
+          <div className="p-4 sm:p-6 space-y-4">
+            {loadingSales ? (
+              <div className="py-12 text-center text-gray-500">
+                <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-sm font-medium">Loading purchases...</p>
+              </div>
+            ) : studentSales.length === 0 ? (
+              <div className="py-12 text-center">
+                <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-base font-bold text-gray-900 mb-1">No Purchases Found</p>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">
+                  This student hasn't purchased any inventory or products yet.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Lifetime Spend Banner */}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl p-4 sm:p-5 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-indigo-100 uppercase tracking-wider">Lifetime Spend</p>
+                    <p className="text-xl sm:text-2xl font-black mt-0.5">
+                      {formatCurrency(
+                        studentSales.reduce((sum, s) => sum + (s.status !== 'VOIDED' ? (s.total || 0) : 0), 0)
+                      )}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold">
+                      {studentSales.filter(s => s.status !== 'VOIDED').length} Invoices
+                    </span>
+                  </div>
+                </div>
+
+                {/* Orders List */}
+                <div className="space-y-2.5">
+                  {studentSales.map((sale) => (
+                    <div 
+                      key={sale._id} 
+                      className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
+                        sale.status === 'VOIDED' 
+                          ? 'bg-gray-50/70 border-gray-200 opacity-60' 
+                          : 'bg-white border-gray-200 hover:border-gray-300 shadow-xs'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-900 text-sm">
+                            {sale.invoiceNumber}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {formatDate(sale.saleDate)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {sale.status === 'VOIDED' && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
+                              VOIDED
+                            </span>
+                          )}
+                          <span className="text-sm font-black text-emerald-600">
+                            {formatCurrency(sale.total)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Items Sub-list */}
+                      <div className="bg-gray-50/80 rounded-xl p-2.5 space-y-1 border border-gray-100">
+                        {sale.items?.map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-xs text-gray-600">
+                            <span>
+                              <span className="font-bold text-gray-900">{item.quantity}x</span>{' '}
+                              {item.productId?.name || item.product?.name || 'Product'}
+                            </span>
+                            <span className="font-semibold text-gray-800">
+                              {formatCurrency(item.total)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </AdaptiveSheet>
     </div>
   );
 };
