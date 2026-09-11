@@ -19,7 +19,9 @@ import {
   Sparkles,
   ShieldCheck,
   RefreshCw,
-  Check
+  Check,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
@@ -41,6 +43,7 @@ const MySpace = () => {
   });
 
   const [selectedPresetCategory, setSelectedPresetCategory] = useState('all');
+  const [isPresetsExpanded, setIsPresetsExpanded] = useState(false);
 
   const filteredPresets = React.useMemo(() => {
     if (selectedPresetCategory === 'all') return DESIGNER_PRESETS;
@@ -662,73 +665,111 @@ const MySpace = () => {
                   </div>
 
 
-                  {/* Curated Designer Presets with Categories */}
-                  <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                      <div>
-                        <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block">
-                          Curated Designer Duos ({filteredPresets.length})
-                        </label>
-                        <span className="text-[11px] text-gray-400">1-click professional color pairs crafted for your industry</span>
+                  {/* Curated Designer Presets with Expand / Collapse */}
+                  <div className="border border-gray-200 rounded-2xl bg-white transition-all shadow-xs overflow-hidden">
+                    <div 
+                      onClick={() => setIsPresetsExpanded(!isPresetsExpanded)}
+                      className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 hover:bg-gray-50/80 transition-colors cursor-pointer select-none"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-2xs shrink-0">
+                          <Sparkles size={16} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                              Curated Designer Duos ({DESIGNER_PRESETS.length})
+                            </span>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                              isPresetsExpanded 
+                                ? 'bg-indigo-50 text-indigo-700 border-indigo-100' 
+                                : 'bg-gray-100 text-gray-600 border-gray-200'
+                            }`}>
+                              {isPresetsExpanded ? 'Open' : 'Collapsed'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-gray-400 mt-0.5">
+                            1-click professional color pairs crafted for your industry
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Category Filter Tabs */}
-                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                        {PRESET_CATEGORIES.map((cat) => (
-                          <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() => setSelectedPresetCategory(cat.id)}
-                            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                              selectedPresetCategory === cat.id
-                                ? 'bg-indigo-600 text-white shadow-xs'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
-                          >
-                            {cat.name}
-                          </button>
-                        ))}
+                      <div className="flex items-center gap-2 self-end sm:self-center">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsPresetsExpanded(!isPresetsExpanded);
+                          }}
+                          className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/70 px-3 py-1.5 rounded-xl transition-all shadow-2xs"
+                        >
+                          <span>{isPresetsExpanded ? 'Collapse Presets' : `Expand & Browse (${DESIGNER_PRESETS.length})`}</span>
+                          {isPresetsExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                        </button>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                      {filteredPresets.map((preset) => {
-                        const isSelected = 
-                          (settings.brandColor || '').toLowerCase() === preset.primary.toLowerCase() &&
-                          (settings.secondaryColor || '').toLowerCase() === preset.secondary.toLowerCase();
-                        return (
-                          <button
-                            key={preset.id}
-                            type="button"
-                            onClick={() => setSettings({
-                              ...settings,
-                              brandColor: preset.primary,
-                              secondaryColor: preset.secondary
-                            })}
-                            className={`p-2.5 rounded-xl border transition-all text-left group bg-white hover:shadow-md ${
-                              isSelected
-                                ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div 
-                              className="h-8 rounded-lg mb-2 shadow-inner border border-black/10 flex items-center justify-end px-1.5 relative overflow-hidden"
-                              style={{
-                                background: `linear-gradient(135deg, ${preset.primary} 0%, ${preset.primary} 50%, ${preset.secondary} 50%, ${preset.secondary} 100%)`
-                              }}
+                    {isPresetsExpanded && (
+                      <div className="px-4 pb-5 sm:px-5 pt-3 border-t border-gray-100">
+                        {/* Category Filter Tabs */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3">
+                          {PRESET_CATEGORIES.map((cat) => (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setSelectedPresetCategory(cat.id)}
+                              className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                selectedPresetCategory === cat.id
+                                  ? 'bg-indigo-600 text-white shadow-xs'
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              }`}
                             >
-                              {isSelected && (
-                                <span className="bg-white/90 rounded-full p-0.5 shadow">
-                                  <Check size={11} className="text-indigo-700" />
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-[11px] font-bold text-gray-800 truncate">{preset.name}</div>
-                            <div className="text-[9px] text-gray-400 truncate mt-0.5">{preset.desc}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                              {cat.name}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Presets Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                          {filteredPresets.map((preset) => {
+                            const isSelected = 
+                              (settings.brandColor || '').toLowerCase() === preset.primary.toLowerCase() &&
+                              (settings.secondaryColor || '').toLowerCase() === preset.secondary.toLowerCase();
+                            return (
+                              <button
+                                key={preset.id}
+                                type="button"
+                                onClick={() => setSettings({
+                                  ...settings,
+                                  brandColor: preset.primary,
+                                  secondaryColor: preset.secondary
+                                })}
+                                className={`p-2.5 rounded-xl border transition-all text-left group bg-white hover:shadow-md ${
+                                  isSelected
+                                    ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div 
+                                  className="h-8 rounded-lg mb-2 shadow-inner border border-black/10 flex items-center justify-end px-1.5 relative overflow-hidden"
+                                  style={{
+                                    background: `linear-gradient(135deg, ${preset.primary} 0%, ${preset.primary} 50%, ${preset.secondary} 50%, ${preset.secondary} 100%)`
+                                  }}
+                                >
+                                  {isSelected && (
+                                    <span className="bg-white/90 rounded-full p-0.5 shadow">
+                                      <Check size={11} className="text-indigo-700" />
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] font-bold text-gray-800 truncate">{preset.name}</div>
+                                <div className="text-[9px] text-gray-400 truncate mt-0.5">{preset.desc}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                 </div>
