@@ -114,15 +114,78 @@ export const hslToHex = (h, s, l) => {
 };
 
 /**
+ * Industry categories for designer presets
+ */
+export const PRESET_CATEGORIES = [
+  { id: 'all', name: 'All Presets' },
+  { id: 'tech', name: 'Tech & SaaS' },
+  { id: 'retail', name: 'Beauty & Lifestyle' },
+  { id: 'commerce', name: 'Commerce & Food' },
+  { id: 'luxury', name: 'Executive & Dark' }
+];
+
+/**
  * Curated Designer Presets for 1-click dual color palettes
  */
 export const DESIGNER_PRESETS = [
-  { id: 'crimson_rose', name: 'Crimson & Rose', primary: '#ce3b3b', secondary: '#fb7185', desc: 'Luxury, Beauty & Lifestyle' },
-  { id: 'indigo_cyan', name: 'Indigo & Cyan', primary: '#4f46e5', secondary: '#06b6d4', desc: 'Modern High-Tech SaaS' },
-  { id: 'emerald_gold', name: 'Emerald & Gold', primary: '#059669', secondary: '#f59e0b', desc: 'Growth, Wealth & Commerce' },
-  { id: 'obsidian_amber', name: 'Obsidian & Amber', primary: '#18181b', secondary: '#f59e0b', desc: 'Executive Carbon Dark' },
-  { id: 'royal_coral', name: 'Royal & Coral', primary: '#1d4ed8', secondary: '#f97316', desc: 'Energetic Retail & Trade' },
-  { id: 'amethyst_pink', name: 'Amethyst & Orchid', primary: '#7c3aed', secondary: '#ec4899', desc: 'Creative Design Studio' }
+  // Tech & Modern SaaS
+  { id: 'indigo_cyan', category: 'tech', name: 'Indigo & Cyan', primary: '#4f46e5', secondary: '#06b6d4', desc: 'Modern High-Tech SaaS' },
+  { id: 'cyber_violet', category: 'tech', name: 'Cobalt & Violet', primary: '#2563eb', secondary: '#8b5cf6', desc: 'Cloud, AI & Platforms' },
+  { id: 'electric_emerald', category: 'tech', name: 'Sapphire & Mint', primary: '#1d4ed8', secondary: '#10b981', desc: 'FinTech & Analytics' },
+  { id: 'teal_sky', category: 'tech', name: 'Teal & Sky', primary: '#0d9488', secondary: '#38bdf8', desc: 'Clean Digital Workspace' },
+
+  // Beauty, Fashion & Lifestyle
+  { id: 'crimson_rose', category: 'retail', name: 'Crimson & Rose', primary: '#ce3b3b', secondary: '#fb7185', desc: 'Beauty, Makeover & Salon' },
+  { id: 'amethyst_orchid', category: 'retail', name: 'Amethyst & Orchid', primary: '#7c3aed', secondary: '#ec4899', desc: 'Creative Design & Studio' },
+  { id: 'coral_amber', category: 'retail', name: 'Coral & Sunset', primary: '#f43f5e', secondary: '#fb923c', desc: 'Bakery, Florist & Boutique' },
+  { id: 'berry_gold', category: 'retail', name: 'Berry & Champagne', primary: '#9333ea', secondary: '#f59e0b', desc: 'Luxury Apparel & Jewelry' },
+
+  // Commerce, Groceries & Trade
+  { id: 'emerald_gold', category: 'commerce', name: 'Emerald & Gold', primary: '#059669', secondary: '#f59e0b', desc: 'Growth, Wealth & Trade' },
+  { id: 'forest_mint', category: 'commerce', name: 'Forest & Mint', primary: '#047857', secondary: '#34d399', desc: 'Organics & Supermarket' },
+  { id: 'copper_tangerine', category: 'commerce', name: 'Copper & Amber', primary: '#ea580c', secondary: '#f59e0b', desc: 'Hardware & Construction' },
+  { id: 'royal_coral', category: 'commerce', name: 'Royal & Coral', primary: '#1d4ed8', secondary: '#f97316', desc: 'Energetic Retail & Trade' },
+
+  // Executive, Dark & Luxury
+  { id: 'obsidian_amber', category: 'luxury', name: 'Obsidian & Gold', primary: '#18181b', secondary: '#eab308', desc: 'Executive Carbon Black' },
+  { id: 'midnight_cyan', category: 'luxury', name: 'Midnight & Cyan', primary: '#0f172a', secondary: '#38bdf8', desc: 'Corporate & Consulting' },
+  { id: 'slate_emerald', category: 'luxury', name: 'Slate & Emerald', primary: '#334155', secondary: '#10b981', desc: 'Logistics & Supply Chain' }
+];
+
+/**
+ * 12 Quick popular swatches for Primary Brand Color
+ */
+export const PRIMARY_QUICK_SWATCHES = [
+  { name: 'Indigo', hex: '#4f46e5' },
+  { name: 'Cobalt', hex: '#2563eb' },
+  { name: 'Ocean', hex: '#0284c7' },
+  { name: 'Teal', hex: '#0d9488' },
+  { name: 'Emerald', hex: '#059669' },
+  { name: 'Forest', hex: '#15803d' },
+  { name: 'Crimson', hex: '#ce3b3b' },
+  { name: 'Ruby', hex: '#e11d48' },
+  { name: 'Violet', hex: '#7c3aed' },
+  { name: 'Purple', hex: '#9333ea' },
+  { name: 'Amber', hex: '#d97706' },
+  { name: 'Obsidian', hex: '#18181b' }
+];
+
+/**
+ * 12 Quick popular swatches for Secondary Accent Color
+ */
+export const SECONDARY_QUICK_SWATCHES = [
+  { name: 'Rose', hex: '#fb7185' },
+  { name: 'Coral', hex: '#f43f5e' },
+  { name: 'Sunset', hex: '#f97316' },
+  { name: 'Amber', hex: '#f59e0b' },
+  { name: 'Gold', hex: '#eab308' },
+  { name: 'Lime', hex: '#84cc16' },
+  { name: 'Mint', hex: '#10b981' },
+  { name: 'Cyan', hex: '#06b6d4' },
+  { name: 'Sky', hex: '#38bdf8' },
+  { name: 'Violet', hex: '#8b5cf6' },
+  { name: 'Fuchsia', hex: '#d946ef' },
+  { name: 'Pink', hex: '#ec4899' }
 ];
 
 /**
@@ -137,7 +200,8 @@ export const getHarmoniousRecommendations = (primaryHex) => {
     return [
       { name: 'Electric Amber', hex: '#f59e0b', reason: 'High-contrast luxury pop' },
       { name: 'Vibrant Cyan', hex: '#06b6d4', reason: 'Modern tech accent' },
-      { name: 'Rose Gold', hex: '#fb7185', reason: 'Warm elegant highlight' }
+      { name: 'Rose Gold', hex: '#fb7185', reason: 'Warm elegant highlight' },
+      { name: 'Emerald Glow', hex: '#10b981', reason: 'Vibrant fresh energy' }
     ];
   }
 
@@ -153,10 +217,15 @@ export const getHarmoniousRecommendations = (primaryHex) => {
   const popHue = (h - 40 + 360) % 360;
   const popHex = hslToHex(popHue, Math.min(100, s + 10), Math.min(62, Math.max(48, l)));
 
+  // 4. Triadic Pop (+120 deg)
+  const triadicHue = (h + 120) % 360;
+  const triadicHex = hslToHex(triadicHue, Math.min(95, s), Math.min(60, Math.max(45, l)));
+
   return [
     { name: 'Harmonious Flow', hex: analogousHex, reason: 'Seamless analogous gradient' },
     { name: 'Vibrant Contrast', hex: compHex, reason: 'High-energy complementary pop' },
-    { name: 'Luminous Glow', hex: popHex, reason: 'Warm energetic highlight' }
+    { name: 'Luminous Glow', hex: popHex, reason: 'Warm energetic highlight' },
+    { name: 'Triadic Dynamic', hex: triadicHex, reason: 'Balanced geometric chromatic pop' }
   ];
 };
 

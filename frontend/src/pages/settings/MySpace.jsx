@@ -23,7 +23,13 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { DESIGNER_PRESETS, getHarmoniousRecommendations } from '../../utils/colorUtils';
+import { 
+  DESIGNER_PRESETS, 
+  PRESET_CATEGORIES, 
+  PRIMARY_QUICK_SWATCHES, 
+  SECONDARY_QUICK_SWATCHES, 
+  getHarmoniousRecommendations 
+} from '../../utils/colorUtils';
 
 const MySpace = () => {
   const { user } = useContext(AuthContext);
@@ -34,6 +40,13 @@ const MySpace = () => {
     const params = new URLSearchParams(location.search);
     return params.get('tab') || 'profile';
   });
+
+  const [selectedPresetCategory, setSelectedPresetCategory] = useState('all');
+
+  const filteredPresets = React.useMemo(() => {
+    if (selectedPresetCategory === 'all') return DESIGNER_PRESETS;
+    return DESIGNER_PRESETS.filter(p => p.category === selectedPresetCategory);
+  }, [selectedPresetCategory]);
   
   const [settings, setSettings] = useState({
     businessName: '',
@@ -519,101 +532,161 @@ const MySpace = () => {
                   </div>
 
                   {/* Dual Color Pickers Side by Side */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Primary Color Picker */}
-                    <div className="p-4 rounded-2xl border border-gray-200 bg-gray-50/70 hover:bg-gray-50 transition">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold text-gray-800 uppercase tracking-wider">
-                          Primary Brand Color
-                        </label>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
-                          Main Identity
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-500 mb-3">
-                        Drives top app bar, primary navigation, revenue indicators, and main CTAs.
-                      </p>
-                      <div className="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-gray-200">
-                        <input
-                          type="color"
-                          aria-label="Primary Brand Color Picker"
-                          value={settings.brandColor || '#4f46e5'}
-                          onChange={(e) => setSettings({ ...settings, brandColor: e.target.value })}
-                          className="h-9 w-12 rounded-lg cursor-pointer border-0 p-0 shadow-inner"
-                        />
-                        <div className="font-mono text-xs font-bold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200 flex-1">
-                          {(settings.brandColor || '#4f46e5').toUpperCase()}
+                    <div className="p-4 sm:p-5 rounded-2xl border border-gray-200 bg-gray-50/70 hover:bg-gray-50 transition flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                            Primary Brand Color
+                          </label>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            Main Identity
+                          </span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setSettings({ ...settings, brandColor: '#4f46e5' })}
-                          className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold px-2 py-1 hover:bg-indigo-50 rounded-lg transition"
-                        >
-                          Default
-                        </button>
+                        <p className="text-[11px] text-gray-500 mb-3">
+                          Drives top app bar, primary navigation, revenue indicators, and main CTAs.
+                        </p>
+                        <div className="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-gray-200">
+                          <input
+                            type="color"
+                            aria-label="Primary Brand Color Picker"
+                            value={settings.brandColor || '#4f46e5'}
+                            onChange={(e) => setSettings({ ...settings, brandColor: e.target.value })}
+                            className="h-9 w-12 rounded-lg cursor-pointer border-0 p-0 shadow-inner"
+                          />
+                          <div className="font-mono text-xs font-bold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200 flex-1">
+                            {(settings.brandColor || '#4f46e5').toUpperCase()}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSettings({ ...settings, brandColor: '#4f46e5' })}
+                            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold px-2 py-1 hover:bg-indigo-50 rounded-lg transition"
+                          >
+                            Default
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quick Swatches for Primary */}
+                      <div className="mt-4 pt-3 border-t border-gray-200/80">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
+                          1-Click Popular Primary Swatches:
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {PRIMARY_QUICK_SWATCHES.map((swatch) => {
+                            const isSelected = (settings.brandColor || '').toLowerCase() === swatch.hex.toLowerCase();
+                            return (
+                              <button
+                                key={swatch.hex}
+                                type="button"
+                                title={`${swatch.name} (${swatch.hex})`}
+                                onClick={() => setSettings({ ...settings, brandColor: swatch.hex })}
+                                className={`w-7 h-7 rounded-lg transition-all relative flex items-center justify-center shadow-xs hover:scale-115 active:scale-95 ${
+                                  isSelected ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105' : 'border border-black/10'
+                                }`}
+                                style={{ backgroundColor: swatch.hex }}
+                              >
+                                {isSelected && (
+                                  <Check size={13} className="text-white drop-shadow-md" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
                     {/* Secondary Accent Color Picker */}
-                    <div className="p-4 rounded-2xl border border-gray-200 bg-gray-50/70 hover:bg-gray-50 transition">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold text-gray-800 uppercase tracking-wider">
-                          Secondary Accent Color
-                        </label>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
-                          Contrast Accent
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-500 mb-3">
-                        Powers batch metrics, orders chart curve, upgrade highlights, and dual-tone gradients.
-                      </p>
-                      <div className="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-gray-200">
-                        <input
-                          type="color"
-                          aria-label="Secondary Accent Color Picker"
-                          value={settings.secondaryColor || '#f43f5e'}
-                          onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                          className="h-9 w-12 rounded-lg cursor-pointer border-0 p-0 shadow-inner"
-                        />
-                        <div className="font-mono text-xs font-bold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200 flex-1">
-                          {(settings.secondaryColor || '#f43f5e').toUpperCase()}
+                    <div className="p-4 sm:p-5 rounded-2xl border border-gray-200 bg-gray-50/70 hover:bg-gray-50 transition flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                            Secondary Accent Color
+                          </label>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
+                            Contrast Accent
+                          </span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setSettings({ ...settings, secondaryColor: '#f43f5e' })}
-                          className="text-[11px] text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 hover:bg-rose-50 rounded-lg transition"
-                        >
-                          Default
-                        </button>
+                        <p className="text-[11px] text-gray-500 mb-3">
+                          Powers batch metrics, orders chart curve, upgrade highlights, and dual-tone gradients.
+                        </p>
+                        <div className="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border border-gray-200">
+                          <input
+                            type="color"
+                            aria-label="Secondary Accent Color Picker"
+                            value={settings.secondaryColor || '#f43f5e'}
+                            onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
+                            className="h-9 w-12 rounded-lg cursor-pointer border-0 p-0 shadow-inner"
+                          />
+                          <div className="font-mono text-xs font-bold text-gray-800 bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200 flex-1">
+                            {(settings.secondaryColor || '#f43f5e').toUpperCase()}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSettings({ ...settings, secondaryColor: '#f43f5e' })}
+                            className="text-[11px] text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 hover:bg-rose-50 rounded-lg transition"
+                          >
+                            Default
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quick Swatches for Secondary */}
+                      <div className="mt-4 pt-3 border-t border-gray-200/80">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
+                          1-Click Popular Secondary Swatches:
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {SECONDARY_QUICK_SWATCHES.map((swatch) => {
+                            const isSelected = (settings.secondaryColor || '').toLowerCase() === swatch.hex.toLowerCase();
+                            return (
+                              <button
+                                key={swatch.hex}
+                                type="button"
+                                title={`${swatch.name} (${swatch.hex})`}
+                                onClick={() => setSettings({ ...settings, secondaryColor: swatch.hex })}
+                                className={`w-7 h-7 rounded-lg transition-all relative flex items-center justify-center shadow-xs hover:scale-115 active:scale-95 ${
+                                  isSelected ? 'ring-2 ring-rose-500 ring-offset-2 scale-105' : 'border border-black/10'
+                                }`}
+                                style={{ backgroundColor: swatch.hex }}
+                              >
+                                {isSelected && (
+                                  <Check size={13} className="text-white drop-shadow-md" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Dynamic Harmonious Recommendations */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50/50 via-purple-50/30 to-pink-50/30 border border-indigo-100/70">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles size={14} className="text-amber-500" />
+                  <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-50/50 via-purple-50/30 to-pink-50/30 border border-indigo-100/70">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Sparkles size={15} className="text-amber-500" />
                       <span className="text-xs font-bold text-gray-800">
-                        Smart Color Recommendations (for {settings.brandColor?.toUpperCase()})
+                        Smart Harmonic Recommendations for {settings.brandColor?.toUpperCase()}
                       </span>
                     </div>
                     <p className="text-[11px] text-gray-500 mb-3">
-                      Based on color theory, these secondary shades harmonize best with your selected primary brand color:
+                      Calculated using color harmony principles to match your selected primary shade:
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       {getHarmoniousRecommendations(settings.brandColor).map((rec, idx) => (
                         <button
                           key={idx}
                           type="button"
                           onClick={() => setSettings({ ...settings, secondaryColor: rec.hex })}
-                          className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-all text-left bg-white hover:border-indigo-300 hover:shadow-sm ${
+                          className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all text-left bg-white hover:border-indigo-300 hover:shadow-sm ${
                             (settings.secondaryColor || '').toLowerCase() === rec.hex.toLowerCase()
                               ? 'border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
                               : 'border-gray-200'
                           }`}
                         >
                           <span 
-                            className="w-5 h-5 rounded-lg border border-black/10 shadow-inner flex-shrink-0"
+                            className="w-6 h-6 rounded-lg border border-black/10 shadow-inner flex-shrink-0"
                             style={{ backgroundColor: rec.hex }}
                           />
                           <div className="min-w-0 flex-1">
@@ -628,16 +701,37 @@ const MySpace = () => {
                     </div>
                   </div>
 
-                  {/* Curated Designer Presets */}
+                  {/* Curated Designer Presets with Categories */}
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-bold text-gray-800 uppercase tracking-wider">
-                        1-Click Curated Designer Duos
-                      </label>
-                      <span className="text-[11px] text-gray-400">Hand-picked harmonious pairs</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                      <div>
+                        <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block">
+                          Curated Designer Duos ({filteredPresets.length})
+                        </label>
+                        <span className="text-[11px] text-gray-400">1-click professional color pairs crafted for your industry</span>
+                      </div>
+
+                      {/* Category Filter Tabs */}
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                        {PRESET_CATEGORIES.map((cat) => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setSelectedPresetCategory(cat.id)}
+                            className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                              selectedPresetCategory === cat.id
+                                ? 'bg-indigo-600 text-white shadow-xs'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            {cat.name}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-                      {DESIGNER_PRESETS.map((preset) => {
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                      {filteredPresets.map((preset) => {
                         const isSelected = 
                           (settings.brandColor || '').toLowerCase() === preset.primary.toLowerCase() &&
                           (settings.secondaryColor || '').toLowerCase() === preset.secondary.toLowerCase();
