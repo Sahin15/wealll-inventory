@@ -14,7 +14,7 @@ import {
   UserCircle,
   BookOpen
 } from 'lucide-react';
-import { getContrastYIQ } from '../utils/colorUtils';
+import { getContrastYIQ, generateBrandTheme } from '../utils/colorUtils';
 import TopAppBar from '../components/navigation/TopAppBar';
 import BottomNav from '../components/navigation/BottomNav';
 import SubscriptionBlocker from '../components/SubscriptionBlocker';
@@ -46,8 +46,12 @@ const DashboardLayout = () => {
     }
   }, [user]);
 
-  if (loading || loadingSettings) {
-    return <div className="flex h-screen items-center justify-center bg-gray-50">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -98,13 +102,10 @@ const DashboardLayout = () => {
     { name: 'My Space', href: '/my-space', icon: UserCircle, roles: ['admin'] },
   ].filter(item => item.roles.includes(user.role));
 
-  const brandStyle = user?.tenantId?.brandColor ? {
-    '--brand-color': user.tenantId.brandColor,
-    '--brand-text-color': getContrastYIQ(user.tenantId.brandColor)
-  } : {};
+  const brandTheme = generateBrandTheme(user?.tenantId?.brandColor);
 
   return (
-    <div className="fixed inset-0 w-full bg-gray-50 flex overflow-hidden" style={brandStyle}>
+    <div className="fixed inset-0 w-full bg-gray-50 flex overflow-hidden" style={brandTheme}>
       {isBlocked && (
         <SubscriptionBlocker 
           onUpgrade={() => {
@@ -125,12 +126,20 @@ const DashboardLayout = () => {
       {/* Sidebar */}
       <div className={`hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm print:hidden ${globalSettings?.announcementText ? 'mt-12' : ''}`}>
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center justify-center h-20 w-full py-3 px-4 flex-shrink-0 border-b border-gray-100 bg-white">
+          <div className="flex items-center justify-center h-20 w-full py-3 px-4 flex-shrink-0 border-b border-gray-100 bg-white relative">
+            <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'var(--brand-gradient)' }} />
             {user?.tenantId?.logoUrl ? (
-              <img src={user.tenantId.logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+              <img 
+                src={user.tenantId.logoUrl} 
+                alt={user?.tenantId?.businessName || "Business Logo"} 
+                className="max-h-full max-w-full object-contain"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
             ) : (
               <h1 className="text-lg font-bold tracking-tight text-gray-900 truncate w-full text-center">
-                {user?.tenantId?.appName || 'WeAlll Inventory'}
+                {user?.tenantId?.appName || user?.tenantId?.businessName || 'WeAlll Inventory'}
               </h1>
             )}
           </div>
@@ -142,10 +151,14 @@ const DashboardLayout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      isActive ? '' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all ${
+                      isActive ? 'shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
-                    style={isActive ? { backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)' } : {}}
+                    style={isActive ? { 
+                      backgroundColor: 'var(--brand-color)', 
+                      color: 'var(--brand-text-color)',
+                      boxShadow: 'var(--brand-glow)'
+                    } : {}}
                   >
                     <item.icon
                       className={`mr-3 flex-shrink-0 h-5 w-5 ${

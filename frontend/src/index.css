@@ -3,8 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --brand-color: #000000;
+  --brand-color: #4f46e5;
   --brand-text-color: #ffffff;
+  --brand-primary: #4f46e5;
+  --brand-primary-rgb: 79, 70, 229;
+  --brand-dark: #3730a3;
+  --brand-light: #6366f1;
+  --brand-tint: rgba(79, 70, 229, 0.08);
+  --brand-tint-strong: rgba(79, 70, 229, 0.16);
+  --brand-border: rgba(79, 70, 229, 0.22);
+  --brand-glow: 0 10px 25px -5px rgba(79, 70, 229, 0.35);
+  --brand-gradient: linear-gradient(135deg, #4f46e5 0%, #3730a3 55%, #0f172a 100%);
 }
 
 @layer base {

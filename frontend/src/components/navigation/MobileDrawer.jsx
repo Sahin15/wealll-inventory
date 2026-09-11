@@ -50,7 +50,8 @@ const MobileDrawer = ({ isOpen, onClose, user, overflowRoutes }) => {
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 relative" style={{ backgroundColor: 'var(--brand-tint)' }}>
+          <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'var(--brand-gradient)' }} />
           <div>
             <h2 className="font-semibold text-gray-900">{user?.tenantId?.businessName || 'Menu'}</h2>
             <p className="text-xs text-gray-500">{user?.name}</p>

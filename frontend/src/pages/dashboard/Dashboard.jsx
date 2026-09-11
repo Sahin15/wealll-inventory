@@ -105,13 +105,29 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [chartMetric, setChartMetric] = useState('revenue'); // 'revenue' | 'orders'
 
-  // Contextual time-based greeting
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }, []);
+  // Multi-language Pan-Indian greetings
+  const greetingsList = useMemo(() => [
+    'Namaste',
+    'Nomoshkar',
+    'Vanakkam',
+    'Aadaab',
+    'Namaskar',
+    'Sat Shri Akaal',
+    'Khurumjari',
+    'Namaskara',
+    'Welcome'
+  ], []);
+
+  const [greetingIndex, setGreetingIndex] = useState(() => Math.floor(Math.random() * 8));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setGreetingIndex(prev => (prev + 1) % greetingsList.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [greetingsList]);
+
+  const currentGreeting = greetingsList[greetingIndex];
 
   const fetchDashboard = async (isManualRefresh = false) => {
     try {
@@ -171,14 +187,27 @@ const Dashboard = () => {
       {/* ========================================================================= */}
       {/* 1. EXECUTIVE HERO HEADER & QUICK ACTION BAR                                */}
       {/* ========================================================================= */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-indigo-700/30">
-        {/* Subtle Decorative Pattern */}
-        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute left-1/3 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div 
+        className="relative overflow-hidden rounded-2xl text-white p-6 sm:p-8 shadow-xl border transition-all"
+        style={{
+          background: 'var(--brand-gradient)',
+          borderColor: 'var(--brand-border)',
+          boxShadow: 'var(--brand-glow)'
+        }}
+      >
+        {/* Subtle Ambient Glow Orbs */}
+        <div 
+          className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full blur-3xl pointer-events-none opacity-25" 
+          style={{ backgroundColor: 'var(--brand-primary)' }}
+        />
+        <div 
+          className="absolute left-1/3 top-0 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-20" 
+          style={{ backgroundColor: 'var(--brand-light)' }}
+        />
 
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-indigo-200 shadow-inner">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white/90 shadow-inner">
               <Sparkles size={13} className="text-amber-300" />
               <span>{user?.tenantId?.businessName || user?.tenantId?.appName || 'Business Workspace'}</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -186,20 +215,30 @@ const Dashboard = () => {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2 flex-wrap">
-              <span>{greeting},</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-indigo-200">
+              <span 
+                key={currentGreeting}
+                onClick={() => setGreetingIndex(prev => (prev + 1) % greetingsList.length)}
+                className="inline-block transition-all duration-500 transform animate-in fade-in cursor-pointer hover:opacity-90 active:scale-95"
+                title="Click to change greeting (Namaste, Adaab, Vanakkam, Nomoshkar...)"
+              >
+                {currentGreeting}
+              </span>
+              <span>,</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-gray-200">
                 {user?.name || user?.tenantId?.ownerName || 'Admin'}
               </span>
               <span>👋</span>
             </h1>
 
-            <p className="text-sm text-indigo-200/80 flex items-center gap-2 flex-wrap font-medium">
-              <Calendar size={14} className="text-indigo-300" />
+            <p className="text-sm text-white/80 flex items-center gap-2 flex-wrap font-medium">
+              <span>Here's what's happening at <strong className="text-white font-semibold">{user?.tenantId?.businessName || user?.tenantId?.appName || 'your business'}</strong> today.</span>
+              <span className="text-white/40">•</span>
+              <Calendar size={14} className="text-white/70" />
               <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
-              <span className="text-indigo-400/50">•</span>
+              <span className="text-white/40">•</span>
               <span>{data.totalProducts} catalog products</span>
-              <span className="text-indigo-400/50">•</span>
-              <span>{data.totalClasses || 0} active batches</span>
+              <span className="text-white/40">•</span>
+              <span>{data.totalClasses || 0} batches</span>
             </p>
           </div>
 
@@ -219,7 +258,7 @@ const Dashboard = () => {
                   to="/classes" 
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold backdrop-blur-sm border border-white/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <BookOpen size={16} className="text-indigo-200" />
+                  <BookOpen size={16} className="text-white/80" />
                   <span>Schedule Batch</span>
                 </Link>
 
@@ -237,7 +276,7 @@ const Dashboard = () => {
             <button
               onClick={() => fetchDashboard(true)}
               disabled={refreshing}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-indigo-200 hover:text-white border border-white/15 transition-all shadow-sm"
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white border border-white/15 transition-all shadow-sm"
               title="Refresh Dashboard Data"
             >
               <RefreshCw size={17} className={refreshing ? 'animate-spin text-white' : ''} />
@@ -276,22 +315,38 @@ const Dashboard = () => {
         <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">This Month</span>
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shadow-sm group-hover:scale-110 transition-transform">
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform"
+              style={{
+                backgroundColor: 'var(--brand-tint)',
+                color: 'var(--brand-primary)',
+                borderColor: 'var(--brand-border)'
+              }}
+            >
               <IndianRupee size={20} />
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-700 tracking-tight">
+            <div 
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight"
+              style={{ color: 'var(--brand-primary)' }}
+            >
               {formatCurrency(data.monthlySales || 0)}
             </div>
             <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-              <span className="inline-flex items-center font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
+              <span 
+                className="inline-flex items-center font-bold px-1.5 py-0.5 rounded"
+                style={{
+                  backgroundColor: 'var(--brand-tint)',
+                  color: 'var(--brand-primary)'
+                }}
+              >
                 {data.monthlyOrders || 0} orders
               </span>
               <span>in current month</span>
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: 'var(--brand-gradient)' }}></div>
         </div>
 
         {/* Card 3: Batch & Academy Collections */}
@@ -361,7 +416,7 @@ const Dashboard = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
             <div>
               <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <TrendingUp size={18} className="text-indigo-600" />
+                <TrendingUp size={18} style={{ color: 'var(--brand-primary)' }} />
                 <span>Sales & Volume Performance</span>
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">
@@ -376,9 +431,10 @@ const Dashboard = () => {
                   onClick={() => setChartMetric('revenue')}
                   className={`px-3 py-1.5 rounded-lg transition-all ${
                     chartMetric === 'revenue' 
-                      ? 'bg-white text-indigo-700 shadow-sm' 
+                      ? 'bg-white shadow-sm' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
+                  style={chartMetric === 'revenue' ? { color: 'var(--brand-primary)' } : {}}
                 >
                   Revenue (₹)
                 </button>
@@ -386,16 +442,24 @@ const Dashboard = () => {
                   onClick={() => setChartMetric('orders')}
                   className={`px-3 py-1.5 rounded-lg transition-all ${
                     chartMetric === 'orders' 
-                      ? 'bg-white text-indigo-700 shadow-sm' 
+                      ? 'bg-white shadow-sm' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
+                  style={chartMetric === 'orders' ? { color: 'var(--brand-primary)' } : {}}
                 >
                   Orders Volume
                 </button>
               </div>
 
               {/* 7-Day Total Chip */}
-              <div className="hidden sm:inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-700 font-bold px-3 py-1.5 rounded-xl border border-indigo-100">
+              <div 
+                className="hidden sm:inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl border"
+                style={{
+                  backgroundColor: 'var(--brand-tint)',
+                  color: 'var(--brand-primary)',
+                  borderColor: 'var(--brand-border)'
+                }}
+              >
                 <span>7-Day:</span>
                 <span>{chartMetric === 'revenue' ? formatCurrency(chartTotals.totalRevenue) : `${chartTotals.totalOrders} orders`}</span>
               </div>
@@ -407,8 +471,8 @@ const Dashboard = () => {
               <AreaChart data={data.dailyTrends} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="dashboardRevenueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor={user?.tenantId?.brandColor || '#6366f1'} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={user?.tenantId?.brandColor || '#6366f1'} stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="dashboardOrdersGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
@@ -425,14 +489,14 @@ const Dashboard = () => {
                 <YAxis 
                   tick={{ fontSize: 11, fill: '#64748b' }} 
                   axisLine={false} 
-                  tickLine={false}
+                  tickLine={false} 
                   tickFormatter={val => chartMetric === 'revenue' ? (val >= 1000 ? `₹${(val / 1000).toFixed(0)}k` : `₹${val}`) : val}
                 />
                 <Tooltip content={<DashboardChartTooltip />} />
                 <Area 
                   type="monotone" 
                   dataKey={chartMetric} 
-                  stroke={chartMetric === 'revenue' ? '#6366f1' : '#10b981'} 
+                  stroke={chartMetric === 'revenue' ? (user?.tenantId?.brandColor || '#6366f1') : '#10b981'} 
                   strokeWidth={2.5} 
                   fillOpacity={1} 
                   fill={chartMetric === 'revenue' ? 'url(#dashboardRevenueGrad)' : 'url(#dashboardOrdersGrad)'} 

@@ -11,8 +11,11 @@ app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the uploads directory under /api/uploads
-app.use('/api/uploads', express.static(path.join(__dirname, '../uploads')));
+// Serve static files from the uploads directory under /api/uploads with browser caching
+app.use('/api/uploads', express.static(path.join(__dirname, '../uploads'), {
+  maxAge: '30d',
+  immutable: true
+}));
 
 const { requireActiveSubscription } = require('./middleware/subscriptionMiddleware');
 
