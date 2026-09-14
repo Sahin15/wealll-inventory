@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'icons.svg'], // we'll use actual files
       manifest: {
-        name: 'WeAlll Inventory',
-        short_name: 'WeAlll',
+        name: 'Inventory',
+        short_name: 'Inventory',
         description: 'Smart multi-tenant business inventory, sales and operations system',
         theme_color: '#4f46e5',
         background_color: '#f8fafc',

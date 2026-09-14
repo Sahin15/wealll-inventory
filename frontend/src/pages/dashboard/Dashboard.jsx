@@ -739,9 +739,9 @@ const Dashboard = () => {
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <span>Reorder & Low Stock Watchlist</span>
+                  <span className="shrink-0">Reorder & Low Stock Watchlist</span>
                   {lowStockCount > 0 && (
-                    <span className="bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap">
+                    <span className="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-rose-800 bg-rose-100 rounded-full whitespace-nowrap shrink-0">
                       {lowStockCount} ALERT{lowStockCount === 1 ? '' : 'S'}
                     </span>
                   )}
