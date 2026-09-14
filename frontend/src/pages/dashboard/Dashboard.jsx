@@ -732,24 +732,24 @@ const Dashboard = () => {
         {/* CARD 3: REORDER & LOW STOCK WATCHLIST (Row 2 Left)                      */}
         {/* ======================================================================= */}
         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-amber-50/40 to-transparent">
-            <div className="flex items-center gap-2.5">
-              <div className={`p-2 rounded-xl ${lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-600'}`}>
+          <div className="p-4 sm:p-5 border-b border-gray-100 flex items-start sm:items-center justify-between gap-2 bg-gradient-to-r from-amber-50/40 to-transparent">
+            <div className="flex items-start sm:items-center gap-2.5">
+              <div className={`p-2 rounded-xl shrink-0 mt-0.5 sm:mt-0 ${lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-600'}`}>
                 <AlertTriangle size={18} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <h3 className="text-base font-bold text-gray-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <span>Reorder & Low Stock Watchlist</span>
                   {lowStockCount > 0 && (
-                    <span className="bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                    <span className="bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap">
                       {lowStockCount} ALERT{lowStockCount === 1 ? '' : 'S'}
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-gray-500">Products currently below replenishment threshold</p>
+                <p className="text-xs text-gray-500 mt-0.5 sm:mt-0">Products currently below replenishment threshold</p>
               </div>
             </div>
-            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 shrink-0 whitespace-nowrap pt-1 sm:pt-0">
               <span>Manage stock</span>
               <ChevronRight size={14} />
             </Link>
