@@ -72,7 +72,7 @@ const Landing = () => {
   const { user } = React.useContext(AuthContext);
 
   useEffect(() => {
-    document.title = "Best Inventory System for Small Businesses | WeAlll";
+    document.title = "Inventory | Smart Inventory for Small Businesses";
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');

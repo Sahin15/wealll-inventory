@@ -540,24 +540,24 @@ const Dashboard = () => {
         {/* CARD 1: RECENT INVOICES & SALES (Row 1 Left)                            */}
         {/* ======================================================================= */}
         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+          <div className="p-5 border-b border-gray-100 flex items-center gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
                 <ShoppingCart size={18} />
               </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                  <span>Recent Invoices & Sales</span>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h3 className="text-base font-bold text-gray-900 truncate">Recent Invoices & Sales</h3>
+                <div className="flex items-center gap-2 min-w-0">
                   {data.recentSales?.length > 0 && (
-                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold leading-none whitespace-nowrap shrink-0">
                       Latest {Math.min(5, data.recentSales.length)}
                     </span>
                   )}
-                </h3>
-                <p className="text-xs text-gray-500">Live retail and counter transaction stream</p>
+                  <p className="text-xs text-gray-500 truncate min-w-0">Live retail and counter transaction stream</p>
+                </div>
               </div>
             </div>
-            <Link to="/sales" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <Link to="/sales" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1 shrink-0 whitespace-nowrap">
               <span>All sales</span>
               <ChevronRight size={14} />
             </Link>
@@ -635,24 +635,24 @@ const Dashboard = () => {
         {/* CARD 2: RECENT STOCK MOVEMENTS (Row 1 Right)                            */}
         {/* ======================================================================= */}
         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+          <div className="p-5 border-b border-gray-100 flex items-center gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+              <div className="p-2 rounded-xl bg-blue-50 text-blue-600 shrink-0">
                 <Layers size={18} />
               </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                  <span>Recent Stock Movements</span>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h3 className="text-base font-bold text-gray-900 truncate">Recent Stock Movements</h3>
+                <div className="flex items-center gap-2 min-w-0">
                   {data.recentMovements?.length > 0 && (
-                    <span className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-extrabold leading-none whitespace-nowrap shrink-0">
                       Latest {Math.min(5, data.recentMovements.length)}
                     </span>
                   )}
-                </h3>
-                <p className="text-xs text-gray-500">Live ledger of purchases, shipments, & adjustments</p>
+                  <p className="text-xs text-gray-500 truncate min-w-0">Live ledger of purchases, shipments, & adjustments</p>
+                </div>
               </div>
             </div>
-            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1 shrink-0 whitespace-nowrap">
               <span>View ledger</span>
               <ChevronRight size={14} />
             </Link>
@@ -732,24 +732,24 @@ const Dashboard = () => {
         {/* CARD 3: REORDER & LOW STOCK WATCHLIST (Row 2 Left)                      */}
         {/* ======================================================================= */}
         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
-          <div className="p-4 sm:p-5 border-b border-gray-100 flex items-start sm:items-center justify-between gap-2 bg-gradient-to-r from-amber-50/40 to-transparent">
-            <div className="flex items-start sm:items-center gap-2.5">
-              <div className={`p-2 rounded-xl shrink-0 mt-0.5 sm:mt-0 ${lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-600'}`}>
+          <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center gap-3 bg-gradient-to-r from-amber-50/40 to-transparent">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+              <div className={`p-2 rounded-xl shrink-0 ${lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-600'}`}>
                 <AlertTriangle size={18} />
               </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <span className="shrink-0">Reorder & Low Stock Watchlist</span>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h3 className="text-base font-bold text-gray-900 truncate">Reorder & Low Stock Watchlist</h3>
+                <div className="flex items-center gap-2 min-w-0">
                   {lowStockCount > 0 && (
-                    <span className="inline-flex items-center justify-center px-2 py-1 text-[10px] font-bold leading-none text-rose-800 bg-rose-100 rounded-full whitespace-nowrap shrink-0">
+                    <span className="inline-flex items-center justify-center h-5 px-2 rounded-full text-[10px] font-extrabold leading-none text-rose-800 bg-rose-100 whitespace-nowrap shrink-0">
                       {lowStockCount} ALERT{lowStockCount === 1 ? '' : 'S'}
                     </span>
                   )}
-                </h3>
-                <p className="text-xs text-gray-500 mt-0.5 sm:mt-0">Products currently below replenishment threshold</p>
+                  <p className="text-xs text-gray-500 truncate min-w-0">Products currently below replenishment threshold</p>
+                </div>
               </div>
             </div>
-            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 shrink-0 whitespace-nowrap pt-1 sm:pt-0">
+            <Link to="/stock" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1 shrink-0 whitespace-nowrap">
               <span>Manage stock</span>
               <ChevronRight size={14} />
             </Link>
@@ -828,24 +828,24 @@ const Dashboard = () => {
         {/* CARD 4: UPCOMING BATCHES & CLASSES (Row 2 Right)                         */}
         {/* ======================================================================= */}
         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col h-full">
-          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
+          <div className="p-5 border-b border-gray-100 flex items-center gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+              <div className="p-2 rounded-xl bg-purple-50 text-purple-600 shrink-0">
                 <BookOpen size={18} />
               </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                  <span>Upcoming Batches & Classes</span>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h3 className="text-base font-bold text-gray-900 truncate">Upcoming Batches & Classes</h3>
+                <div className="flex items-center gap-2 min-w-0">
                   {data.upcomingBatches?.length > 0 && (
-                    <span className="bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-extrabold leading-none whitespace-nowrap shrink-0">
                       Next {Math.min(5, data.upcomingBatches.length)}
                     </span>
                   )}
-                </h3>
-                <p className="text-xs text-gray-500">Upcoming cohort dates and student enrollment levels</p>
+                  <p className="text-xs text-gray-500 truncate min-w-0">Upcoming cohort dates and student enrollment levels</p>
+                </div>
               </div>
             </div>
-            <Link to="/classes" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <Link to="/classes" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1 shrink-0 whitespace-nowrap">
               <span>View all</span>
               <ChevronRight size={14} />
             </Link>

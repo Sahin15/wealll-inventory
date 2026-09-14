@@ -10,6 +10,7 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'icons.svg'], // we'll use actual files
       manifest: {
+        id: '/',
         name: 'Inventory',
         short_name: 'Inventory',
         description: 'Smart multi-tenant business inventory, sales and operations system',
@@ -17,6 +18,9 @@ export default defineConfig({
         background_color: '#f8fafc',
         display: 'standalone',
         orientation: 'portrait-primary',
+        start_url: '/',
+        scope: '/',
+        lang: 'en',
         icons: [
           {
             src: 'icons/icon-192x192.png',
