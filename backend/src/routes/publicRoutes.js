@@ -1,7 +1,10 @@
 const express = require('express');
 const GlobalSettings = require('../models/GlobalSettings');
+const { getPublicPricing } = require('../controllers/publicPricingController');
 
 const router = express.Router();
+
+router.get('/pricing', getPublicPricing);
 
 router.get('/settings', async (req, res) => {
   try {

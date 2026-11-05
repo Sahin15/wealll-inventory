@@ -31,74 +31,7 @@ import {
   PRIMARY_QUICK_SWATCHES, 
   SECONDARY_QUICK_SWATCHES 
 } from '../../utils/colorUtils';
-
-const PLAN_ORDER = ['free', 'starter', 'professional', 'business'];
-
-const DEFAULT_SUBSCRIPTION_PLANS = [
-  {
-    _id: 'plan_free_tier',
-    name: 'Free',
-    slug: 'free',
-    description: 'Essential starter tools for solo artists and new studios exploring the platform.',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    features: [
-      'Up to 25 Products',
-      'Basic Inventory Tracking',
-      '1 Admin User',
-      'Community Support'
-    ],
-    isActive: true
-  },
-  {
-    _id: 'plan_starter_tier',
-    name: 'Starter',
-    slug: 'starter',
-    description: 'Perfect for new makeup artists or small studios just getting started.',
-    monthlyPrice: 199,
-    yearlyPrice: 1999,
-    features: [
-      'Up to 100 Products',
-      'Basic Analytics',
-      '1 Admin User',
-      'Standard Support'
-    ],
-    isActive: true
-  },
-  {
-    _id: 'plan_professional_tier',
-    name: 'Professional',
-    slug: 'professional',
-    description: 'Ideal for growing businesses needing more capacity and features.',
-    monthlyPrice: 299,
-    yearlyPrice: 3199,
-    features: [
-      'Unlimited Products',
-      'Advanced Analytics',
-      'Up to 5 Team Members',
-      'Priority Email Support',
-      'Custom Branding'
-    ],
-    isActive: true
-  },
-  {
-    _id: 'plan_business_tier',
-    name: 'Business',
-    slug: 'business',
-    description: 'For established salons and retail businesses with large teams.',
-    monthlyPrice: 599,
-    yearlyPrice: 6500,
-    features: [
-      'Unlimited Products & Categories',
-      'Full Reporting Suite',
-      'Unlimited Team Members',
-      'White-label Experience',
-      '24/7 Phone Support',
-      'Dedicated Account Manager'
-    ],
-    isActive: true
-  }
-];
+import { formatInr, getPlanDisplayPricing, getChargeAmount } from '../../utils/planPricing';
 
 const MySpace = () => {
   const { user } = useContext(AuthContext);
@@ -141,54 +74,52 @@ const MySpace = () => {
   
   const [subscription, setSubscription] = useState(null);
   const [plans, setPlans] = useState([]);
+  const [pricingConfig, setPricingConfig] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const [selectedQuote, setSelectedQuote] = useState(null);
 
-  const displayPlans = React.useMemo(() => {
-    const backendMap = new Map();
-    (plans || []).forEach(p => {
-      const slug = (p.slug || p.name || '').toLowerCase();
-      backendMap.set(slug, p);
-    });
+  const displayPlans = React.useMemo(() => (
+    (plans || [])
+      .filter((p) => p.isActive)
+      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0) || (a.monthlyPrice - b.monthlyPrice))
+  ), [plans]);
 
-    return PLAN_ORDER.map(slug => {
-      const dbPlan = backendMap.get(slug);
-      const defaultPlan = DEFAULT_SUBSCRIPTION_PLANS.find(p => p.slug === slug);
-      if (dbPlan) {
-        return {
-          ...defaultPlan,
-          ...dbPlan,
-          description: dbPlan.description || defaultPlan?.description,
-          features: dbPlan.features?.length ? dbPlan.features : defaultPlan?.features
-        };
-      }
-      return defaultPlan;
-    }).filter(Boolean);
-  }, [plans]);
-
-  // Dynamic recommendation: next upgraded plan from current tier, or 'professional' for new/plan-less users
   const recommendedPlanSlug = React.useMemo(() => {
-    const currentPlanSlug = 
-      (subscription?.planId?.slug || subscription?.planId?.name || '').toLowerCase();
+    const paidPlans = displayPlans.filter((p) => (p.monthlyPrice || 0) > 0);
+    const currentPlanSlug = (subscription?.planId?.slug || '').toLowerCase();
+    const currentIndex = paidPlans.findIndex((p) => (p.slug || '').toLowerCase() === currentPlanSlug);
 
-    // First time user or no active plan -> Recommend Professional
-    if (!currentPlanSlug || !subscription) {
-      return 'professional';
+    if (currentIndex === -1) {
+      return paidPlans.find((p) => p.isRecommended)?.slug?.toLowerCase() || paidPlans[0]?.slug?.toLowerCase() || null;
     }
 
-    // Always recommend next upgraded tier in hierarchy: Free -> Starter -> Professional -> Business
-    if (currentPlanSlug === 'free') {
-      return 'starter';
+    return paidPlans[currentIndex + 1]?.slug?.toLowerCase() || null;
+  }, [displayPlans, subscription]);
+
+  useEffect(() => {
+    if (!pricingConfig) return;
+    if (pricingConfig.isMonthlyBillingEnabled) {
+      setBillingCycle('monthly');
+    } else if (pricingConfig.isYearlyBillingEnabled) {
+      setBillingCycle('yearly');
     }
-    if (currentPlanSlug === 'starter') {
-      return 'professional';
+  }, [pricingConfig]);
+
+  const handleSelectPlan = async (plan) => {
+    try {
+      const res = await api.post('/subscriptions/quote', {
+        planId: plan._id,
+        billingCycle,
+      });
+      if (res.data?.success) {
+        setSelectedQuote(res.data.data);
+        setShowPaymentModal(true);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Unable to validate plan pricing.');
     }
-    if (currentPlanSlug === 'professional') {
-      return 'business';
-    }
-    // Already on top tier (Business)
-    return null;
-  }, [subscription]);
+  };
 
   const fetchData = async () => {
     try {
@@ -215,6 +146,7 @@ const MySpace = () => {
       if (subRes && subRes.data.success) {
         setSubscription(subRes.data.data.subscription);
         setPlans(subRes.data.data.plans || []);
+        setPricingConfig(subRes.data.data.pricingConfig || null);
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -919,24 +851,32 @@ const MySpace = () => {
                 </div>
 
                 {/* Cycle Switcher */}
-                <div className="bg-gray-100 p-1 rounded-xl inline-flex text-xs font-bold self-start sm:self-auto">
-                  <button
-                    onClick={() => setBillingCycle('monthly')}
-                    className={`px-3.5 py-1.5 rounded-lg transition-all ${
-                      billingCycle === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
-                    }`}
-                  >
-                    Monthly Billing
-                  </button>
-                  <button
-                    onClick={() => setBillingCycle('yearly')}
-                    className={`px-3.5 py-1.5 rounded-lg transition-all ${
-                      billingCycle === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
-                    }`}
-                  >
-                    Annual (Save 20%)
-                  </button>
-                </div>
+                {(pricingConfig?.isMonthlyBillingEnabled !== false || pricingConfig?.isYearlyBillingEnabled !== false) && (
+                  <div className="bg-gray-100 p-1 rounded-xl inline-flex text-xs font-bold self-start sm:self-auto">
+                    {pricingConfig?.isMonthlyBillingEnabled !== false && (
+                      <button
+                        onClick={() => setBillingCycle('monthly')}
+                        className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                          billingCycle === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        Monthly Billing
+                      </button>
+                    )}
+                    {pricingConfig?.isYearlyBillingEnabled !== false && (
+                      <button
+                        onClick={() => setBillingCycle('yearly')}
+                        className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                          billingCycle === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        {pricingConfig?.annualDiscountPercentage > 0
+                          ? `Annual (Save ${pricingConfig.annualDiscountPercentage}%)`
+                          : 'Annual Billing'}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Current Subscription Card */}
@@ -961,8 +901,10 @@ const MySpace = () => {
 
                     <div className="flex flex-col items-start sm:items-end gap-2">
                       <div className="text-2xl font-extrabold text-gray-900">
-                        ₹{billingCycle === 'yearly' ? subscription.planId?.yearlyPrice || 0 : subscription.planId?.monthlyPrice || 0}
-                        <span className="text-xs font-normal text-gray-500 ml-1">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
+                        ₹{formatInr(getChargeAmount(subscription.planId, subscription.billingCycle || 'monthly'))}
+                        <span className="text-xs font-normal text-gray-500 ml-1">
+                          /{(subscription.billingCycle || 'monthly') === 'yearly' ? 'year' : 'month'}
+                        </span>
                       </div>
                       <button
                         onClick={() => setShowPaymentModal(true)}
@@ -993,7 +935,7 @@ const MySpace = () => {
                         (subscription?.planId?.slug && subscription.planId.slug.toLowerCase() === p.slug?.toLowerCase()) ||
                         (subscription?.planId?.name && subscription.planId.name.toLowerCase() === p.name?.toLowerCase());
                       const isRecommended = !isCurrent && recommendedPlanSlug === (p.slug || '').toLowerCase();
-                      const price = billingCycle === 'yearly' ? p.yearlyPrice : p.monthlyPrice;
+                      const display = getPlanDisplayPricing(p, billingCycle);
                       return (
                         <div
                           key={p.slug || p._id}
@@ -1021,19 +963,30 @@ const MySpace = () => {
                             </div>
                             <p className="text-xs text-gray-500 mb-4 min-h-[32px]">{p.description}</p>
 
-                            <div className="text-2xl font-extrabold text-gray-900 mb-4 flex items-baseline">
-                              {price === 0 ? (
-                                <>
+                            <div className="mb-4">
+                              {(p.monthlyPrice || 0) === 0 ? (
+                                <div className="text-2xl font-extrabold text-gray-900 flex items-baseline">
                                   <span>Free</span>
-                                  <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 ml-2">
-                                    ₹0
-                                  </span>
                                   <span className="text-xs font-normal text-gray-400 ml-1">/{billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
-                                </>
+                                </div>
                               ) : (
                                 <>
-                                  <span>₹{price}</span>
-                                  <span className="text-xs font-normal text-gray-400 ml-1">/{billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                                  <div className="text-2xl font-extrabold text-gray-900 flex items-baseline">
+                                    <span>₹{formatInr(display.headlineAmount)}</span>
+                                    <span className="text-xs font-normal text-gray-400 ml-1">{display.headlineSuffix}</span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-500 mt-1">{display.billingNote}</p>
+                                  {billingCycle === 'yearly' && display.subline && (
+                                    <div className="mt-2 space-y-0.5">
+                                      <p className="text-xs font-semibold text-gray-700">{display.subline}</p>
+                                      {display.strikeAmount > 0 && (
+                                        <p className="text-xs text-gray-400 line-through">₹{formatInr(display.strikeAmount)}</p>
+                                      )}
+                                      {display.savingsLabel && (
+                                        <p className="text-[11px] font-bold text-emerald-600">{display.savingsLabel}</p>
+                                      )}
+                                    </div>
+                                  )}
                                 </>
                               )}
                             </div>
@@ -1049,7 +1002,7 @@ const MySpace = () => {
                           </div>
 
                           <button
-                            onClick={() => !isCurrent && setShowPaymentModal(true)}
+                            onClick={() => !isCurrent && handleSelectPlan(p)}
                             className={`w-full py-2.5 min-h-[44px] px-4 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                               isCurrent
                                 ? 'bg-indigo-100 text-indigo-700 cursor-default shadow-xs'
@@ -1093,6 +1046,13 @@ const MySpace = () => {
           <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
             We are currently integrating automated card, UPI, and net-banking gateways. To upgrade your tier or adjust plan limits immediately, please connect with our support desk.
           </p>
+          {selectedQuote && (
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-left text-xs text-gray-700 space-y-1">
+              <p><span className="font-semibold">Plan:</span> {selectedQuote.planName}</p>
+              <p><span className="font-semibold">Billing:</span> {selectedQuote.billingCycle}</p>
+              <p><span className="font-semibold">Validated amount:</span> ₹{formatInr(selectedQuote.amount)} {selectedQuote.currency}</p>
+            </div>
+          )}
         </div>
       </AdaptiveSheet>
     </div>

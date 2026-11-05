@@ -9,6 +9,7 @@ import {
 import wealllLogo from '../../assets/wealll-logo.jpg';
 import wealllMiniLogo from '../../assets/wealll-mini-logo.png';
 import wealllFullLogo from '../../assets/wealll-full-logo.png';
+import LandingPricingSection from '../../components/pricing/LandingPricingSection';
 
 const features = [
   { 
@@ -124,6 +125,7 @@ const Landing = () => {
             <nav className="hidden md:flex items-center gap-8">
               <button onClick={() => scrollToSection('features')} className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Features</button>
               <button onClick={() => scrollToSection('benefits')} className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Benefits</button>
+              <button onClick={() => scrollToSection('pricing')} className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Pricing</button>
               <div className="flex items-center gap-4 ml-4">
                 <Link to="/login" className="text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors">Sign In</Link>
                 <Link to="/register" className="text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-2.5 rounded-lg shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(99,102,241,0.6)] transition-all duration-300 hover:-translate-y-0.5 border border-white/20">
@@ -151,6 +153,7 @@ const Landing = () => {
             <div className="px-4 pt-2 pb-6 flex flex-col space-y-4">
               <button onClick={() => scrollToSection('features')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Features</button>
               <button onClick={() => scrollToSection('benefits')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Benefits</button>
+              <button onClick={() => scrollToSection('pricing')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Pricing</button>
               <div className="h-px bg-slate-100 my-2 mx-4"></div>
               <Link to="/login" onClick={closeMobileMenu} className="px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sign In</Link>
               <Link to="/register" onClick={closeMobileMenu} className="mx-4 text-center text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-3.5 rounded-xl shadow-md transition-all">
@@ -478,6 +481,8 @@ const Landing = () => {
           </div>
         </section>
 
+        <LandingPricingSection />
+
         {/* ACCESS ANYWHERE / TRUST ROW */}
         <section className="py-16 bg-white border-y border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -554,6 +559,7 @@ const Landing = () => {
               <ul className="space-y-3">
                 <li><button onClick={() => scrollToSection('features')} className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Features</button></li>
                 <li><button onClick={() => scrollToSection('benefits')} className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Benefits</button></li>
+                <li><button onClick={() => scrollToSection('pricing')} className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Pricing</button></li>
                 <li><Link to="/login" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Sign In</Link></li>
                 <li><Link to="/register" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Apply for Registration</Link></li>
               </ul>

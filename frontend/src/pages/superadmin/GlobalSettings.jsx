@@ -12,7 +12,11 @@ const GlobalSettings = () => {
     defaultTaxRate: 0,
     maintenanceMode: false,
     announcementText: '',
-    freeTrialDays: 14
+    freeTrialDays: 14,
+    annualDiscountPercentage: 20,
+    currency: 'INR',
+    isMonthlyBillingEnabled: true,
+    isYearlyBillingEnabled: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -56,7 +60,32 @@ const GlobalSettings = () => {
 
     setSaving(true);
     try {
-      await api.put('/superadmin/settings', settings);      
+      const payload = {
+        ...settings,
+        defaultTaxRate: Number(settings.defaultTaxRate) || 0,
+        freeTrialDays: Number(settings.freeTrialDays),
+        annualDiscountPercentage: Number(settings.annualDiscountPercentage),
+      };
+
+      if (payload.annualDiscountPercentage < 0 || payload.annualDiscountPercentage > 100) {
+        toast.error('Annual discount must be between 0 and 100%.');
+        setSaving(false);
+        return;
+      }
+
+      if (payload.freeTrialDays < 0) {
+        toast.error('Free trial days cannot be negative.');
+        setSaving(false);
+        return;
+      }
+
+      if (!payload.isMonthlyBillingEnabled && !payload.isYearlyBillingEnabled) {
+        toast.error('At least one billing option must remain enabled.');
+        setSaving(false);
+        return;
+      }
+
+      await api.put('/superadmin/settings', payload);
       alert({
         title: 'Settings Saved',
         message: 'Global settings saved successfully!',
@@ -167,6 +196,68 @@ const GlobalSettings = () => {
                   <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400 font-medium">Days</div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-indigo-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+          <div className="px-8 py-6 border-b border-indigo-100 bg-indigo-50/40 flex items-center gap-3">
+            <Receipt className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Subscription Pricing</h3>
+          </div>
+
+          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700">Annual Discount for Yearly Billing</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  name="annualDiscountPercentage"
+                  value={settings.annualDiscountPercentage ?? 20}
+                  onChange={handleChange}
+                  min="0"
+                  max="100"
+                  step="1"
+                  className="w-full pl-4 pr-12 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all text-gray-900 bg-gray-50 hover:bg-white focus:bg-white outline-none"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400 font-medium">%</div>
+              </div>
+              <p className="text-xs text-gray-500">Used to calculate yearly prices from monthly plan rates.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700">Billing Currency</label>
+              <input
+                type="text"
+                name="currency"
+                value={settings.currency || 'INR'}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all text-gray-900 bg-gray-50 hover:bg-white focus:bg-white outline-none uppercase"
+              />
+            </div>
+
+            <div className="md:col-span-2 flex flex-col sm:flex-row gap-6">
+              <label className="inline-flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isMonthlyBillingEnabled"
+                  checked={settings.isMonthlyBillingEnabled !== false}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-800">Monthly Billing Enabled</span>
+              </label>
+
+              <label className="inline-flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isYearlyBillingEnabled"
+                  checked={settings.isYearlyBillingEnabled !== false}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-800">Yearly Billing Enabled</span>
+              </label>
             </div>
           </div>
         </div>

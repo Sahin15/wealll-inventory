@@ -5,6 +5,19 @@ const GlobalSettings = require('../models/GlobalSettings');
 const Subscription = require('../models/Subscription');
 const SubscriptionPlan = require('../models/SubscriptionPlan');
 const bcrypt = require('bcryptjs');
+const { calculateAnnualPricing } = require('../utils/pricingUtils');
+const {
+  getOrCreateGlobalSettings,
+  buildPricingConfig,
+  enrichPlanWithPricing,
+  syncAllPlanYearlyPrices,
+} = require('../services/pricingService');
+
+const applyComputedYearlyPrice = (planPayload, pricingConfig) => {
+  if (planPayload.monthlyPrice === undefined) return planPayload;
+  const annual = calculateAnnualPricing(Number(planPayload.monthlyPrice), pricingConfig.annualDiscountPercentage);
+  return { ...planPayload, yearlyPrice: annual.discountedAnnualPrice };
+};
 
 exports.getGlobalSettings = async (req, res) => {
   try {
@@ -25,14 +38,56 @@ exports.updateGlobalSettings = async (req, res) => {
       settings = await GlobalSettings.create({});
     }
     
-    const allowedFields = ['maintenanceMode', 'announcementText', 'defaultTaxRate', 'platformName', 'supportEmail', 'freeTrialDays'];
+    const allowedFields = [
+      'maintenanceMode',
+      'announcementText',
+      'defaultTaxRate',
+      'platformName',
+      'supportEmail',
+      'freeTrialDays',
+      'annualDiscountPercentage',
+      'currency',
+      'isMonthlyBillingEnabled',
+      'isYearlyBillingEnabled',
+    ];
+
+    if (req.body.annualDiscountPercentage !== undefined) {
+      const discount = Number(req.body.annualDiscountPercentage);
+      if (Number.isNaN(discount) || discount < 0 || discount > 100) {
+        return res.status(400).json({ success: false, error: 'Annual discount must be between 0 and 100.' });
+      }
+    }
+
+    if (req.body.freeTrialDays !== undefined) {
+      const trialDays = Number(req.body.freeTrialDays);
+      if (Number.isNaN(trialDays) || trialDays < 0) {
+        return res.status(400).json({ success: false, error: 'Free trial days cannot be negative.' });
+      }
+    }
+
+    const nextMonthlyEnabled = req.body.isMonthlyBillingEnabled ?? settings.isMonthlyBillingEnabled;
+    const nextYearlyEnabled = req.body.isYearlyBillingEnabled ?? settings.isYearlyBillingEnabled;
+    if (!nextMonthlyEnabled && !nextYearlyEnabled) {
+      return res.status(400).json({ success: false, error: 'At least one billing option must remain enabled.' });
+    }
+
     allowedFields.forEach(field => {
       if (req.body[field] !== undefined) {
         settings[field] = req.body[field];
       }
     });
 
+    if (req.user?._id) {
+      settings.pricingUpdatedBy = req.user._id;
+    }
+
     await settings.save();
+
+    if (req.body.annualDiscountPercentage !== undefined) {
+      const pricingConfig = buildPricingConfig(settings);
+      await syncAllPlanYearlyPrices(pricingConfig);
+    }
+
     res.json({ success: true, data: settings });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
@@ -245,7 +300,7 @@ exports.approveApplication = async (req, res) => {
 
     // Create a free trial subscription based on global settings
     const settings = await GlobalSettings.findOne() || {};
-    const trialDays = settings.freeTrialDays || 7;
+    const trialDays = settings.freeTrialDays ?? 14;
 
     const starterPlan = await SubscriptionPlan.findOne({ slug: 'starter' });
     if (starterPlan) {
@@ -324,7 +379,7 @@ exports.updateTenantSubscription = async (req, res) => {
     if (!subscription) {
       const defaultPlan = await SubscriptionPlan.findOne({ isRecommended: true }) || await SubscriptionPlan.findOne();
       const settings = await GlobalSettings.findOne() || {};
-      const trialDays = settings.freeTrialDays || 7;
+      const trialDays = settings.freeTrialDays ?? 14;
       
       const start = new Date();
       const end = new Date();
@@ -382,8 +437,14 @@ exports.updateTenantSubscription = async (req, res) => {
 
 exports.getPlans = async (req, res) => {
   try {
-    const plans = await SubscriptionPlan.find();
-    res.json({ success: true, data: plans });
+    const settings = await getOrCreateGlobalSettings();
+    const pricingConfig = buildPricingConfig(settings);
+    const plans = await SubscriptionPlan.find().sort({ displayOrder: 1, monthlyPrice: 1 });
+    res.json({
+      success: true,
+      data: plans.map((plan) => enrichPlanWithPricing(plan, pricingConfig)),
+      pricingConfig,
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
   }
@@ -394,8 +455,11 @@ exports.createPlan = async (req, res) => {
     if (req.body.isRecommended) {
       await SubscriptionPlan.updateMany({}, { isRecommended: false });
     }
-    const plan = await SubscriptionPlan.create(req.body);
-    res.status(201).json({ success: true, data: plan });
+    const settings = await getOrCreateGlobalSettings();
+    const pricingConfig = buildPricingConfig(settings);
+    const payload = applyComputedYearlyPrice(req.body, pricingConfig);
+    const plan = await SubscriptionPlan.create(payload);
+    res.status(201).json({ success: true, data: enrichPlanWithPricing(plan, pricingConfig) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
   }
@@ -406,9 +470,12 @@ exports.updatePlan = async (req, res) => {
     if (req.body.isRecommended) {
       await SubscriptionPlan.updateMany({ _id: { $ne: req.params.id } }, { isRecommended: false });
     }
-    const plan = await SubscriptionPlan.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const settings = await getOrCreateGlobalSettings();
+    const pricingConfig = buildPricingConfig(settings);
+    const payload = applyComputedYearlyPrice(req.body, pricingConfig);
+    const plan = await SubscriptionPlan.findByIdAndUpdate(req.params.id, payload, { new: true });
     if (!plan) return res.status(404).json({ success: false, error: 'Plan not found' });
-    res.json({ success: true, data: plan });
+    res.json({ success: true, data: enrichPlanWithPricing(plan, pricingConfig) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server Error' });
   }

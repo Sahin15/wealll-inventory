@@ -5,6 +5,7 @@ import api from '../../services/api';
 
 const PlanManager = () => {
   const [plans, setPlans] = useState([]);
+  const [pricingConfig, setPricingConfig] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -22,6 +23,7 @@ const PlanManager = () => {
       const res = await api.get('/superadmin/plans');
       if (res.data.success) {
         setPlans(res.data.data);
+        setPricingConfig(res.data.pricingConfig || null);
       }
       setLoading(false);
     } catch (err) {
@@ -82,7 +84,7 @@ const PlanManager = () => {
         <button 
           onClick={() => {
             setEditingPlan({
-              name: '', slug: '', description: '', monthlyPrice: '', yearlyPrice: '', features: [''], isActive: true, isRecommended: false
+              name: '', slug: '', description: '', monthlyPrice: '', features: [''], isActive: true, isRecommended: false, displayOrder: 0, badgeText: ''
             });
             setIsCreating(true);
           }}
@@ -126,12 +128,27 @@ const PlanManager = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Monthly Price (₹)</label>
-                      <input type="number" required className="input-field mt-1" value={editingPlan.monthlyPrice} onChange={(e) => setEditingPlan({...editingPlan, monthlyPrice: e.target.value === '' ? '' : Number(e.target.value)})} />
+                      <input type="number" required min="0" className="input-field mt-1" value={editingPlan.monthlyPrice} onChange={(e) => setEditingPlan({...editingPlan, monthlyPrice: e.target.value === '' ? '' : Number(e.target.value)})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Yearly Price (₹)</label>
-                      <input type="number" required className="input-field mt-1" value={editingPlan.yearlyPrice} onChange={(e) => setEditingPlan({...editingPlan, yearlyPrice: e.target.value === '' ? '' : Number(e.target.value)})} />
+                      <label className="block text-sm font-medium text-gray-700">Display Order</label>
+                      <input type="number" min="0" className="input-field mt-1" value={editingPlan.displayOrder ?? 0} onChange={(e) => setEditingPlan({...editingPlan, displayOrder: Number(e.target.value) || 0})} />
                     </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700">Badge Text (optional)</label>
+                      <input type="text" className="input-field mt-1" placeholder="e.g. Most Popular" value={editingPlan.badgeText || ''} onChange={(e) => setEditingPlan({...editingPlan, badgeText: e.target.value})} />
+                    </div>
+                    {editingPlan.monthlyPrice !== '' && pricingConfig && (
+                      <div className="sm:col-span-2 rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 text-sm text-indigo-900">
+                        <p className="font-semibold mb-1">Auto-calculated yearly pricing</p>
+                        <p>
+                          With {pricingConfig.annualDiscountPercentage}% annual discount:{' '}
+                          <span className="font-bold">
+                            ₹{Math.round((Number(editingPlan.monthlyPrice) || 0) * 12 * (1 - (pricingConfig.annualDiscountPercentage / 100)))}/year
+                          </span>
+                        </p>
+                      </div>
+                    )}
                     
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
@@ -240,9 +257,21 @@ const PlanManager = () => {
                 </h4>
                 <p className="text-sm text-gray-500 mb-6">{plan.description}</p>
                 
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-4xl font-extrabold text-gray-900">₹{billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}</span>
-                  <span className="text-base font-medium text-gray-500 mb-1">/{billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                <div className="mb-6">
+                  {billingCycle === 'yearly' ? (
+                    <>
+                      <div className="flex items-end gap-1">
+                        <span className="text-4xl font-extrabold text-gray-900">₹{plan.pricing?.billing?.yearly?.effectiveMonthlyPrice ?? plan.yearlyPrice}</span>
+                        <span className="text-base font-medium text-gray-500 mb-1">/mo</span>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-700 mt-1">₹{plan.pricing?.billing?.yearly?.amount ?? plan.yearlyPrice}/year</p>
+                    </>
+                  ) : (
+                    <div className="flex items-end gap-1">
+                      <span className="text-4xl font-extrabold text-gray-900">₹{plan.monthlyPrice}</span>
+                      <span className="text-base font-medium text-gray-500 mb-1">/mo</span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="space-y-3 mb-8 flex-grow">
