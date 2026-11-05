@@ -7,9 +7,25 @@ import {
   Truck, Receipt, Users, Zap, AlertCircle
 } from 'lucide-react';
 import wealllLogo from '../../assets/wealll-logo.jpg';
-import wealllMiniLogo from '../../assets/wealll-mini-logo.png';
-import wealllFullLogo from '../../assets/wealll-full-logo.png';
+import wealllFooterLogo from '../../assets/wealll-full-logo-cropped.png';
 import LandingPricingSection from '../../components/pricing/LandingPricingSection';
+
+const LANDING_SECTION_PY = 'py-14 sm:py-20 lg:py-24';
+
+const SHOWCASE_ROWS = [
+  { name: 'Premium Foundation', cat: 'Cosmetics', status: 'In Stock', price: '₹1,200', tone: 'emerald' },
+  { name: 'Matte Lipstick Set', cat: 'Cosmetics', status: 'Low Stock', price: '₹850', tone: 'amber' },
+  { name: 'Professional Brush Kit', cat: 'Tools', status: 'In Stock', price: '₹2,400', tone: 'emerald' },
+  { name: 'Setting Spray 100ml', cat: 'Cosmetics', status: 'Out of Stock', price: '₹950', tone: 'rose' },
+  { name: 'Skincare Bundle', cat: 'Skincare', status: 'In Stock', price: '₹3,500', tone: 'emerald' },
+  { name: 'Rose Gold Highlighter', cat: 'Cosmetics', status: 'In Stock', price: '₹1,100', tone: 'emerald' },
+];
+
+const STATUS_BADGE_CLASS = {
+  emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  amber: 'bg-amber-50 text-amber-700 border-amber-200',
+  rose: 'bg-rose-50 text-rose-700 border-rose-200',
+};
 
 const features = [
   { 
@@ -83,6 +99,25 @@ const Landing = () => {
     metaDesc.content = "WeAlll Inventory helps small businesses manage products, stock, purchases and sales in one simple inventory management system.";
   }, []);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
   if (user) {
     if (user.role === 'superadmin') return <Navigate to="/wealll-admin" replace />;
     return <Navigate to="/dashboard" replace />;
@@ -110,16 +145,28 @@ const Landing = () => {
         }
         .animate-float { animation: float 6s ease-in-out infinite; }
         .animate-float-delayed { animation: float-delayed 7s ease-in-out 2s infinite; }
+        @media (max-width: 1023px) {
+          .animate-float, .animate-float-delayed { animation: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-float, .animate-float-delayed { animation: none !important; }
+        }
       `}</style>
 
       {/* Navigation */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-50/80 to-violet-50/80 backdrop-blur-xl border-b border-white/50 shadow-sm transition-all">
+      <header className="sticky top-0 z-50 pt-safe bg-gradient-to-r from-blue-50/80 to-violet-50/80 backdrop-blur-xl border-b border-white/50 shadow-sm transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
-            <div className="flex items-center group cursor-pointer h-16 sm:h-20 overflow-visible">
-              <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[4] origin-left" />
-            </div>
+            <Link to="/" className="inline-flex items-center shrink-0 min-h-[44px]" aria-label="WeAlll Inventory home">
+              <img
+                src={wealllFooterLogo}
+                alt="WeAlll Inventory"
+                width={168}
+                height={36}
+                className="h-8 sm:h-9 w-auto object-contain"
+              />
+            </Link>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-8">
@@ -137,9 +184,11 @@ const Landing = () => {
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
               <button 
+                type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none"
+                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 aria-label="Toggle mobile menu"
+                aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -150,13 +199,13 @@ const Landing = () => {
         {/* Mobile Nav Overlay */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-xl animate-in slide-in-from-top-2 duration-200">
-            <div className="px-4 pt-2 pb-6 flex flex-col space-y-4">
-              <button onClick={() => scrollToSection('features')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Features</button>
-              <button onClick={() => scrollToSection('benefits')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Benefits</button>
-              <button onClick={() => scrollToSection('pricing')} className="text-left px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Pricing</button>
-              <div className="h-px bg-slate-100 my-2 mx-4"></div>
-              <Link to="/login" onClick={closeMobileMenu} className="px-4 py-3 text-base font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sign In</Link>
-              <Link to="/register" onClick={closeMobileMenu} className="mx-4 text-center text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-3.5 rounded-xl shadow-md transition-all">
+            <div className="px-3 pt-2 pb-6 pb-safe flex flex-col gap-1">
+              <button type="button" onClick={() => scrollToSection('features')} className="text-left w-full min-h-[44px] px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Features</button>
+              <button type="button" onClick={() => scrollToSection('benefits')} className="text-left w-full min-h-[44px] px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Benefits</button>
+              <button type="button" onClick={() => scrollToSection('pricing')} className="text-left w-full min-h-[44px] px-4 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">Pricing</button>
+              <div className="h-px bg-slate-100 my-2 mx-2" />
+              <Link to="/login" onClick={closeMobileMenu} className="w-full min-h-[44px] px-4 py-3 flex items-center text-base font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sign In</Link>
+              <Link to="/register" onClick={closeMobileMenu} className="mx-1 text-center min-h-[44px] flex items-center justify-center text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-3.5 rounded-xl shadow-md transition-all">
                 Get Started &rarr;
               </Link>
             </div>
@@ -166,7 +215,7 @@ const Landing = () => {
 
       <main>
         {/* HERO SECTION */}
-        <section className="relative pt-16 pb-24 md:pt-28 md:pb-32 overflow-hidden">
+        <section className="relative pt-10 pb-14 sm:pt-16 md:pt-28 md:pb-32 overflow-hidden">
           {/* Subtle Background Gradients */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0 flex justify-center">
             {/* Left Blue Glow */}
@@ -178,7 +227,7 @@ const Landing = () => {
           </div>
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-12">
+            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
               
               {/* Hero Content (Left) */}
               <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start w-full">
@@ -189,7 +238,7 @@ const Landing = () => {
                   </span>
                 </div>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6 animate-in fade-in slide-in-from-bottom-6 duration-500 delay-100">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6 animate-in fade-in slide-in-from-bottom-6 duration-500 delay-100">
                   The Best Inventory System<br className="hidden sm:block" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-fuchsia-600 to-violet-600">for Small Businesses</span>
                 </h1>
                 
@@ -206,12 +255,37 @@ const Landing = () => {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-12 duration-500 delay-500">
-                  <Link to="/register" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] hover:shadow-[0_15px_35px_-5px_rgba(99,102,241,0.6)] hover:-translate-y-1 transition-all duration-300 border border-white/20">
+                  <Link to="/register" className="w-full sm:w-auto min-h-[44px] bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold shadow-[0_10px_25px_-5px_rgba(99,102,241,0.5)] hover:shadow-[0_15px_35px_-5px_rgba(99,102,241,0.6)] hover:-translate-y-1 transition-all duration-300 border border-white/20">
                     Get Started &rarr;
                   </Link>
-                  <Link to="/login" className="w-full sm:w-auto bg-white text-slate-700 border border-slate-200 flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-300">
+                  <Link to="/login" className="w-full sm:w-auto min-h-[44px] bg-white text-slate-700 border border-slate-200 flex justify-center items-center gap-2 text-base py-3.5 px-8 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all duration-300">
                     Sign In
                   </Link>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 w-full max-w-md mt-8 lg:hidden">
+                  <div className="bg-white/90 backdrop-blur p-3 rounded-2xl shadow-md border border-white/50 text-left">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                        <TrendingUp className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Sales Today</div>
+                        <div className="text-sm font-black text-slate-900">+₹2,500</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/90 backdrop-blur p-3 rounded-2xl shadow-md border border-white/50 text-left">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                        <AlertCircle className="w-4 h-4 text-amber-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Low Stock</div>
+                        <div className="text-sm font-black text-slate-900">12 Items</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -244,7 +318,7 @@ const Landing = () => {
                 </div>
 
                 {/* Main Dashboard Mockup */}
-                <div className="relative p-[2px] rounded-2xl bg-gradient-to-br from-blue-500/50 via-fuchsia-500/30 to-violet-500/50 shadow-[0_30px_60px_-15px_rgba(59,130,246,0.3)] transform lg:rotate-1 hover:rotate-0 transition-transform duration-500 group animate-float">
+                <div className="relative p-[2px] rounded-2xl bg-gradient-to-br from-blue-500/50 via-fuchsia-500/30 to-violet-500/50 shadow-[0_30px_60px_-15px_rgba(59,130,246,0.3)] transform lg:rotate-1 hover:rotate-0 transition-transform duration-500 group lg:animate-float">
                   <div className="relative rounded-[14px] bg-white/95 backdrop-blur-md overflow-hidden">
                     
                     {/* Subtle outer glow on hover */}
@@ -255,13 +329,13 @@ const Landing = () => {
                     <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                    <div className="ml-4 w-64 h-5 bg-white border border-slate-200 rounded text-[10px] text-slate-400 flex items-center px-2 shadow-sm font-mono">
+                    <div className="ml-2 sm:ml-4 hidden sm:flex max-w-[140px] md:max-w-none md:w-64 h-5 bg-white border border-slate-200 rounded text-[10px] text-slate-400 items-center px-2 shadow-sm font-mono truncate">
                       wealll.com/dashboard
                     </div>
                   </div>
                   
                   {/* Mockup Content */}
-                  <div className="flex h-[380px] sm:h-[480px]">
+                  <div className="flex h-[300px] sm:h-[380px] md:h-[480px]">
                     {/* Sidebar */}
                     <div className="w-16 sm:w-48 border-r border-slate-100 bg-white/50 p-3 flex flex-col gap-3">
                       <div className="h-9 bg-blue-50 rounded-lg flex items-center px-2 gap-2 text-blue-600">
@@ -332,14 +406,14 @@ const Landing = () => {
         </section>
 
         {/* BENEFITS SECTION */}
-        <section id="benefits" className="py-24 bg-white relative z-10 border-y border-slate-100/50">
+        <section id="benefits" className={`${LANDING_SECTION_PY} bg-white relative z-10 border-y border-slate-100/50`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Stop Managing Inventory the Hard Way</h2>
               <p className="text-base sm:text-lg text-slate-600">Replace spreadsheets and manual tracking with a system designed to keep your business organized effortlessly.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 lg:gap-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-12 lg:gap-16">
               
               <div className="group flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-transparent hover:border-blue-100 hover:bg-blue-50/30 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1 transition-all duration-300">
                 <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-blue-500/10 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
@@ -370,7 +444,7 @@ const Landing = () => {
         </section>
 
         {/* SMALL BUSINESS POSITIONING */}
-        <section className="py-24 bg-gradient-to-r from-blue-50 to-violet-50">
+        <section className={`${LANDING_SECTION_PY} bg-gradient-to-r from-blue-50 to-violet-50`}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6 tracking-tight">
               Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">Small & Growing Businesses</span>
@@ -382,7 +456,7 @@ const Landing = () => {
         </section>
 
         {/* FEATURES SECTION */}
-        <section id="features" className="py-24 bg-white relative">
+        <section id="features" className={`${LANDING_SECTION_PY} bg-white relative`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Everything You Need to Manage Inventory</h2>
@@ -391,7 +465,7 @@ const Landing = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {features.map((feature, idx) => (
-                <div key={idx} className={`group bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ${feature.glow} ${feature.border}`}>
+                <div key={idx} className={`group bg-white p-5 sm:p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ${feature.glow} ${feature.border}`}>
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${feature.bg} ${feature.color}`}>
                     <feature.icon className="w-7 h-7" />
                   </div>
@@ -404,7 +478,7 @@ const Landing = () => {
         </section>
 
         {/* PRODUCT SHOWCASE SECTION */}
-        <section className="py-24 bg-slate-50/30 overflow-hidden relative border-t border-slate-100">
+        <section className={`${LANDING_SECTION_PY} bg-slate-50/30 overflow-hidden relative border-t border-slate-100`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 tracking-tight">Your Business. One Simple Dashboard.</h2>
@@ -416,7 +490,7 @@ const Landing = () => {
               {/* Giant background glow */}
               <div className="absolute inset-0 bg-gradient-to-b from-blue-400/20 via-violet-400/10 to-transparent rounded-3xl blur-3xl -z-10 transform scale-110"></div>
               
-              <div className="bg-white/90 backdrop-blur-md border border-white shadow-[0_40px_80px_-20px_rgba(59,130,246,0.15)] ring-1 ring-violet-500/10 rounded-2xl overflow-hidden animate-float">
+              <div className="bg-white/90 backdrop-blur-md border border-white shadow-[0_40px_80px_-20px_rgba(59,130,246,0.15)] ring-1 ring-violet-500/10 rounded-2xl overflow-hidden lg:animate-float">
                 <div className="h-14 bg-slate-50/80 backdrop-blur border-b border-slate-100 flex items-center px-6 justify-between">
                   <div className="flex items-center gap-2">
                     <Package className="w-6 h-6 text-blue-600" />
@@ -427,7 +501,7 @@ const Landing = () => {
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row h-[450px] sm:h-[650px] bg-slate-50/50">
+                <div className="flex flex-col sm:flex-row h-[320px] sm:h-[450px] md:h-[650px] bg-slate-50/50">
                    <div className="hidden sm:block w-64 bg-white/50 border-r border-slate-100 p-5 space-y-2">
                      <div className="h-10 bg-blue-50 rounded-xl flex items-center px-3 border border-blue-100/50 text-blue-700 font-medium text-sm">
                         <LayoutDashboard className="w-4 h-4 mr-3" /> Dashboard
@@ -444,33 +518,43 @@ const Landing = () => {
                       <div className="w-56 h-7 bg-slate-200 rounded-md mb-8"></div>
                       
                       {/* Detailed Fake Table */}
-                      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
-                        <div className="h-14 border-b border-slate-100 bg-slate-50/50 flex items-center px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full overflow-y-auto">
+                        <div className="hidden sm:flex h-14 border-b border-slate-100 bg-slate-50/50 items-center px-6 text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
                            <div className="flex-1">Product Name</div>
-                           <div className="flex-1 hidden sm:block">Category</div>
+                           <div className="flex-1">Category</div>
                            <div className="flex-1">Status</div>
                            <div className="flex-1 text-right">Price</div>
                         </div>
-                        {[
-                          { name: 'Premium Foundation', cat: 'Cosmetics', status: 'In Stock', price: '₹1,200', c: 'emerald' },
-                          { name: 'Matte Lipstick Set', cat: 'Cosmetics', status: 'Low Stock', price: '₹850', c: 'amber' },
-                          { name: 'Professional Brush Kit', cat: 'Tools', status: 'In Stock', price: '₹2,400', c: 'emerald' },
-                          { name: 'Setting Spray 100ml', cat: 'Cosmetics', status: 'Out of Stock', price: '₹950', c: 'rose' },
-                          { name: 'Skincare Bundle', cat: 'Skincare', status: 'In Stock', price: '₹3,500', c: 'emerald' },
-                          { name: 'Rose Gold Highlighter', cat: 'Cosmetics', status: 'In Stock', price: '₹1,100', c: 'emerald' }
-                        ].map((row, i) => (
-                           <div key={i} className="h-16 border-b border-slate-50 flex items-center px-6 text-sm hover:bg-slate-50 transition-colors cursor-pointer">
-                             <div className="flex-1 flex items-center gap-3 pr-4">
-                                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 shadow-sm text-lg">✨</div>
-                                <div className="font-bold text-slate-800 truncate">{row.name}</div>
-                             </div>
-                             <div className="flex-1 hidden sm:block text-slate-500 font-medium truncate">{row.cat}</div>
-                             <div className="flex-1">
-                               <span className={`px-3 py-1 rounded-full text-xs font-bold border shadow-sm bg-${row.c}-50 text-${row.c}-700 border-${row.c}-200`}>
+                        {SHOWCASE_ROWS.map((row, i) => (
+                           <div key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                             <div className="sm:hidden p-4 space-y-2">
+                               <div className="flex items-start justify-between gap-3">
+                                 <div className="flex items-center gap-3 min-w-0">
+                                   <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 shadow-sm text-lg">✨</div>
+                                   <div className="min-w-0">
+                                     <div className="font-bold text-slate-800 text-sm leading-snug">{row.name}</div>
+                                     <div className="text-xs text-slate-500 mt-0.5">{row.cat}</div>
+                                   </div>
+                                 </div>
+                                 <div className="font-black text-slate-700 text-sm shrink-0">{row.price}</div>
+                               </div>
+                               <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${STATUS_BADGE_CLASS[row.tone]}`}>
                                  {row.status}
                                </span>
                              </div>
-                             <div className="flex-1 text-right font-black text-slate-700">{row.price}</div>
+                             <div className="hidden sm:flex h-16 items-center px-6 text-sm cursor-pointer">
+                               <div className="flex-1 flex items-center gap-3 pr-4 min-w-0">
+                                 <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 shadow-sm text-lg">✨</div>
+                                 <div className="font-bold text-slate-800 truncate">{row.name}</div>
+                               </div>
+                               <div className="flex-1 text-slate-500 font-medium truncate">{row.cat}</div>
+                               <div className="flex-1">
+                                 <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${STATUS_BADGE_CLASS[row.tone]}`}>
+                                   {row.status}
+                                 </span>
+                               </div>
+                               <div className="flex-1 text-right font-black text-slate-700">{row.price}</div>
+                             </div>
                            </div>
                         ))}
                       </div>
@@ -484,7 +568,7 @@ const Landing = () => {
         <LandingPricingSection />
 
         {/* ACCESS ANYWHERE / TRUST ROW */}
-        <section className="py-16 bg-white border-y border-slate-100">
+        <section className={`${LANDING_SECTION_PY} bg-white border-y border-slate-100`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex items-start gap-5 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
@@ -519,7 +603,7 @@ const Landing = () => {
         </section>
 
         {/* FINAL CTA */}
-        <section className="py-24 sm:py-32 bg-gradient-to-br from-blue-50/80 via-white to-violet-50/80 relative overflow-hidden">
+        <section className={`${LANDING_SECTION_PY} bg-gradient-to-br from-blue-50/80 via-white to-violet-50/80 relative overflow-hidden`}>
           {/* Subtle blurred orbs */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px]"></div>
@@ -531,7 +615,7 @@ const Landing = () => {
             <p className="text-lg sm:text-xl text-slate-600 mb-10 max-w-2xl mx-auto">Start managing your stock smarter with WeAlll Inventory today.</p>
             
             <div className="flex flex-col items-center justify-center gap-6">
-              <Link to="/register" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-violet-600 text-white flex justify-center items-center gap-2 text-lg py-4 px-12 rounded-xl font-bold shadow-xl shadow-blue-500/20 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-1 transition-all duration-300">
+              <Link to="/register" className="w-full max-w-md mx-auto sm:max-w-none sm:mx-0 sm:w-auto min-h-[44px] bg-gradient-to-r from-blue-600 to-violet-600 text-white flex justify-center items-center gap-2 text-lg py-4 px-6 sm:px-12 rounded-xl font-bold shadow-xl shadow-blue-500/20 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-1 transition-all duration-300">
                 Get Started &rarr;
               </Link>
               <p className="text-slate-500 text-sm">
@@ -544,44 +628,100 @@ const Landing = () => {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-slate-50/50 border-t border-slate-200 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center mb-4 h-16 overflow-visible">
-                <img src={wealllFullLogo} alt="WeAlll Inventory" className="h-full object-contain scale-[4] origin-left" />
+      <footer className="relative mt-auto pb-safe border-t border-slate-200/80 bg-gradient-to-b from-white/70 to-slate-100/80 backdrop-blur-sm">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-300/40 to-transparent pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
+            <div className="lg:col-span-5 space-y-5">
+              <Link to="/" className="inline-flex items-center" aria-label="WeAlll Inventory home">
+                <img
+                  src={wealllFooterLogo}
+                  alt="WeAlll Inventory"
+                  width={168}
+                  height={36}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-8 sm:h-9 w-auto object-contain"
+                />
+              </Link>
+              <p className="text-sm text-slate-600 leading-relaxed max-w-md">
+                Smart inventory, sales, and stock management for small and growing businesses — one workspace, clear numbers, less spreadsheet chaos.
+              </p>
+              <Link
+                to="/register"
+                className="inline-flex w-full sm:w-auto min-h-[44px] items-center justify-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 px-5 py-2.5 rounded-lg shadow-md shadow-indigo-500/20 transition-all hover:-translate-y-0.5"
+              >
+                Start free trial
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 lg:col-span-7 lg:col-start-6 lg:grid-cols-2">
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Product</h4>
+                <ul className="space-y-1">
+                  <li>
+                    <button type="button" onClick={() => scrollToSection('features')} className="w-full text-left min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Features
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" onClick={() => scrollToSection('benefits')} className="w-full text-left min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Benefits
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" onClick={() => scrollToSection('pricing')} className="w-full text-left min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Pricing
+                    </button>
+                  </li>
+                  <li>
+                    <Link to="/login" className="min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Sign in
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/register" className="min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Apply for registration
+                    </Link>
+                  </li>
+                </ul>
               </div>
-              <p className="text-slate-500 text-sm max-w-xs leading-relaxed">Smart Inventory. Stronger Business.</p>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-slate-900 mb-5 uppercase tracking-wider text-sm">Product</h4>
-              <ul className="space-y-3">
-                <li><button onClick={() => scrollToSection('features')} className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Features</button></li>
-                <li><button onClick={() => scrollToSection('benefits')} className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Benefits</button></li>
-                <li><button onClick={() => scrollToSection('pricing')} className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Pricing</button></li>
-                <li><Link to="/login" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Sign In</Link></li>
-                <li><Link to="/register" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Apply for Registration</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-slate-900 mb-5 uppercase tracking-wider text-sm">Legal</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-sm text-slate-500 hover:text-blue-600 transition-colors">Privacy Policy</a></li>
-              </ul>
+
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Legal</h4>
+                <ul className="space-y-1">
+                  <li>
+                    <a href="#" className="min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Terms of service
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="min-h-[44px] flex items-center text-sm text-slate-600 hover:text-blue-600 transition-colors py-1">
+                      Privacy policy
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-          
-          <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-             <div className="flex items-center gap-3">
-               <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold mt-0.5">Powered by</span>
-               <a href="https://wealll.com/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                 <img src={wealllLogo} alt="WeAlll" className="h-5 object-contain transition-all" />
-               </a>
-             </div>
-             <p className="text-sm text-slate-400 font-medium">© {new Date().getFullYear()} WeAlll. All rights reserved.</p>
+
+          <div className="mt-10 pt-6 border-t border-slate-200/80 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p className="text-xs sm:text-sm text-slate-500">
+              © {new Date().getFullYear()} WeAlll. All rights reserved.
+            </p>
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by</span>
+              <a
+                href="https://wealll.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-md px-2 py-1 hover:bg-white/80 transition-colors"
+              >
+                <img src={wealllLogo} alt="WeAlll" className="h-5 w-auto object-contain" loading="lazy" />
+              </a>
+            </div>
           </div>
         </div>
       </footer>

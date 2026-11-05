@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const GlobalSettings = require('../src/models/GlobalSettings');
 const SubscriptionPlan = require('../src/models/SubscriptionPlan');
@@ -66,11 +67,12 @@ async function seedSubscriptionPricing() {
       settings = await GlobalSettings.create({});
     }
 
-    settings.freeTrialDays = settings.freeTrialDays ?? 14;
-    settings.annualDiscountPercentage = settings.annualDiscountPercentage ?? 20;
-    settings.currency = settings.currency || 'INR';
-    settings.isMonthlyBillingEnabled = settings.isMonthlyBillingEnabled !== false;
-    settings.isYearlyBillingEnabled = settings.isYearlyBillingEnabled !== false;
+    // Seed applies the business baseline; Super Admin can change values later in the dashboard.
+    settings.freeTrialDays = 14;
+    settings.annualDiscountPercentage = 20;
+    settings.currency = 'INR';
+    settings.isMonthlyBillingEnabled = true;
+    settings.isYearlyBillingEnabled = true;
     await settings.save();
 
     const discount = settings.annualDiscountPercentage;

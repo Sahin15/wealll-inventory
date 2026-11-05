@@ -21,6 +21,7 @@ async function fetchPublicPricing() {
 
 export function invalidatePublicPricingCache() {
   cachedPayload = null;
+  inFlightPromise = null;
 }
 
 export default function usePublicPricing() {
